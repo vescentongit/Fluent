@@ -1,0 +1,231 @@
+import React, { useState } from 'react';
+import { 
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView,
+  Dimensions, SafeAreaView, KeyboardAvoidingView, Platform 
+} from 'react-native';
+import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import { ChevronLeft, Plus, Trash2, Edit2, CreditCard, Calendar as CalendarIcon } from 'lucide-react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
+
+const { width } = Dimensions.get('window');
+
+const DebtScreen = ({ navigation }) => {
+  const [debts, setDebts] = useState([
+    { id: Date.now().toString(), name: '', nominal: '', dueDate: new Date(), dueDateText: 'Select Date', interest: '' }
+  ]);
+
+  const [showPicker, setShowPicker] = useState(false);
+  const [activeDebtId, setActiveDebtId] = useState(null);
+
+  const addDebt = () => {
+    const newDebt = { 
+      id: Date.now().toString(), 
+      name: '', 
+      nominal: '', 
+      dueDate: new Date(), 
+      dueDateText: 'Select Date', 
+      interest: '' 
+    };
+    setDebts([...debts, newDebt]);
+  };
+
+  const removeDebt = (id) => {
+    setDebts(debts.filter(debt => debt.id !== id));
+  };
+
+  const updateDebt = (id, field, value) => {
+    setDebts(debts.map(debt => 
+      debt.id === id ? { ...debt, [field]: value } : debt
+    ));
+  };
+
+  const onDateChange = (event, selectedDate) => {
+    setShowPicker(false); 
+    
+    if (selectedDate && activeDebtId) {
+      const options = { day: '2-digit', month: 'short', year: 'numeric' };
+      const dateString = selectedDate.toLocaleDateString('en-GB', options);
+      
+      setDebts(debts.map(debt => 
+        debt.id === activeDebtId 
+          ? { ...debt, dueDate: selectedDate, dueDateText: dateString } 
+          : debt
+      ));
+    }
+  };
+
+  const openDatePicker = (id) => {
+    setActiveDebtId(id);
+    setShowPicker(true);
+  };
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.headerContainer}>
+        <Svg height="240" width={width} viewBox={`0 0 ${width} 240`} style={styles.svg}>
+          <Defs>
+            <LinearGradient id="headerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <Stop offset="0%" stopColor="#48CAE4" stopOpacity="1" />
+              <Stop offset="50%" stopColor="#76D7EB" stopOpacity="1" />
+              <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="1" />
+            </LinearGradient>
+          </Defs>
+          <Path fill="rgba(0, 0, 0, 0.04)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 8)" />
+          <Path fill="rgba(0, 0, 0, 0.08)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 4)" />
+          <Path fill="url(#headerGrad)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} />
+        </Svg>
+        
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <ChevronLeft color="#FFFFFF" size={32} />
+        </TouchableOpacity>
+
+        <View style={styles.assetPlaceholder}>
+          <Image source={require('../assets/expense.png')} style={styles.logo} resizeMode="contain" />
+        </View>
+      </View>
+
+      <KeyboardAvoidingView style={{ flex: 1 }}>
+        <SafeAreaView style={styles.safeArea}>
+          <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+            <View style={styles.content}>
+              <Text style={styles.questionText}>List your current outstanding <Text style={styles.emphasis}>debts</Text>.</Text>
+
+              {debts.map((debt) => (
+                <View key={debt.id} style={styles.debtCard}>
+                  <View style={styles.debtHeader}>
+                    <CreditCard color="#023E8A" size={20} style={{ marginRight: 8 }} />
+                    <TextInput
+                      style={styles.debtNameInput}
+                      placeholder="Debt Name : KPR, KTA..."
+                      value={debt.name}
+                      onChangeText={(text) => updateDebt(debt.id, 'name', text)}
+                    />
+                  </View>
+                  
+                  <View style={styles.divider} />
+
+                  <View style={styles.debtDetailsRow}>
+                    <View style={styles.detailColumn}>
+                      <Text style={styles.detailLabel}>Nominal (Rp)</Text>
+                      <TextInput
+                        style={styles.detailInput}
+                        placeholder="Rp 0"
+                        keyboardType="numeric"
+                        value={debt.nominal}
+                        onChangeText={(text) => updateDebt(debt.id, 'nominal', text)}
+                      />
+                    </View>
+
+                    <View style={styles.detailColumn}>
+                      <Text style={styles.detailLabel}>Due Date</Text>
+                      <TouchableOpacity 
+                        style={styles.datePickerButton} 
+                        onPress={() => openDatePicker(debt.id)}
+                      >
+                        <Text style={[styles.detailInputText, debt.dueDateText === 'Select Date' && {color: '#CBD5E0'}]}>
+                          {debt.dueDateText}
+                        </Text>
+                        <CalendarIcon color="#023E8A" size={14} />
+                      </TouchableOpacity>
+                    </View>
+
+                    <View style={styles.detailColumnSmall}>
+                      <Text style={styles.detailLabel1}>Interest (%)</Text>
+                      <TextInput
+                        style={styles.detailInput}
+                        placeholder="0"
+                        keyboardType="numeric"
+                        value={debt.interest}
+                        onChangeText={(text) => updateDebt(debt.id, 'interest', text)}
+                      />
+                    </View>
+                  </View>
+
+                  <View style={styles.actionRow}>
+                    <TouchableOpacity onPress={() => removeDebt(debt.id)}>
+                      <Trash2 color="#E53E3E" size={18} />
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              ))}
+
+              <TouchableOpacity style={styles.addDebtButton} onPress={addDebt}>
+                <Plus color="#023E8A" size={20} style={{ marginRight: 8 }} />
+                <Text style={styles.addDebtText}>Add Debt</Text>
+              </TouchableOpacity>
+            </View>
+          </ScrollView>
+
+          {showPicker && (
+            <DateTimePicker
+              value={debts.find(d => d.id === activeDebtId)?.dueDate || new Date()}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={onDateChange}
+            />
+          )}
+
+          <View style={styles.bottomContainer}>
+            <View style={styles.progressSection}>
+              <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '80%' }]} /></View>
+              <Text style={styles.progressText}>4 out of 5</Text>
+            </View>
+            <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('EconomicPreferences')}>
+              <Text style={styles.continueText}>Continue</Text>
+            </TouchableOpacity>
+          </View>
+        </SafeAreaView>
+      </KeyboardAvoidingView>
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: { flex: 1, backgroundColor: '#FFFFFF' },
+  emphasis : {color: '#eb2929'},
+  headerContainer: { height: 210, position: 'relative' },
+  svg: { position: 'absolute', top: 0 },
+  backButton: { position: 'absolute', top: 60, left: 20, zIndex: 20 },
+  assetPlaceholder: { flex: 1, justifyContent: 'center', alignItems: 'center', zIndex: 10, marginTop: -20 },
+  logo: { width: 150, height: 150, top: 5, },
+  safeArea: { flex: 1, justifyContent: 'space-between' },
+  scrollContent: { flexGrow: 1, paddingBottom: 20 },
+  content: { paddingHorizontal: 24, marginTop: 10 },
+  questionText: { fontSize: 24, fontWeight: 'bold', color: '#023E8A', marginBottom: 20, lineHeight: 32 },
+  debtCard: { backgroundColor: '#FAFCFF', borderWidth: 1.5, borderColor: '#023E8A', borderRadius: 16, padding: 16, marginBottom: 20 },
+  debtHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12 },
+  debtNameInput: { flex: 1, fontSize: 16, fontWeight: '600', color: '#023E8A', padding: 0 },
+  divider: { height: 1, backgroundColor: '#E2E8F0', marginBottom: 12 },
+  debtDetailsRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
+  detailColumn: { flex: 2 },
+  detailColumnSmall: { flex: 1, marginTop: 3 },
+  detailLabel: { fontSize: 11, color: '#023E8A', fontWeight: 'bold', marginBottom: 6 },
+  detailLabel1: { fontSize: 9, color: '#023E8A', fontWeight: 'bold', marginBottom: 6 },
+  detailInput: { borderWidth: 1, borderColor: '#023E8A', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 6, fontSize: 13, color: '#1A202C', backgroundColor: '#FFFFFF', fontWeight: 'bold' },
+  
+  datePickerButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 1,
+    borderColor: '#023E8A',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 8, 
+    backgroundColor: '#FFFFFF',
+  },
+  detailInputText: { fontSize: 11, fontWeight: 'bold', color: '#1A202C' },
+  
+  actionRow: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
+  addDebtButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#023E8A', borderRadius: 24, paddingVertical: 12, backgroundColor: '#F8FAFC', marginBottom: 20 },
+  addDebtText: { fontSize: 16, fontWeight: 'bold', color: '#023E8A' },
+  bottomContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: 30, paddingTop: 30 },
+  progressSection: { flexDirection: 'column' },
+  progressWrapper: { height: 6, width: 100, backgroundColor: '#b4dff7', borderRadius: 3, marginBottom: 8 },
+  progressBar: { height: '100%', backgroundColor: '#023E8A', borderRadius: 3 },
+  progressText: { fontSize: 12, color: '#4A5568', fontWeight: '600' },
+  continueButton: { backgroundColor: '#023E8A', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 12 },
+  continueText: { color: '#FFFFFF', fontSize: 15, fontWeight: 'bold' },
+});
+
+export default DebtScreen;
