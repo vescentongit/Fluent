@@ -1,4 +1,4 @@
-import React, { useState, useContext, useMemo } from 'react';
+import React, { useState, useContext, useMemo, useEffect } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView, Platform, Dimensions 
 } from 'react-native';
@@ -10,10 +10,12 @@ import {
 } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native'; 
 import { TransactionContext } from '../context/TransactionContext';
+import { getResilienceScore } from '../services/api';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
+  const [score, setScore] = useState(0);
   const [showNotif, setShowNotif] = useState(false);
   const navigation = useNavigation(); 
   
@@ -46,6 +48,14 @@ const HomeScreen = () => {
 
   const baseBalance = 67476767;
   const currentBalance = baseBalance + totalIncomeNum - totalExpenseNum;
+
+  useEffect(() => {
+  const loadData = async () => {
+    const data = await getResilienceScore('user-123');
+    setScore(data.score); 
+  };
+  loadData();
+}, []);
 
   return (
     <View style={styles.container}>
@@ -168,7 +178,7 @@ const HomeScreen = () => {
               <Text style={styles.smallCardTitle}>Resilience Score</Text>
               <ShieldCheck color="#38A169" size={16} />
             </View>
-            <Text style={styles.smallCardValue}>67<Text style={styles.smallCardSub}>/100</Text></Text>
+            <Text style={styles.smallCardValue}>{score}<Text style={styles.smallCardSub}>/100</Text></Text>
             <View style={styles.progressBarBg}>
               <LinearGradient colors={['#38A169', '#2B58CE']} start={{x:0, y:0}} end={{x:1, y:0}} style={[styles.progressBarFill, {width: '67%'}]} />
             </View>
