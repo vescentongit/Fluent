@@ -51,15 +51,15 @@ const RegisterScreen = ({ navigation }) => {
         setLevel(1);
         navigation.navigate('Loading'); // ← ke Login setelah register berhasil
       } else if (data.detail) {
-        alert(`Failed: ${data.detail}`); // ← tampilkan pesan error dari backend
+        alert(`${t('common.failed', 'Failed')}: ${data.detail}`); // ← tampilkan pesan error dari backend
       } else {
         const errorMsg = typeof data.detail === 'string' 
           ? data.detail 
-          : 'Email might already be registered. Try a different email.';
+          : t('auth.emailExists', 'Email might already be registered. Try a different email.');
       }
     } catch (e) {
       console.error('Register error:', e);
-      alert('Cannot connect to server.');
+      alert(t('common.serverError', 'Cannot connect to server.'));
     }
   };
 
@@ -94,7 +94,7 @@ const RegisterScreen = ({ navigation }) => {
               onChangeText={setName} // ← tambah ini
             />
 
-            <Text style={styles.label}>Email</Text>
+            <Text style={styles.label}>{t('auth.emailAddress', 'Email')}</Text>
             <TextInput 
               style={styles.input} 
               placeholder="nathan@std.stei.itb.ac.id" 

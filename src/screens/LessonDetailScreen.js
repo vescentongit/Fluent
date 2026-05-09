@@ -8,8 +8,10 @@ import {
 import { LessonContext } from '../context/LessonContext';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const LessonDetailScreen = ({ route, navigation }) => {
+  const { t } = useTranslation();
   const { lessonId = 1, courseId = 'budgeting101' } = route.params || {};
   const { markLessonDone, courses } = useContext(LessonContext);
   const { userImage, formatCurrency, currencySymbol } = useContext(UserContext);
@@ -86,7 +88,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
             </View>
           </View>
         </View>
-        <Text style={styles.videoDuration}>{currentLessonData.duration || 'Watch Video'}</Text>
+        <Text style={styles.videoDuration}>{currentLessonData.duration || t('lesson.watchVideo', 'Watch Video')}</Text>
       </TouchableOpacity>
     );
   };
@@ -807,7 +809,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <View style={styles.headerTop}>
           <TouchableOpacity style={styles.backButtonWrapper} onPress={() => navigation.goBack()}>
             <ChevronLeft color={colors.primary} size={20} />
-            <Text style={styles.backButtonText}>Back to Lessons</Text>
+            <Text style={styles.backButtonText}>{t('lesson.backToLessons', 'Back to Lessons')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -828,7 +830,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
             {isCompleted && (
               <>
                 <CheckCircle2 color={colors.success} size={14} fill={isDarkMode ? 'rgba(56,161,105,0.2)' : '#E6FFFA'} style={{ marginLeft: 8 }} />
-                <Text style={styles.metaComplete}>Completed</Text>
+                <Text style={styles.metaComplete}>{t('lesson.completed', 'Completed')}</Text>
               </>
             )}
           </View>
@@ -842,7 +844,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
           >
             <CheckCircle2 color={isCompleted ? colors.textMuted : colors.white} size={20} />
             <Text style={[styles.completeButtonText, isCompleted && { color: colors.textMuted }]}>
-              {isCompleted ? "Completed" : "Mark as complete"}
+              {isCompleted ? t('lesson.completed', 'Completed') : t('lesson.markAsComplete', 'Mark as complete')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -852,11 +854,11 @@ const LessonDetailScreen = ({ route, navigation }) => {
       <View style={styles.bottomNavbar}>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
           <Home color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navText}>{t('nav.home', 'Home')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Wallet')}>
           <Wallet color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Wallet</Text>
+          <Text style={styles.navText}>{t('nav.wallet', 'Wallet')}</Text>
         </TouchableOpacity>
         <View style={styles.fabWrapper}>
           <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Chatbot')}>
@@ -865,11 +867,11 @@ const LessonDetailScreen = ({ route, navigation }) => {
         </View>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>
           <BookOpen color="#FFFFFF" size={24} />
-          <Text style={styles.navTextActive}>Learn</Text>
+          <Text style={styles.navTextActive}>{t('nav.learn', 'Learn')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
           <Image source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} style={styles.navProfileImg} />
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{t('nav.profile', 'Profile')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -896,7 +898,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
               onPress={() => Linking.openURL(videoUrl)}
             >
               <Play color="#FFFFFF" size={20} />
-              <Text style={styles.openInBrowserText}>Watch on YouTube</Text>
+              <Text style={styles.openInBrowserText}>{t('lesson.watchOnYouTube', 'Watch on YouTube')}</Text>
             </TouchableOpacity>
           </View>
         </View>

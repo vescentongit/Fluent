@@ -50,7 +50,7 @@ const EditProfileScreen = ({ navigation }) => {
     setMonthlyExpense(parseInt(tempMonthlyExpense.replace(/\./g, ''), 10) || 0);
     setTotalAssetValue(parseInt(tempAssetValue.replace(/\./g, ''), 10) || 0);
     setFinancialGoal({ title: tempGoalName, nominal: tempGoalNominal, duration: tempGoalDuration });
-    Alert.alert('Success', 'Profile updated successfully!', [
+    Alert.alert(t('common.success', 'Success'), t('profile.updateSuccess', 'Profile updated successfully!'), [
       { text: 'OK', onPress: () => navigation.goBack() }
     ]);
   };
@@ -67,8 +67,8 @@ const EditProfileScreen = ({ navigation }) => {
             <ArrowLeft color="#000000" size={26} strokeWidth={2.5} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Edit Profile</Text>
-            <Text style={styles.headerSubtitle}>Personalize your profile</Text>
+            <Text style={styles.headerTitle}>{t('profile.editProfile', 'Edit Profile')}</Text>
+            <Text style={styles.headerSubtitle}>{t('profile.personalize', 'Personalize your profile')}</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -84,31 +84,31 @@ const EditProfileScreen = ({ navigation }) => {
             }
           </TouchableOpacity>
           <TouchableOpacity onPress={pickImage}>
-            <Text style={styles.editPictureText}>Edit Picture</Text>
+            <Text style={styles.editPictureText}>{t('profile.editPicture', 'Edit Picture')}</Text>
           </TouchableOpacity>
         </View>
 
         {/* BASIC INFO */}
-        <Section title="👤 Basic Information" />
+        <Section title={`👤 ${t('profile.basicInfo', 'Basic Information')}`} />
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Name</Text>
+          <Text style={styles.inputLabel}>{t('profile.nameLabel', 'Name')}</Text>
           <TextInput style={styles.inputField} value={tempName} onChangeText={setTempName} />
         </View>
         <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-          <Text style={styles.inputLabel}>Email</Text>
+          <Text style={styles.inputLabel}>{t('auth.emailAddress', 'Email')}</Text>
           <TextInput style={styles.inputField} value={userEmail} editable={false} />
         </View>
 
         {/* INCOME */}
-        <Section title="💰 Income" />
+        <Section title={`💰 ${t('home.income', 'Income')}`} />
         <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-          <Text style={styles.inputLabel}>Income Sources</Text>
+          <Text style={styles.inputLabel}>{t('profile.incomeSources', 'Income Sources')}</Text>
           <Text style={styles.tagText}>
-            {incomeSources?.length > 0 ? incomeSources.join(', ') : 'Not set'}
+            {incomeSources?.length > 0 ? incomeSources.join(', ') : t('common.notSet', 'Not set')}
           </Text>
         </View>
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Monthly Income ({currencySymbol})</Text>
+          <Text style={styles.inputLabel}>{t('profile.monthlyIncome', 'Monthly Income')} ({currencySymbol})</Text>
           <TextInput
             style={styles.inputField}
             value={tempMonthlyIncome}
@@ -118,9 +118,9 @@ const EditProfileScreen = ({ navigation }) => {
         </View>
 
         {/* EXPENSE */}
-        <Section title="💸 Expenses" />
+        <Section title={`💸 ${t('home.expenses', 'Expenses')}`} />
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Monthly Expense ({currencySymbol})</Text>
+          <Text style={styles.inputLabel}>{t('profile.monthlySpending', 'Monthly Spending')} ({currencySymbol})</Text>
           <TextInput
             style={styles.inputField}
             value={tempMonthlyExpense}
@@ -130,15 +130,15 @@ const EditProfileScreen = ({ navigation }) => {
         </View>
 
         {/* ASSETS */}
-        <Section title="🏠 Assets" />
+        <Section title={`🏠 ${t('home.myAssets', 'My Assets')}`} />
         <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-          <Text style={styles.inputLabel}>Asset Types</Text>
+          <Text style={styles.inputLabel}>{t('assets.types', 'Asset Types')}</Text>
           <Text style={styles.tagText}>
-            {assetTypes?.length > 0 ? assetTypes.join(', ') : 'Not set'}
+            {assetTypes?.length > 0 ? assetTypes.join(', ') : t('common.notSet', 'Not set')}
           </Text>
         </View>
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Total Asset Value ({currencySymbol})</Text>
+          <Text style={styles.inputLabel}>{t('assets.totalValue', 'Total Asset Value')} ({currencySymbol})</Text>
           <TextInput
             style={styles.inputField}
             value={tempAssetValue}
@@ -148,7 +148,7 @@ const EditProfileScreen = ({ navigation }) => {
         </View>
 
         {/* DEBT */}
-        <Section title="💳 Debts" />
+        <Section title={`💳 ${t('home.myDebts', 'My Debts')}`} />
         {debts?.length > 0 ? debts.map((debt, i) => (
           <View key={i} style={[styles.inputBox, styles.inputBoxDisabled]}>
             <Text style={styles.inputLabel}>{debt.name || `Debt ${i + 1}`}</Text>
@@ -158,29 +158,29 @@ const EditProfileScreen = ({ navigation }) => {
           </View>
         )) : (
           <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-            <Text style={styles.tagText}>No debts recorded</Text>
+            <Text style={styles.tagText}>{t('profile.noDebts', 'No debts recorded')}</Text>
           </View>
         )}
 
         {/* ECONOMIC PREFERENCES */}
-        <Section title="📊 Economic Preferences" />
+        <Section title={`📊 ${t('profile.economicPreferences', 'Economic Preferences')}`} />
         <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-          <Text style={styles.inputLabel}>Financial Organization Score</Text>
+          <Text style={styles.inputLabel}>{t('profile.orgScore', 'Financial Organization Score')}</Text>
           <Text style={styles.tagText}>{organizedScore ?? 0} / 10</Text>
         </View>
         <View style={[styles.inputBox, styles.inputBoxDisabled]}>
-          <Text style={styles.inputLabel}>Risk Tolerance Score</Text>
+          <Text style={styles.inputLabel}>{t('profile.riskScore', 'Risk Tolerance Score')}</Text>
           <Text style={styles.tagText}>{riskToleranceScore ?? 0} / 10</Text>
         </View>
 
         {/* FINANCIAL GOALS */}
-        <Section title="🎯 Financial Goal" />
+        <Section title={`🎯 ${t('onboarding.goals.emphasis', 'Financial Goal').replace('.', '')}`} />
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Goal Name</Text>
+          <Text style={styles.inputLabel}>{t('onboarding.goals.goalName', 'Goal Name')}</Text>
           <TextInput style={styles.inputField} value={tempGoalName} onChangeText={setTempGoalName} />
         </View>
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Target Nominal ({currencySymbol})</Text>
+          <Text style={styles.inputLabel}>{t('onboarding.goals.targetNominal', 'Target Nominal')} ({currencySymbol})</Text>
           <TextInput
             style={styles.inputField}
             value={tempGoalNominal}
@@ -189,7 +189,7 @@ const EditProfileScreen = ({ navigation }) => {
           />
         </View>
         <View style={styles.inputBox}>
-          <Text style={styles.inputLabel}>Duration (Years)</Text>
+          <Text style={styles.inputLabel}>{t('profile.durationYears', 'Duration (Years)')}</Text>
           <TextInput
             style={styles.inputField}
             value={tempGoalDuration}
@@ -199,18 +199,18 @@ const EditProfileScreen = ({ navigation }) => {
         </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Text style={styles.saveButtonText}>Save Changes</Text>
+          <Text style={styles.saveButtonText}>{t('common.saveChanges', 'Save Changes')}</Text>
         </TouchableOpacity>
       </ScrollView>
 
       <View style={styles.bottomNavbar}>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
           <Home color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navText}>{t('nav.home', 'Home')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Wallet')}>
           <Wallet color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Wallet</Text>
+          <Text style={styles.navText}>{t('nav.wallet', 'Wallet')}</Text>
         </TouchableOpacity>
         <View style={styles.fabWrapper}>
           <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Chatbot')}>
@@ -219,14 +219,14 @@ const EditProfileScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>
           <BookOpen color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Learn</Text>
+          <Text style={styles.navText}>{t('nav.learn', 'Learn')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
           <Image
             source={userImage ? { uri: userImage } : require('../assets/user_profile.png')}
             style={styles.navProfileImg}
           />
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{t('nav.profile', 'Profile')}</Text>
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>

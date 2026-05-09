@@ -3,7 +3,9 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity, ScrollView, Platform, 
 import { X, CheckCircle2, Zap, Crown, Shield } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useNavigation } from '@react-navigation/native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -13,29 +15,18 @@ const ELITE_PRICE = 199000;
 const SubscriptionModal = ({ visible, onClose }) => {
   const { subscriptionPlan, setSubscriptionPlan, formatCurrency } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
+  const { t } = useTranslation();
   const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
+
+  const navigation = useNavigation();
 
   const handleUpgrade = (plan) => {
     if (subscriptionPlan === plan) return;
-    Alert.alert(
-      "Confirm Upgrade",
-      `Are you sure you want to upgrade to ${plan === 'plus' ? 'Fluent Plus' : 'Fluent Elite'}?`,
-      [
-        { text: "Cancel", style: "cancel" },
-        { 
-          text: "Confirm", 
-          onPress: () => {
-            // Simulated Payment
-            setTimeout(() => {
-              setSubscriptionPlan(plan);
-              Alert.alert("Success!", "Your subscription has been upgraded successfully.", [
-                { text: "Awesome", onPress: onClose }
-              ]);
-            }, 800);
-          }
-        }
-      ]
-    );
+    onClose();
+    navigation.navigate('Payment', {
+      plan,
+      price: plan === 'plus' ? PLUS_PRICE : ELITE_PRICE
+    });
   };
 
   const renderFeature = (text, included) => (
@@ -63,30 +54,30 @@ const SubscriptionModal = ({ visible, onClose }) => {
           </TouchableOpacity>
 
           <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContainer}>
-            <Text style={styles.title}>Choose Your Plan</Text>
-            <Text style={styles.subtitle}>Unlock your full financial potential.</Text>
+            <Text style={styles.title}>{t('subscription.choosePlan', 'Choose Your Plan')}</Text>
+            <Text style={styles.subtitle}>{t('subscription.unlockPotential', 'Unlock your full financial potential.')}</Text>
 
             {/* BASIC PLAN */}
             <View style={[styles.card, subscriptionPlan === 'basic' && styles.cardActiveBasic]}>
               {subscriptionPlan === 'basic' && (
-                <View style={styles.currentBadgeBasic}><Text style={styles.currentBadgeText}>CURRENT PLAN</Text></View>
+                <View style={styles.currentBadgeBasic}><Text style={styles.currentBadgeText}>{t('subscription.currentPlan', 'CURRENT PLAN').toUpperCase()}</Text></View>
               )}
               <View style={styles.cardHeader}>
                 <Shield color={colors.textMuted} size={28} />
                 <View style={styles.cardHeaderTexts}>
-                  <Text style={styles.planName}>Basic</Text>
-                  <Text style={styles.planPrice}>Free</Text>
+                  <Text style={styles.planName}>{t('subscription.basic', 'Basic')}</Text>
+                  <Text style={styles.planPrice}>{t('subscription.free', 'Free')}</Text>
                 </View>
               </View>
-              <Text style={styles.planDesc}>Experience the basics. Limited access to features.</Text>
+              <Text style={styles.planDesc}>{t('subscription.basicDesc', 'Experience the basics. Limited access to features.')}</Text>
               
               <View style={styles.featuresContainer}>
-                {renderFeature("Max 5 AI prompts / day", true)}
-                {renderFeature("Max 2 Active Goals", true)}
-                {renderFeature("Max 3 transactions / day", true)}
-                {renderFeature("Full access to lessons", true)}
-                {renderFeature("Unlimited tracking & goals", false)}
-                {renderFeature("1-on-1 Advisor Session", false)}
+                {renderFeature(t('subscription.max5Prompts', 'Max 5 AI prompts / day'), true)}
+                {renderFeature(t('subscription.max2Goals', 'Max 2 Active Goals'), true)}
+                {renderFeature(t('subscription.max3Transactions', 'Max 3 transactions / day'), true)}
+                {renderFeature(t('subscription.fullLessons', 'Full access to lessons'), true)}
+                {renderFeature(t('subscription.unlimitedTracking', 'Unlimited tracking & goals'), false)}
+                {renderFeature(t('subscription.advisorSession1', '1-on-1 Advisor Session'), false)}
               </View>
               
               <TouchableOpacity 
@@ -95,7 +86,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
                 onPress={() => setSubscriptionPlan('basic')}
               >
                 <Text style={[styles.actionButtonTextOutline, subscriptionPlan === 'basic' && styles.actionButtonTextDisabled]}>
-                  {subscriptionPlan === 'basic' ? "Current Plan" : "Downgrade"}
+                  {subscriptionPlan === 'basic' ? t('subscription.currentPlan', 'Current Plan') : t('subscription.downgrade', 'Downgrade')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -103,27 +94,27 @@ const SubscriptionModal = ({ visible, onClose }) => {
             {/* FLUENT PLUS */}
             <View style={[styles.card, styles.cardPlus, subscriptionPlan === 'plus' && styles.cardActivePlus]}>
               {subscriptionPlan !== 'plus' && (
-                <View style={styles.popularBadge}><Text style={styles.popularBadgeText}>MOST POPULAR</Text></View>
+                <View style={styles.popularBadge}><Text style={styles.popularBadgeText}>{t('subscription.mostPopular', 'MOST POPULAR')}</Text></View>
               )}
               {subscriptionPlan === 'plus' && (
-                <View style={styles.currentBadgePlus}><Text style={styles.currentBadgeText}>CURRENT PLAN</Text></View>
+                <View style={styles.currentBadgePlus}><Text style={styles.currentBadgeText}>{t('subscription.currentPlan', 'CURRENT PLAN').toUpperCase()}</Text></View>
               )}
               
               <View style={styles.cardHeader}>
                 <View style={styles.iconBgPlus}><Zap color={colors.primary} size={28} /></View>
                 <View style={styles.cardHeaderTexts}>
-                  <Text style={[styles.planName, { color: colors.primary }]}>Fluent Plus</Text>
-                  <Text style={styles.planPrice}>{formatCurrency(PLUS_PRICE)}<Text style={styles.planPriceUnit}> /mo</Text></Text>
+                  <Text style={[styles.planName, { color: colors.primary }]}>{t('subscription.fluentPlus', 'Fluent Plus')}</Text>
+                  <Text style={styles.planPrice}>{formatCurrency(PLUS_PRICE)}<Text style={styles.planPriceUnit}>{t('subscription.perMo', ' /mo')}</Text></Text>
                 </View>
               </View>
-              <Text style={styles.planDesc}>Everything you need to master your finances.</Text>
+              <Text style={styles.planDesc}>{t('subscription.plusDesc', 'Everything you need to master your finances.')}</Text>
               
               <View style={styles.featuresContainer}>
-                {renderFeature("Unlimited AI conversations", true)}
-                {renderFeature("Unlimited Active Goals", true)}
-                {renderFeature("Unlimited transaction tracking", true)}
-                {renderFeature("Full access to lessons", true)}
-                {renderFeature("1-on-1 Advisor Session", false)}
+                {renderFeature(t('subscription.unlimitedAI', 'Unlimited AI conversations'), true)}
+                {renderFeature(t('subscription.unlimitedGoals', 'Unlimited Active Goals'), true)}
+                {renderFeature(t('subscription.unlimitedTransactions', 'Unlimited transaction tracking'), true)}
+                {renderFeature(t('subscription.fullLessons', 'Full access to lessons'), true)}
+                {renderFeature(t('subscription.advisorSession1', '1-on-1 Advisor Session'), false)}
               </View>
               
               <TouchableOpacity 
@@ -132,7 +123,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
                 onPress={() => handleUpgrade('plus')}
               >
                 <Text style={[styles.actionButtonText, subscriptionPlan === 'plus' && styles.actionButtonTextDisabled]}>
-                  {subscriptionPlan === 'plus' ? "Current Plan" : "Upgrade to Plus"}
+                  {subscriptionPlan === 'plus' ? t('subscription.currentPlan', 'Current Plan') : t('subscription.upgradePlus', 'Upgrade to Plus')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -152,22 +143,22 @@ const SubscriptionModal = ({ visible, onClose }) => {
               </View>
               
               {subscriptionPlan === 'elite' && (
-                <View style={styles.currentBadgeElite}><Text style={styles.currentBadgeText}>CURRENT PLAN</Text></View>
+                <View style={styles.currentBadgeElite}><Text style={styles.currentBadgeText}>{t('subscription.currentPlan', 'CURRENT PLAN').toUpperCase()}</Text></View>
               )}
               
               <View style={styles.cardHeader}>
                 <View style={styles.iconBgElite}><Crown color="#D69E2E" size={28} /></View>
                 <View style={styles.cardHeaderTexts}>
-                  <Text style={[styles.planName, { color: '#D69E2E' }]}>Fluent Elite</Text>
-                  <Text style={styles.planPrice}>{formatCurrency(ELITE_PRICE)}<Text style={styles.planPriceUnit}> /mo</Text></Text>
+                  <Text style={[styles.planName, { color: '#D69E2E' }]}>{t('subscription.fluentElite', 'Fluent Elite')}</Text>
+                  <Text style={styles.planPrice}>{formatCurrency(ELITE_PRICE)}<Text style={styles.planPriceUnit}>{t('subscription.perMo', ' /mo')}</Text></Text>
                 </View>
               </View>
-              <Text style={styles.planDesc}>High-ticket access with real professional guidance.</Text>
+              <Text style={styles.planDesc}>{t('subscription.eliteDesc', 'High-ticket access with real professional guidance.')}</Text>
               
               <View style={styles.featuresContainer}>
-                {renderFeature("All Fluent Plus features", true)}
-                {renderFeature("2x CFP Advisor Session / month", true)}
-                {renderFeature("Priority AI responses", true)}
+                {renderFeature(t('subscription.allPlusFeatures', 'All Fluent Plus features'), true)}
+                {renderFeature(t('subscription.advisorSession2', '2x CFP Advisor Session / month'), true)}
+                {renderFeature(t('subscription.priorityAI', 'Priority AI responses'), true)}
               </View>
               
               <TouchableOpacity 
@@ -176,7 +167,7 @@ const SubscriptionModal = ({ visible, onClose }) => {
                 onPress={() => handleUpgrade('elite')}
               >
                 <Text style={[styles.actionButtonText, subscriptionPlan === 'elite' && styles.actionButtonTextDisabled, subscriptionPlan !== 'elite' && { color: '#000000' }]}>
-                  {subscriptionPlan === 'elite' ? "Current Plan" : "Upgrade to Elite"}
+                  {subscriptionPlan === 'elite' ? t('subscription.currentPlan', 'Current Plan') : t('subscription.upgradeElite', 'Upgrade to Elite')}
                 </Text>
               </TouchableOpacity>
             </View>

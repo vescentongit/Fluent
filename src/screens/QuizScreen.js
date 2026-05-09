@@ -3,8 +3,10 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'rea
 import { CheckCircle2, ArrowLeft, Trophy, X } from 'lucide-react-native';
 import { LessonContext } from '../context/LessonContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const QuizScreen = ({ route, navigation }) => {
+  const { t } = useTranslation();
   const { quizId = 1, courseId = 'budgeting101' } = route.params || {};
   const { markQuizDone, courses } = useContext(LessonContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
@@ -88,10 +90,10 @@ const QuizScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft color={colors.primary} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>{quizData.title || 'Quiz'}</Text>
-        <Text style={styles.headerDesc}>{quizData.desc || 'Test your understanding!'}</Text>
+        <Text style={styles.headerTitle}>{quizData.title || t('quiz.quiz', 'Quiz')}</Text>
+        <Text style={styles.headerDesc}>{quizData.desc || t('quiz.testUnderstanding', 'Test your understanding!')}</Text>
         <View style={styles.metaRow}>
-          <Text style={styles.metaText}>{questions.length} questions</Text>
+          <Text style={styles.metaText}>{questions.length} {t('quiz.questions', 'questions')}</Text>
           <View style={styles.xpBadge}><Text style={styles.xpText}>+ {quizData.xpReward || 50} XP</Text></View>
         </View>
       </View>
@@ -118,12 +120,12 @@ const QuizScreen = ({ route, navigation }) => {
         ))}
 
         {showError && (
-          <Text style={styles.errorText}>Please answer all questions before submitting!</Text>
+          <Text style={styles.errorText}>{t('quiz.pleaseAnswerAll', 'Please answer all questions before submitting!')}</Text>
         )}
 
         <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
           <CheckCircle2 color={colors.white} size={20} />
-          <Text style={styles.submitBtnText}>Submit Quiz</Text>
+          <Text style={styles.submitBtnText}>{t('quiz.submitQuiz', 'Submit Quiz')}</Text>
         </TouchableOpacity>
       </ScrollView>
 
@@ -133,14 +135,18 @@ const QuizScreen = ({ route, navigation }) => {
             <View style={styles.iconCircle}>
               <Trophy color={quizResults?.percentage >= 80 ? colors.success : colors.warning} size={40} />
             </View>
-            <Text style={styles.modalTitle}>Quiz Results!</Text>
+            <Text style={styles.modalTitle}>{t('quiz.results', 'Quiz Results!')}</Text>
             <Text style={styles.modalDesc}>
-              You scored {quizResults?.correct} out of {quizResults?.total} ({quizResults?.percentage}%)
+              {t('quiz.youScored', 'You scored {{correct}} out of {{total}} ({{percentage}}%)', {
+                correct: quizResults?.correct,
+                total: quizResults?.total,
+                percentage: quizResults?.percentage
+              })}
             </Text>
             {quizResults?.percentage >= 80 ? (
-              <Text style={styles.successText}>Great job! You passed the quiz! 🎉</Text>
+              <Text style={styles.successText}>{t('quiz.passed', 'Great job! You passed the quiz! 🎉')}</Text>
             ) : (
-              <Text style={styles.failText}>You need 80% or higher to pass. Keep learning and try again!</Text>
+              <Text style={styles.failText}>{t('quiz.failed', 'You need 80% or higher to pass. Keep learning and try again!')}</Text>
             )}
             <TouchableOpacity
               style={[styles.modalBtn, { backgroundColor: quizResults?.percentage >= 80 ? colors.primary : colors.border }]}
@@ -153,7 +159,7 @@ const QuizScreen = ({ route, navigation }) => {
               }}
             >
               <Text style={[styles.modalBtnText, { color: quizResults?.percentage >= 80 ? colors.white : colors.textMuted }]}>
-                {quizResults?.percentage >= 80 ? 'Claim XP & Continue' : 'Try Again'}
+                {quizResults?.percentage >= 80 ? t('quiz.claimXp', 'Claim XP & Continue') : t('quiz.tryAgain', 'Try Again')}
               </Text>
             </TouchableOpacity>
             {quizResults?.percentage < 80 && (
@@ -164,7 +170,7 @@ const QuizScreen = ({ route, navigation }) => {
                   setAnswers({});
                 }}
               >
-                <Text style={[styles.retryBtnText, { color: colors.primary }]}>Review & Retake</Text>
+                <Text style={[styles.retryBtnText, { color: colors.primary }]}>{t('quiz.reviewRetake', 'Review & Retake')}</Text>
               </TouchableOpacity>
             )}
           </View>
@@ -177,8 +183,10 @@ const QuizScreen = ({ route, navigation }) => {
             <View style={styles.iconCircle}>
               <Trophy color="#DD6B20" size={40} />
             </View>
-            <Text style={styles.modalTitle}>Congratulations! 🎉</Text>
-            <Text style={styles.modalDesc}>You completed the quiz and earned +{quizData.xpReward || 50} XP!</Text>
+            <Text style={styles.modalTitle}>{t('quiz.congratulations', 'Congratulations! 🎉')}</Text>
+            <Text style={styles.modalDesc}>
+              {t('quiz.earnedXp', 'You completed the quiz and earned +{{xp}} XP!', { xp: quizData.xpReward || 50 })}
+            </Text>
             <TouchableOpacity 
               style={styles.modalBtn} 
               onPress={() => {
@@ -186,7 +194,7 @@ const QuizScreen = ({ route, navigation }) => {
                 navigation.goBack(); 
               }}
             >
-              <Text style={styles.modalBtnText}>Awesome!</Text>
+              <Text style={styles.modalBtnText}>{t('quiz.awesome', 'Awesome!')}</Text>
             </TouchableOpacity>
           </View>
         </View>

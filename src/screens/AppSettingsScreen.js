@@ -100,7 +100,7 @@ const AppSettingsScreen = ({ navigation }) => {
           />
           <SettingNavRow 
             icon={Crown} 
-            name="Subscription Plan" 
+            name={t('settings.subscriptionPlan', 'Subscription Plan')} 
             value={subscriptionPlan.charAt(0).toUpperCase() + subscriptionPlan.slice(1)} 
             onPress={() => setSubscriptionModalVisible(true)} 
             styles={styles} colors={colors}

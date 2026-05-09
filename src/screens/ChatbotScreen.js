@@ -12,7 +12,7 @@ import SubscriptionModal from '../components/SubscriptionModal';
 import { useTranslation } from 'react-i18next';
 
 const ChatbotScreen = ({ navigation, route }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [inputText, setInputText] = useState('');
   const [isStreaming, setIsStreaming] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
@@ -59,7 +59,12 @@ const ChatbotScreen = ({ navigation, route }) => {
     if (isLoaded) {
       const goalAdvice = route.params?.goalAdvice;
       if (goalAdvice) {
-        const prompt = `I want advice on how to achieve my goal: ${goalAdvice.title}. I currently have ${goalAdvice.currentAmount} saved for my target and my target is ${goalAdvice.targetAmount}. I have ${goalAdvice.duration} remaining. Can you help me with a plan?`;
+        const prompt = t('chatbot.goalAdvicePrompt', "I want advice on how to achieve my goal: {{title}}. I currently have {{current}} saved for my target and my target is {{target}}. I have {{duration}} remaining. Can you help me with a plan?", {
+          title: goalAdvice.title,
+          current: goalAdvice.currentAmount,
+          target: goalAdvice.targetAmount,
+          duration: goalAdvice.duration
+        });
         sendMessage(prompt);
         navigation.setParams({ goalAdvice: undefined });
       }
@@ -125,7 +130,7 @@ const ChatbotScreen = ({ navigation, route }) => {
 
     await streamChat(
       cleanText,
-      'en',
+      i18n.language,
       (partialText) => {
         // Update bot message real-time saat stream masuk
         setMessages(prev => prev.map(m =>

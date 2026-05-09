@@ -29,6 +29,7 @@ import EditProfileScreen from '../screens/EditProfileScreen';
 import GoalsScreen from '../screens/GoalsScreen';
 import SupportScreen from '../screens/SupportScreen';
 import AdvisorBookingScreen from '../screens/AdvisorBookingScreen';
+import PaymentScreen from '../screens/PaymentScreen';
 
 const Stack = createStackNavigator();
 
@@ -88,6 +89,11 @@ export default function AppNavigator() {
       <Stack.Screen
         name="AdvisorBooking"
         component={AdvisorBookingScreen}
+        options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+      />
+      <Stack.Screen
+        name="Payment"
+        component={PaymentScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
     </Stack.Navigator>

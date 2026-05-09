@@ -8,11 +8,13 @@
     import { ChevronLeft } from 'lucide-react-native';
     import { UserContext } from '../context/UserContext';
     import { ThemeContext } from '../context/ThemeContext';
+    import { useTranslation } from 'react-i18next';
     import { updateUserProfile } from '../services/api';
 
     const { width } = Dimensions.get('window');
 
     const MonthlyIncomeScreen = ({ navigation }) => {
+    const { t } = useTranslation();
     const [nominal, setNominal] = useState('');
     const { currencySymbol, setMonthlyIncome, localToIDR } = useContext(UserContext);
     const { colors } = useContext(ThemeContext);
@@ -69,15 +71,15 @@
             >
                 <View style={styles.content}>
                 <Text style={styles.questionText}>
-                    What is your{' '}
-                    <Text style={styles.emphasis}>monthly income</Text>?
+                    {t('onboarding.monthlyIncome.question1', 'What is your')}{' '}
+                    <Text style={styles.emphasis}>{t('onboarding.monthlyIncome.emphasis', 'monthly income')}</Text>?
                 </Text>
 
                 <Text style={styles.subText}>
-                    This helps us calculate your Financial Resilience Score accurately.
+                    {t('onboarding.monthlyIncome.subText', 'This helps us calculate your Financial Resilience Score accurately.')}
                 </Text>
 
-                <Text style={styles.labelText}>Monthly Income</Text>
+                <Text style={styles.labelText}>{t('onboarding.monthlyIncome.labelText', 'Monthly Income')}</Text>
                 <View style={styles.inputContainer}>
                     <Text style={styles.currencyPrefix}>{currencySymbol} </Text>
                     <TextInput
@@ -92,7 +94,7 @@
                 </View>
 
                 <Text style={styles.hintText}>
-                    Include salary, freelance, or any regular income sources.
+                    {t('onboarding.monthlyIncome.hintText', 'Include salary, freelance, or any regular income sources.')}
                 </Text>
                 </View>
             </ScrollView>
@@ -102,13 +104,13 @@
                 <View style={styles.progressWrapper}>
                     <View style={[styles.progressBar, { width: '16%' }]} />
                 </View>
-                <Text style={styles.progressText}>1 out of 6</Text>
+                <Text style={styles.progressText}>{t('onboarding.progress.1of6', '1 out of 6')}</Text>
                 </View>
                 <TouchableOpacity
                 style={styles.continueButton}
                 onPress={handleContinue}
                 >
-                <Text style={styles.continueText}>Continue</Text>
+                <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
                 </TouchableOpacity>
             </View>
             </KeyboardAvoidingView>

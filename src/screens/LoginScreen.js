@@ -2,15 +2,23 @@ import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity,
   StyleSheet, Image, KeyboardAvoidingView,
-  Platform, ActivityIndicator, Alert
+  Platform, ActivityIndicator, Alert, Modal, ScrollView
 } from 'react-native';
-import { Eye, EyeOff } from 'lucide-react-native';
+import { Eye, EyeOff, Globe, Check } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import WaveHeader from '../components/WaveHeader';
 import { login } from '../services/api';
 
+const ASEAN_LANGUAGES = ['en', 'id', 'ms', 'tl', 'vi', 'th', 'my', 'km', 'lo'];
+
 const LoginScreen = ({ navigation }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [langModalVisible, setLangModalVisible] = useState(false);
+  
+  const changeLanguage = (langCode) => {
+    i18n.changeLanguage(langCode);
+    setLangModalVisible(false);
+  };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -18,7 +26,7 @@ const LoginScreen = ({ navigation }) => {
 
   const handleLogin = async () => {
     if (!email || !password) {
-      Alert.alert('Error', 'Email dan password harus diisi.');
+      Alert.alert(t('common.error', 'Error'), t('auth.emailPasswordRequired', 'Email and password are required.'));
       return;
     }
 
@@ -29,11 +37,11 @@ const LoginScreen = ({ navigation }) => {
       if (data.access_token) {
         navigation.navigate('Home');  // ← langsung ke Home setelah login
       } else {
-        Alert.alert('Login Gagal', 'Email atau password salah.');
+        Alert.alert(t('auth.loginFailed', 'Login Failed'), t('auth.invalidCredentials', 'Invalid email or password.'));
       }
     } catch (e) {
       console.error('Login error:', e.message, e);
-      Alert.alert('Error', `${e.message}`);
+      Alert.alert(t('common.error', 'Error'), `${e.message}`);
     } finally {
       setIsLoading(false);
     }
@@ -47,6 +55,14 @@ const LoginScreen = ({ navigation }) => {
       <WaveHeader />
 
       <View style={styles.headerContent}>
+        <View style={styles.topRightControls}>
+          <TouchableOpacity 
+            style={styles.langButton}
+            onPress={() => setLangModalVisible(true)}
+          >
+            <Globe color="#FFFFFF" size={24} />
+          </TouchableOpacity>
+        </View>
         <Image
           source={require('../assets/logo2.png')}
           style={[styles.logo, { tintColor: '#FFFFFF' }]}
@@ -108,6 +124,31 @@ const LoginScreen = ({ navigation }) => {
           </View>
         </View>
       </View>
+
+      <Modal visible={langModalVisible} animationType="slide" transparent={true}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t('settings.selectLanguage', 'Select Language')}</Text>
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.langScrollView}>
+              {ASEAN_LANGUAGES.map((lang) => (
+                <TouchableOpacity 
+                  key={lang} 
+                  style={styles.langOption} 
+                  onPress={() => changeLanguage(lang)}
+                >
+                  <Text style={[styles.langText, i18n.language === lang && styles.langTextActive]}>
+                    {lang.toUpperCase()}
+                  </Text>
+                  {i18n.language === lang && <Check color="#0047AB" size={20} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setLangModalVisible(false)}>
+              <Text style={styles.closeBtnText}>{t('common.cancel', 'Cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 };
@@ -131,6 +172,17 @@ const styles = StyleSheet.create({
   signUpContainer: { flexDirection: 'row' },
   footerText: { color: '#1A202C', fontWeight: 'bold' },
   signUpText: { color: '#0244c9', fontWeight: 'bold' },
+  topRightControls: { position: 'absolute', top: 50, right: 20, zIndex: 10 },
+  langButton: { padding: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 20 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
+  modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: 24, paddingBottom: 40, maxHeight: '80%' },
+  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A202C', marginBottom: 10 },
+  langScrollView: { maxHeight: 350 },
+  langOption: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 16, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  langText: { fontSize: 16, color: '#1A202C' },
+  langTextActive: { fontWeight: 'bold', color: '#0047AB' },
+  closeBtn: { marginTop: 20, alignItems: 'center', paddingVertical: 14, backgroundColor: '#F7FAFC', borderRadius: 12 },
+  closeBtnText: { color: '#1A202C', fontWeight: 'bold', fontSize: 16 }
 });
 
 export default LoginScreen;

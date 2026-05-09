@@ -12,7 +12,14 @@
     "theme": "រចនាប័ទ្ម",
     "about": "អំពី",
     "selectLanguage": "ជ្រើសរើសភាសា",
-    "cancel": "បោះបង់"
+    "cancel": "បោះបង់",
+    "customize": "Customize your experience",
+    "preferences": "PREFERENCES",
+    "darkMode": "Dark Mode",
+    "currency": "Currency",
+    "helpSupport": "Help & Support",
+    "selectCurrency": "Select Currency",
+    "subscriptionPlan": "Subscription Plan"
   },
   "languages": {
     "en": "អង់គ្លេស",
@@ -60,7 +67,16 @@
     "reply2": "យល់ព្រម! ច្បាប់ 50/30/20 គឺជាវិធីងាយស្រួលបំផុតក្នុងការគ្រប់គ្រងប្រាក់ខែរបស់អ្នក៖\n50% តម្រូវការ៖ គ្រឿងទេសប្រចាំថ្ងៃ វិក័យប័ត្រ ការធ្វើដំណើរ។\n30% ចំណង់៖ ការដើរលេង ការទិញគ្រឿងសម្អាង និងការជាវ Netflix។\n20% ការសន្សំ/ការវិនិយោគ៖ មូលនិធិសង្គ្រោះបន្ទាន់ ការវិនិយោគ និងសប្បុរសធម៌។",
     "reply3": "តោះចាប់ផ្តើមជាមួយអ្វីដែលមានហានិភ័យទាប! 📈\nខ្ញុំសូមផ្តល់អនុសាសន៍យ៉ាងខ្លាំងនូវមូលនិធិទៅវិញទៅមកនៃទីផ្សារប្រាក់។ វាដូចជាការផ្ញើប្រាក់របស់អ្នកទៅឱ្យអ្នកគ្រប់គ្រងវិជ្ជាជីវៈដើម្បីដាក់ក្នុងប្រាក់បញ្ញើធនាគារ។ ហានិភ័យគឺទាបណាស់ វាងាយស្រួលក្នុងការដកប្រាក់គ្រប់ពេល ហើយអ្នកអាចចាប់ផ្តើមដោយគ្រាន់តែប្រាក់បន្តិចបន្តួច!",
     "reply4": "សំណួរល្អណាស់! 💡\nការសន្សំគឺនិយាយអំពីការរក្សាប្រាក់របស់អ្នកឱ្យមានសុវត្ថិភាព (ជាធម្មតាសម្រាប់រយៈពេលខ្លី ឬមានអាសន្ន)។ ជាអកុសល តម្លៃប្រាក់របស់អ្នកអាចត្រូវបានបំផ្លាញដោយអតិផរណា។\nការវិនិយោគគឺការដាក់ប្រាក់របស់អ្នកឱ្យដំណើរការដើម្បីឱ្យវារីកចម្រើនលឿនដើម្បីយកឈ្នះអតិផរណា។",
-    "reply5": "កុំភ័យស្លន់ស្លោ តោះដោះស្រាយរឿងនេះជាមួយគ្នា! 💆‍♀️ មានល្បិចសំខាន់ពីរ៖\nឈប់ប្រើ Paylater ឬកាតឥណទានថ្មីណាមួយជាបណ្តោះអាសន្ន។\nប្រើវិធីសាស្ត្រ Snowball៖ ផ្តោតលើការសងបំណុលដែលមានសមតុល្យតិចតួចបំផុតជាមុនសិន ដើម្បីឱ្យអ្នកទទួលបានជ័យជម្នះរហ័ស និងមានអារម្មណ៍ថាមានកម្លាំងចិត្ត។"
+    "reply5": "កុំភ័យស្លន់ស្លោ តោះដោះស្រាយរឿងនេះជាមួយគ្នា! 💆‍♀️ មានល្បិចសំខាន់ពីរ៖\nឈប់ប្រើ Paylater ឬកាតឥណទានថ្មីណាមួយជាបណ្តោះអាសន្ន។\nប្រើវិធីសាស្ត្រ Snowball៖ ផ្តោតលើការសងបំណុលដែលមានសមតុល្យតិចតួចបំផុតជាមុនសិន ដើម្បីឱ្យអ្នកទទួលបានជ័យជម្នះរហ័ស និងមានអារម្មណ៍ថាមានកម្លាំងចិត្ត។",
+    "greeting": "Hello! 👋 I'm Fluent AI, your personal financial assistant. I've analyzed your recent financial activity and prepared some personalized insights just for you. What would you like to explore today?",
+    "quickPrompt1": "Evaluate my spending\nthis month",
+    "quickPrompt2": "Help me use the\n50/30/20 rule",
+    "quickPrompt3": "How do I start investing\nas a beginner?",
+    "quickPrompt4": "What's the difference between\nregular saving and investing?",
+    "quickPrompt5": "Tips to pay off Paylater\nso it doesn't pile up",
+    "promptsToday": "Prompts today: ",
+    "inputPlaceholder": "Ask your AI assistant anything...",
+    "goalAdvicePrompt": "I want advice on how to achieve my goal: {{title}}. I currently have {{current}} saved for my target and my target is {{target}}. I have {{duration}} remaining. Can you help me with a plan?"
   },
   "auth": {
     "welcomeBack": "សូមស្វាគមន៍ការត្រឡប់មកវិញ!",
@@ -69,7 +85,26 @@
     "loginBtn": "ចូល",
     "forgotPassword": "ភ្លេចពាក្យសម្ងាត់មែនទេ?",
     "noAccount": "មិនទាន់មានគណនីមែនទេ?",
-    "registerNow": "ចុះឈ្មោះនៅទីនេះ!"
+    "registerNow": "ចុះឈ្មោះនៅទីនេះ!",
+    "forgotPasswordTitle": "Forgot Password?",
+    "resetInstructions": "Enter the email address associated with your account and we'll send you a link to reset your password.",
+    "emailAddress": "Email Address",
+    "sendResetLink": "Send Reset Link",
+    "newPasswordTitle": "New Password",
+    "enterNewPassword": "Enter your new password to access your account.",
+    "newPassword": "New Password",
+    "confirmNewPassword": "Confirm New Password",
+    "submit": "Submit",
+    "createAccount": "Create Account",
+    "phone": "Phone Number",
+    "confirmPassword": "Confirm Password",
+    "alreadyHaveAccount": "Already have an account?",
+    "orContinueWith": "Or continue with",
+    "verification": "Verification",
+    "sentCode": "Enter your verification code that we sent to your email.",
+    "verify": "Verify",
+    "didNotReceive": "Didn't receive the code?",
+    "resendCode": "Resend"
   },
   "home": {
     "goodMorning": "Good Morning 👋",
@@ -123,7 +158,15 @@
     "debt": "Debt",
     "asset": "Asset",
     "newItemName": "New Item Name",
-    "amount": "Amount"
+    "amount": "Amount",
+    "quickPrompt1": "Evaluate my spending\nthis month",
+    "quickPrompt2": "Help me use the\n50/30/20 rule",
+    "quickPrompt3": "How do I start investing\nas a beginner?",
+    "quickPrompt4": "What's the difference between\nregular saving and investing?",
+    "quickPrompt5": "Tips to pay off Paylater\nso it doesn't pile up",
+    "promptsToday": "Prompts today:",
+    "inputPlaceholder": "Ask your AI assistant anything...",
+    "add": "Add"
   },
   "wallet": {
     "title": "Wallet",
@@ -214,5 +257,167 @@
     "lv5Title": "Level 5 Badge",
     "lv5Name": "Financial Maestro",
     "lv5Desc": "Reach level 5 to unlock this badge!"
+  },
+  "onboarding": {
+    "preferences": {
+      "question1": "Choose your\neconomic preference.",
+      "organized": "How organized are you in managing money?",
+      "risk": "How big is your risk tolerance?"
+    },
+    "assets": {
+      "addCustom": "Add Custom Asset"
+    },
+    "debt": {
+      "selectDate": "Select Date",
+      "question1": "List your current outstanding",
+      "emphasis": "debts",
+      "namePlaceholder": "Debt Name : KPR, KTA...",
+      "nominal": "Nominal",
+      "dueDate": "Due Date",
+      "interest": "Interest (%)",
+      "addDebt": "Add Debt"
+    },
+    "expense": {
+      "question1": "How much is your monthly",
+      "emphasis": "expenses"
+    },
+    "income": {
+      "fullTime": "Full-time employee",
+      "freelancer": "Freelancer",
+      "partTime": "Part-Time",
+      "allowance": "Allowance / Student",
+      "notWorking": "Not Working",
+      "question1": "How do you primarily earn your",
+      "emphasis": "income"
+    },
+    "monthlyIncome": {
+      "question1": "How much is your monthly",
+      "emphasis": "income"
+    },
+    "goals": {
+      "question1": "Define your\n",
+      "emphasis": "financial goal.",
+      "goalName": "Goal Name",
+      "namePlaceholder": "E.g., Buy a New Car",
+      "targetNominal": "Target Nominal",
+      "timeToAchieve": "Time to Achieve (Years)",
+      "durationPlaceholder": "E.g., 3",
+      "years": "Years",
+      "finalize": "Finalize"
+    },
+    "progress": {
+      "1of6": "1 out of 6",
+      "2of6": "2 out of 6",
+      "3of6": "3 out of 6",
+      "4of6": "4 out of 6",
+      "5of6": "5 out of 6",
+      "complete": "Complete!"
+    }
+  },
+  "advisor": {
+    "title": "Book a Session",
+    "subtitle": "1-on-1 with a financial advisor",
+    "videoConsultation": "Video Consultation",
+    "videoDesc": "45-minute private session via secure video call",
+    "availableAdvisors": "Available Advisors",
+    "reviews": "reviews",
+    "bookSession": "Book Session"
+  },
+  "courseOverview": {
+    "overallProgress": "Overall Progress",
+    "overview": "Overview",
+    "lessons": "Lessons",
+    "quizzes": "Quizzes",
+    "whatYouWillLearn": "What You'll Learn",
+    "requirements": "Requirements",
+    "benefits": "Benefits",
+    "startLearning": "Start Learning",
+    "finishAllLessons": "Finish all lessons to unlock this quiz!",
+    "questions": "questions",
+    "completed": "Completed"
+  },
+  "quiz": {
+    "quiz": "Quiz",
+    "testUnderstanding": "Test your understanding!",
+    "questions": "questions",
+    "pleaseAnswerAll": "Please answer all questions before submitting!",
+    "submitQuiz": "Submit Quiz",
+    "results": "Quiz Results!",
+    "youScored": "You scored {{correct}} out of {{total}} ({{percentage}}%)",
+    "passed": "Great job! You passed the quiz! 🎉",
+    "failed": "You need 80% or higher to pass. Keep learning and try again!",
+    "claimXp": "Claim XP & Continue",
+    "tryAgain": "Try Again",
+    "reviewRetake": "Review & Retake",
+    "congratulations": "Congratulations! 🎉",
+    "earnedXp": "You completed the quiz and earned +{{xp}} XP!",
+    "awesome": "Awesome!"
+  },
+  "lesson": {
+    "backToLessons": "Back to Lessons",
+    "completed": "Completed",
+    "markAsComplete": "Mark as complete",
+    "watchVideo": "Watch Video",
+    "watchOnYouTube": "Watch on YouTube"
+  },
+  "support": {
+    "title": "Help & Support",
+    "subtitle": "Contact & Legal Information",
+    "contactUs": "CONTACT US",
+    "contactDesc": "If you have any questions or issues regarding our services, please feel free to reach out to our team at any time.",
+    "legal": "PRIVACY POLICY & TERMS",
+    "termsTitle": "Terms of Service",
+    "termsContent": "By using Fluent, you agree to comply with our terms. We provide AI-driven financial guidance to help you manage your money across ASEAN. Users are responsible for maintaining the confidentiality of their account information.",
+    "privacyTitle": "Privacy Policy",
+    "privacyContent": "We value your privacy. Fluent collects financial data and personal information strictly to provide personalized financial simulations and resilience scores. Your data is encrypted and will never be shared with third parties without your explicit consent.",
+    "version": "Fluent v1.0.4 (Beta)",
+    "copyright": "© 2026 Fluent ASEAN. blukutuk77. All rights reserved."
+  },
+  "payment": {
+    "checkout": "Checkout",
+    "orderSummary": "Order Summary",
+    "monthly": "(Monthly)",
+    "total": "Total",
+    "paymentMethod": "Payment Method",
+    "creditCard": "Credit Card",
+    "cardName": "Cardholder Name",
+    "cardNumber": "Card Number",
+    "expiry": "Expiry Date",
+    "fillAllFields": "Please fill all card details correctly.",
+    "paymentSuccess": "Payment Successful!",
+    "welcomeTo": "Welcome to Fluent",
+    "paypalDesc": "You will be redirected to PayPal to complete your purchase securely.",
+    "secureTransaction": "Payments are secure and encrypted",
+    "payWithPaypal": "Pay with PayPal",
+    "pay": "Pay"
+  },
+  "subscription": {
+    "choosePlan": "Choose Your Plan",
+    "unlockPotential": "Unlock your full financial potential.",
+    "basic": "Basic",
+    "free": "Free",
+    "basicDesc": "Experience the basics. Limited access to features.",
+    "max5Prompts": "Max 5 AI prompts / day",
+    "max2Goals": "Max 2 Active Goals",
+    "max3Transactions": "Max 3 transactions / day",
+    "fullLessons": "Full access to lessons",
+    "unlimitedTracking": "Unlimited tracking & goals",
+    "advisorSession1": "1-on-1 Advisor Session",
+    "currentPlan": "Current Plan",
+    "downgrade": "Downgrade",
+    "mostPopular": "MOST POPULAR",
+    "fluentPlus": "Fluent Plus",
+    "perMo": " /mo",
+    "plusDesc": "Everything you need to master your finances.",
+    "unlimitedAI": "Unlimited AI conversations",
+    "unlimitedGoals": "Unlimited Active Goals",
+    "unlimitedTransactions": "Unlimited transaction tracking",
+    "upgradePlus": "Upgrade to Plus",
+    "fluentElite": "Fluent Elite",
+    "eliteDesc": "High-ticket access with real professional guidance.",
+    "allPlusFeatures": "All Fluent Plus features",
+    "advisorSession2": "2x CFP Advisor Session / month",
+    "priorityAI": "Priority AI responses",
+    "upgradeElite": "Upgrade to Elite"
   }
 }

@@ -6,9 +6,11 @@ import { ArrowLeft, Calendar, Clock, Video, Star, ChevronRight } from 'lucide-re
 import { ThemeContext } from '../context/ThemeContext';
 import { UserContext } from '../context/UserContext';
 import SubscriptionModal from '../components/SubscriptionModal';
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 
 const AdvisorBookingScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const { colors } = useContext(ThemeContext);
   const { subscriptionPlan } = useContext(UserContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -60,8 +62,8 @@ const AdvisorBookingScreen = ({ navigation }) => {
             <ArrowLeft color={colors.text} size={26} strokeWidth={2.5} />
           </TouchableOpacity>
           <View style={styles.headerTextContainer}>
-            <Text style={styles.headerTitle}>Book a Session</Text>
-            <Text style={styles.headerSubtitle}>1-on-1 with a financial advisor</Text>
+            <Text style={styles.headerTitle}>{t('advisor.title', 'Book a Session')}</Text>
+            <Text style={styles.headerSubtitle}>{t('advisor.subtitle', '1-on-1 with a financial advisor')}</Text>
           </View>
         </View>
       </SafeAreaView>
@@ -70,12 +72,12 @@ const AdvisorBookingScreen = ({ navigation }) => {
         <View style={styles.infoCard}>
           <Video color={colors.primary} size={24} style={styles.infoIcon} />
           <View style={styles.infoTextContainer}>
-            <Text style={styles.infoTitle}>Video Consultation</Text>
-            <Text style={styles.infoDesc}>45-minute private session via secure video call</Text>
+            <Text style={styles.infoTitle}>{t('advisor.videoConsultation', 'Video Consultation')}</Text>
+            <Text style={styles.infoDesc}>{t('advisor.videoDesc', '45-minute private session via secure video call')}</Text>
           </View>
         </View>
 
-        <Text style={styles.sectionTitle}>Available Advisors</Text>
+        <Text style={styles.sectionTitle}>{t('advisor.availableAdvisors', 'Available Advisors')}</Text>
 
         {advisors.map((advisor) => (
           <TouchableOpacity key={advisor.id} style={styles.advisorCard}>
@@ -89,7 +91,7 @@ const AdvisorBookingScreen = ({ navigation }) => {
                 <View style={styles.ratingRow}>
                   <Star color="#F6AD55" size={14} fill="#F6AD55" />
                   <Text style={styles.ratingText}>{advisor.rating}</Text>
-                  <Text style={styles.reviewsText}>({advisor.reviews} reviews)</Text>
+                  <Text style={styles.reviewsText}>({advisor.reviews} {t('advisor.reviews', 'reviews')})</Text>
                 </View>
               </View>
               <ChevronRight color={colors.textMuted} size={20} />
@@ -110,7 +112,7 @@ const AdvisorBookingScreen = ({ navigation }) => {
               style={[styles.bookBtn, { backgroundColor: colors.primary }]}
               onPress={handleBook}
             >
-              <Text style={styles.bookBtnText}>Book Session</Text>
+              <Text style={styles.bookBtnText}>{t('advisor.bookSession', 'Book Session')}</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         ))}
