@@ -4,9 +4,11 @@ const { streamChatResponse } = require('../ai/chatbot');
 const { calculateResilienceScore } = require('../ai/resilienceScore');
 const { demoUser } = require('../db/demoData');
 
-    router.post('/', async (req, res) => {
-    const { message } = req.body;
-    if (!message) return res.status(400).json({ error: 'Message tidak boleh kosong.' });
+    // routes/chat.js — update bagian router.post
+router.post('/', async (req, res) => {
+    const { message, language = 'id' } = req.body; // tambah language
+
+    if (!message) return res.status(400).json({ error: 'Message kosong.' });
 
     const scoreData = calculateResilienceScore(demoUser);
     const userData = {
@@ -14,8 +16,10 @@ const { demoUser } = require('../db/demoData');
         resilienceScore: scoreData.score,
         savingsRunwayMonths: scoreData.savingsRunwayMonths,
         debtToIncomeRatio: scoreData.debtToIncomeRatio,
-        riskLevel: scoreData.riskLevel
+        riskLevel: scoreData.riskLevel,
+        language  // pass ke system prompt
     };
+
 
     await streamChatResponse(message, userData, res);
 });

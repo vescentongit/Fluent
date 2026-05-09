@@ -1,9 +1,10 @@
+# resilience_routes.py
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from database import get_db
-from models import User, Transaction
+from Fluent_Project.src.backend.ai.database import get_db
+from Fluent_Project.src.backend.ai.models import User, Transaction
 from schemas import ResilienceScoreResponse
-from auth import get_user_saat_ini
+from Fluent_Project.src.backend.ai.auth import get_user_saat_ini
 from resilience_score import calculate_resilience_score
 
 router = APIRouter()

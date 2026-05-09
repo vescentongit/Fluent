@@ -1,7 +1,8 @@
+# nudge_routes.py
 from fastapi import APIRouter, Depends
-from models import User
+from Fluent_Project.src.backend.ai.models import User
 from schemas import NudgeCheckResponse
-from auth import get_user_saat_ini
+from Fluent_Project.src.backend.ai.auth import get_user_saat_ini
 
 router = APIRouter()
 
