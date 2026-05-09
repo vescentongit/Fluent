@@ -4,9 +4,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const digitalTwinRoutes = require('./routes/digitalTwin');
-
 const chatRoutes = require('./routes/chat');
 const resilienceRoutes = require('./routes/resilience');
+const nudgeRoutes = require('./routes/nudge');
 
 console.log('chatRoutes type:', typeof chatRoutes);
 console.log('resilienceRoutes type:', typeof resilienceRoutes);
@@ -21,6 +21,7 @@ app.use(express.json());
 app.use('/api/chat', chatRoutes);
 app.use('/api/resilience', resilienceRoutes);
 app.use('/api/digital-twin', digitalTwinRoutes);
+app.use('/api/nudge', nudgeRoutes);
 
 // Health check
 app.get('/', (req, res) => {

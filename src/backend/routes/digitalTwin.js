@@ -3,14 +3,8 @@
 const express = require('express');
 const router = express.Router();
 const { buildDigitalTwin } = require('../ai/digitalTwin');
-
-// Demo transactions — 30 hari data spending Budi
 const demoTransactions = generateDemoTransactions();
-
-const demoUser = {
-    monthlyIncome: 5_000_000,
-    totalSavings: 2_300_000
-};
+const { demoUser } = require('../db/demoData');
 
 router.get('/demo', (req, res) => {
     const result = buildDigitalTwin(demoTransactions, demoUser);
