@@ -1,58 +1,200 @@
-// UserContext.js
 import React, { createContext, useState, useEffect } from 'react';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export const UserContext = createContext();
 
+const EXCHANGE_RATES = {
+  IDR: { rate: 1, symbol: 'Rp', prefix: true, decimals: 0 },
+  USD: { rate: 0.0000645, symbol: '$', prefix: true, decimals: 2 },
+  MYR: { rate: 0.000303, symbol: 'RM', prefix: true, decimals: 2 },
+  SGD: { rate: 0.000086, symbol: 'S$', prefix: true, decimals: 2 },
+  THB: { rate: 0.00232, symbol: '฿', prefix: true, decimals: 2 },
+  PHP: { rate: 0.0037, symbol: '₱', prefix: true, decimals: 2 },
+  VND: { rate: 1.61, symbol: '₫', prefix: false, decimals: 0 },
+};
+
 export const UserProvider = ({ children }) => {
-  const [userName, setUserName] = useState('Shaquille');
+  const [userName, setUserName] = useState('Budi');
+  const [userEmail, setUserEmail] = useState('budi@demo.com');
   const [userImage, setUserImage] = useState(null);
-  const [currency, setCurrency] = useState('IDR');
+  const [currency, setCurrencyState] = useState('IDR');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [financialGoal, setFinancialGoal] = useState({ title: 'New Car', nominal: '300000000', duration: '3' });
-  const [xp, setXp] = useState(0);
-  const [level, setLevel] = useState(1);
+  const [xp, setXp] = useState(6767);
+  const [subscriptionPlan, setSubscriptionPlanState] = useState('basic');
+  const [usage, setUsage] = useState({
+    aiPrompts: 0,
+    transactions: 0,
+    lastDate: new Date().toISOString().split('T')[0]
+  });
+
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        const savedCurrency = await AsyncStorage.getItem('user_currency');
+        if (savedCurrency && EXCHANGE_RATES[savedCurrency]) {
+          setCurrencyState(savedCurrency);
+        }
+        // Force default plan to 'basic' on every app start during development
+        setSubscriptionPlanState('basic');
+        const savedUsage = await AsyncStorage.getItem('user_usage');
+        if (savedUsage) {
+          const parsed = JSON.parse(savedUsage);
+          const today = new Date().toISOString().split('T')[0];
+          if (parsed.lastDate !== today) {
+            const resetUsage = { aiPrompts: 0, transactions: 0, lastDate: today };
+            setUsage(resetUsage);
+            AsyncStorage.setItem('user_usage', JSON.stringify(resetUsage));
+          } else {
+            setUsage(parsed);
+          }
+        }
+      } catch (e) {
+        console.log('Failed to load settings', e);
+      }
+    };
+    loadSettings();
+  }, []);
+
+  const setCurrency = async (newCurrency) => {
+    if (EXCHANGE_RATES[newCurrency]) {
+      setCurrencyState(newCurrency);
+      try {
+        await AsyncStorage.setItem('user_currency', newCurrency);
+      } catch (e) {
+        console.log('Failed to save currency', e);
+      }
+    }
+  };
+
+  const setSubscriptionPlan = async (plan) => {
+    setSubscriptionPlanState(plan);
+    try {
+      await AsyncStorage.setItem('subscription_plan', plan);
+    } catch (e) {
+      console.log('Failed to save subscription plan', e);
+    }
+  };
+
+  const checkAiLimit = () => {
+    if ((subscriptionPlan || 'basic').toLowerCase() !== 'basic') return true;
+    return usage.aiPrompts < 5;
+  };
+
+  const incrementAi = () => {
+    if ((subscriptionPlan || 'basic').toLowerCase() !== 'basic') return true;
+    if (usage.aiPrompts >= 5) return false;
+    const newUsage = { ...usage, aiPrompts: usage.aiPrompts + 1 };
+    setUsage(newUsage);
+    AsyncStorage.setItem('user_usage', JSON.stringify(newUsage));
+    return true;
+  };
+
+  const checkTransactionLimit = () => {
+    if ((subscriptionPlan || 'basic').toLowerCase() !== 'basic') return true;
+    return usage.transactions < 3;
+  };
+
+  const incrementTransaction = () => {
+    if ((subscriptionPlan || 'basic').toLowerCase() !== 'basic') return true;
+    if (usage.transactions >= 3) return false;
+    const newUsage = { ...usage, transactions: usage.transactions + 1 };
+    setUsage(newUsage);
+    AsyncStorage.setItem('user_usage', JSON.stringify(newUsage));
+    return true;
+  };
+
+  const checkGoalLimit = (currentCount) => {
+    if ((subscriptionPlan || 'basic').toLowerCase() !== 'basic') return true;
+    return currentCount < 2;
+  };
+
+  const calculateLevel = (currentXp) => {
+    if (currentXp >= 15000) return 5;
+    if (currentXp >= 7000) return 4;
+    if (currentXp >= 3000) return 3;
+    if (currentXp >= 1000) return 2;
+    return 1;
+  };
+
+  const level = calculateLevel(xp);
 
   const getXpForNextLevel = () => {
-    const levels = [0, 100, 300, 600, 1000];
-    return levels[Math.min(level, levels.length - 1)];
+    const levels = [0, 1000, 3000, 7000, 15000];
+    return levels[Math.min(level, levels.length - 1)] || levels[levels.length - 1];
   };
 
   const getXpProgress = () => {
     const target = getXpForNextLevel();
-    return target > 0 ? Math.min((xp / target) * 100, 100) : 100;
+    const previousTarget = level > 1 ? [0, 1000, 3000, 7000, 15000][level - 1] : 0;
+    const progress = target > previousTarget ? ((xp - previousTarget) / (target - previousTarget)) * 100 : 100;
+    return Math.min(Math.max(progress, 0), 100);
   };
 
-
   const getCurrencySymbol = (curr) => {
-    switch (curr) {
-      case 'MYR': return 'RM';
-      case 'BND': return 'B$';
-      case 'KHR': return '៛';
-      case 'THB': return '฿';
-      case 'VND': return '₫';
-      case 'SGD': return 'S$';
-      case 'PHP': return '₱';
-      case 'MMK': return 'K';
-      case 'LAK': return '₭';
-      case 'IDR':
-      default: return 'Rp';
-    }
+    return EXCHANGE_RATES[curr]?.symbol || 'Rp';
   };
 
   const currencySymbol = getCurrencySymbol(currency);
 
+  const formatCurrency = (amountInIdr, showSymbol = true) => {
+    const config = EXCHANGE_RATES[currency] || EXCHANGE_RATES['IDR'];
+    const convertedAmount = amountInIdr * config.rate;
+    
+    // Format number with commas and decimals
+    const parts = convertedAmount.toFixed(config.decimals).split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    const formattedNumber = parts.join('.');
+
+    if (!showSymbol) return formattedNumber;
+
+    if (config.prefix) {
+      return `${config.symbol} ${formattedNumber}`;
+    } else {
+      return `${formattedNumber} ${config.symbol}`;
+    }
+  };
+
+  const formatCurrencyM = (amountInIdr) => {
+    const config = EXCHANGE_RATES[currency] || EXCHANGE_RATES['IDR'];
+    const convertedAmount = amountInIdr * config.rate;
+    
+    if (Math.abs(convertedAmount) >= 1000000) {
+      let formatted = (Math.abs(convertedAmount) / 1000000).toFixed(currency === 'IDR' || currency === 'VND' ? 1 : 2);
+      if (formatted.endsWith('.0')) formatted = formatted.slice(0, -2);
+      else if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
+      
+      const sign = convertedAmount < 0 ? '-' : '';
+      return `${sign}${config.prefix ? config.symbol + ' ' : ''}${formatted} M${!config.prefix ? ' ' + config.symbol : ''}`;
+    } else {
+      return formatCurrency(amountInIdr, true);
+    }
+  };
+
   return (
     <UserContext.Provider value={{
       userName, setUserName,
+      userEmail, setUserEmail,
       userImage, setUserImage,
       currency, setCurrency,  
       currencySymbol,
+      formatCurrency,
+      formatCurrencyM,
+      availableCurrencies: Object.keys(EXCHANGE_RATES),
+      subscriptionPlan,
+      setSubscriptionPlan,
+      usage,
+      checkAiLimit,
+      incrementAi,
+      checkTransactionLimit,
+      incrementTransaction,
+      checkGoalLimit,
       phoneNumber, setPhoneNumber,
       financialGoal, setFinancialGoal,
-      xp, setXp,           // ← tambahan
-      level, setLevel,     // ← tambahan
-      getXpForNextLevel,   // ← tambahan
-      getXpProgress,       // ← tambahan
+      xp, setXp,
+      level,
+      getXpForNextLevel,
+      getXpProgress,
     }}>
       {children}
     </UserContext.Provider>

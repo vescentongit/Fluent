@@ -9,10 +9,13 @@ import {
 import { TransactionContext } from '../context/TransactionContext';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import SubscriptionModal from '../components/SubscriptionModal';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const WalletScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const availableIcons = [
     require('../assets/mdi_chicken-leg.png'),
     require('../assets/Frame 66.png'),
@@ -26,11 +29,12 @@ const WalletScreen = ({ navigation }) => {
   ];
 
   const { transactions, setTransactions } = useContext(TransactionContext);
-  const { userImage, currencySymbol } = useContext(UserContext);
+  const { userImage, formatCurrency, formatCurrencyM, checkTransactionLimit, incrementTransaction } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [modalVisible, setModalVisible] = useState(false);
+  const [subModalVisible, setSubModalVisible] = useState(false);
 
   const panResponder = useMemo(() => PanResponder.create({
     onStartShouldSetPanResponder: () => false,
@@ -71,33 +75,38 @@ const WalletScreen = ({ navigation }) => {
   const totalIncomeNum = useMemo(() => {
     return transactions
       .filter(t => t.type === 'income')
-      .reduce((acc, curr) => acc + (parseInt(curr.amount.replace(/[^0-9]/g, ''), 10) || 0), 0);
+      .reduce((acc, curr) => acc + (typeof curr.amount === 'number' ? curr.amount : 0), 0);
   }, [transactions]);
 
   const totalExpenseNum = useMemo(() => {
     return transactions
       .filter(t => t.type === 'expense')
-      .reduce((acc, curr) => acc + (parseInt(curr.amount.replace(/[^0-9]/g, ''), 10) || 0), 0);
+      .reduce((acc, curr) => acc + (typeof curr.amount === 'number' ? curr.amount : 0), 0);
   }, [transactions]);
 
-  const totalIncome = `+${currencySymbol} ${formatSummary(totalIncomeNum)}`;
-  const totalExpense = `-${currencySymbol} ${formatSummary(totalExpenseNum)}`;
+  const totalIncome = `+ ${formatCurrencyM(totalIncomeNum)}`;
+  const totalExpense = `- ${formatCurrencyM(totalExpenseNum)}`;
 
   const handleSaveTransaction = () => {
+    if (!checkTransactionLimit()) {
+      setModalVisible(false);
+      setTimeout(() => setSubModalVisible(true), 300);
+      return;
+    }
+
     const numAmount = parseInt(amount.replace(/[^0-9]/g, ''), 10) || 0;
     if (!title.trim() || numAmount === 0 || !selectedIcon) return;
-
-    const formattedAmount = `${transactionType === 'income' ? '+' : '-'}${currencySymbol} ${numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
 
     const newTx = {
       id: Date.now().toString(),
       title: title,
       time: 'Just now',
-      amount: formattedAmount,
+      amount: numAmount,
       type: transactionType,
       icon: selectedIcon
     };
 
+    incrementTransaction();
     setTransactions([newTx, ...transactions]);
     setModalVisible(false);
     setTitle('');
@@ -128,8 +137,8 @@ const WalletScreen = ({ navigation }) => {
         <SafeAreaView pointerEvents="box-none">
           <View style={styles.headerRow} pointerEvents="auto">
             <View>
-              <Text style={styles.headerTitle}>Wallet</Text>
-              <Text style={styles.headerSubtitle}>Transactions</Text>
+              <Text style={styles.headerTitle}>{t('wallet.title', 'Wallet')}</Text>
+              <Text style={styles.headerSubtitle}>{t('wallet.transactions', 'Transactions')}</Text>
             </View>
             <TouchableOpacity 
               style={styles.addButton}
@@ -149,7 +158,7 @@ const WalletScreen = ({ navigation }) => {
           <View style={[styles.summaryCard, { backgroundColor: isDarkMode ? 'rgba(46,204,113,0.15)' : '#E8F5E9' }]}>
             <View style={styles.summaryLabelRow}>
               <TrendingUp color="#2ECC71" size={16} />
-              <Text style={[styles.summaryLabel, { color: '#2ECC71' }]}>Income</Text>
+              <Text style={[styles.summaryLabel, { color: '#2ECC71' }]}>{t('wallet.income', 'Income')}</Text>
             </View>
             <Text style={styles.summaryAmountDark}>{totalIncome}</Text>
           </View>
@@ -157,7 +166,7 @@ const WalletScreen = ({ navigation }) => {
           <View style={[styles.summaryCard, { backgroundColor: isDarkMode ? 'rgba(255,77,77,0.15)' : '#FCE4EC' }]}>
             <View style={styles.summaryLabelRow}>
               <TrendingDown color="#FF4D4D" size={16} />
-              <Text style={[styles.summaryLabel, { color: '#FF4D4D' }]}>Expenses</Text>
+              <Text style={[styles.summaryLabel, { color: '#FF4D4D' }]}>{t('wallet.expenses', 'Expenses')}</Text>
             </View>
             <Text style={styles.summaryAmountDark}>{totalExpense}</Text>
           </View>
@@ -167,7 +176,7 @@ const WalletScreen = ({ navigation }) => {
           <Search color="#A0AEC0" size={20} />
           <TextInput 
             style={styles.searchInput}
-            placeholder="Search transactions...."
+            placeholder={t('wallet.searchPlaceholder', 'Search transactions....')}
             placeholderTextColor="#A0AEC0"
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -178,30 +187,30 @@ const WalletScreen = ({ navigation }) => {
           <TouchableOpacity style={styles.tabWrapper} onPress={() => setActiveTab('All')}>
             {activeTab === 'All' ? (
               <View style={[styles.activeTabGradient, { backgroundColor: colors.primary }]}>
-                <Text style={styles.activeTabText}>All</Text>
+                <Text style={styles.activeTabText}>{t('wallet.all', 'All')}</Text>
               </View>
             ) : (
-              <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>All</Text></View>
+              <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>{t('wallet.all', 'All')}</Text></View>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.tabWrapper} onPress={() => setActiveTab('Income')}>
             {activeTab === 'Income' ? (
               <View style={[styles.activeTabGradient, { backgroundColor: colors.primary }]}>
-                <Text style={styles.activeTabText}>Income</Text>
+                <Text style={styles.activeTabText}>{t('wallet.income', 'Income')}</Text>
               </View>
             ) : (
-              <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>Income</Text></View>
+              <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>{t('wallet.income', 'Income')}</Text></View>
             )}
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.tabWrapper} onPress={() => setActiveTab('Expense')}>
             {activeTab === 'Expense' ? (
               <View style={[styles.activeTabGradient, { backgroundColor: colors.primary }]}>
-                <Text style={styles.activeTabText}>Expense</Text>
+                <Text style={styles.activeTabText}>{t('wallet.expense', 'Expense')}</Text>
               </View>
             ) : (
-              <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>Expense</Text></View>
+              <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>{t('wallet.expense', 'Expense')}</Text></View>
             )}
           </TouchableOpacity>
         </View>
@@ -220,7 +229,7 @@ const WalletScreen = ({ navigation }) => {
                 styles.transactionAmount, 
                 { color: item.type === 'income' ? '#2ECC71' : '#FF1E1E' }
               ]}>
-                {item.amount.replace('Rp', currencySymbol)}
+                {item.type === 'income' ? '+ ' : '- '}{formatCurrency(item.amount)}
               </Text>
             </View>
           ))}
@@ -236,7 +245,7 @@ const WalletScreen = ({ navigation }) => {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent} {...panResponder.panHandlers}>
             <View style={styles.modalHandle} />
-            <Text style={styles.modalTitle}>Add Transaction</Text>
+            <Text style={styles.modalTitle}>{t('wallet.addTransaction', 'Add Transaction')}</Text>
 
             <View style={styles.toggleContainer}>
               <TouchableOpacity 
@@ -244,7 +253,7 @@ const WalletScreen = ({ navigation }) => {
                 onPress={() => setTransactionType('expense')}
               >
                 <Text style={[styles.toggleText, transactionType === 'expense' && styles.toggleTextExpenseActive]}>
-                  Expense
+                  {t('wallet.expense', 'Expense')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity 
@@ -252,23 +261,23 @@ const WalletScreen = ({ navigation }) => {
                 onPress={() => setTransactionType('income')}
               >
                 <Text style={[styles.toggleText, transactionType === 'income' && styles.toggleTextIncomeActive]}>
-                  Income
+                  {t('wallet.income', 'Income')}
                 </Text>
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.inputLabel}>Title</Text>
+            <Text style={styles.inputLabel}>{t('wallet.titleInput', 'Title')}</Text>
             <View style={styles.inputBoxContainer}>
               <TextInput
                 style={styles.textInputStyle}
                 value={title}
                 onChangeText={setTitle}
-                placeholder="E.g. Lunch/Salary"
+                placeholder={t('wallet.titlePlaceholder', 'E.g. Lunch/Salary')}
                 placeholderTextColor="#A0AEC0"
               />
             </View>
 
-            <Text style={styles.inputLabel}>Amount</Text>
+            <Text style={styles.inputLabel}>{t('wallet.amount', 'Amount')}</Text>
             <View style={styles.inputBoxContainer}>
               <TextInput
                 style={styles.textInputStyle}
@@ -278,12 +287,12 @@ const WalletScreen = ({ navigation }) => {
                   setAmount(numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."));
                 }}
                 keyboardType="numeric"
-                placeholder={`${currencySymbol} 0`}
+                placeholder="0"
                 placeholderTextColor="#A0AEC0"
               />
             </View>
 
-            <Text style={styles.inputLabel}>Choose Icon</Text>
+            <Text style={styles.inputLabel}>{t('wallet.chooseIcon', 'Choose Icon')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.iconScroll}>
               {availableIcons.map((ico, idx) => (
                 <TouchableOpacity 
@@ -304,12 +313,14 @@ const WalletScreen = ({ navigation }) => {
               onPress={handleSaveTransaction}
             >
               <Text style={styles.saveButtonText}>
-                Save {transactionType === 'income' ? 'Income' : 'Expense'}
+                {transactionType === 'income' ? t('wallet.saveIncome', 'Save Income') : t('wallet.saveExpense', 'Save Expense')}
               </Text>
             </TouchableOpacity>
           </View>
         </View>
       </Modal>
+
+      <SubscriptionModal visible={subModalVisible} onClose={() => setSubModalVisible(false)} />
 
       <View style={styles.bottomNavbar}>
         <TouchableOpacity 
@@ -317,12 +328,12 @@ const WalletScreen = ({ navigation }) => {
           onPress={() => navigation.navigate('Home')}
         >
           <Home color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navText}>{t('nav.home', 'Home')}</Text>
         </TouchableOpacity>
         
         <TouchableOpacity style={styles.navItem}>
           <WalletIcon color="#FFFFFF" size={24} />
-          <Text style={styles.navTextActive}>Wallet</Text>
+          <Text style={styles.navTextActive}>{t('nav.wallet', 'Wallet')}</Text>
         </TouchableOpacity>
 
         <View style={styles.fabWrapper}>
@@ -340,7 +351,7 @@ const WalletScreen = ({ navigation }) => {
 
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>
           <BookOpen color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Learn</Text>
+          <Text style={styles.navText}>{t('nav.learn', 'Learn')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
@@ -348,7 +359,7 @@ const WalletScreen = ({ navigation }) => {
             source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
             style={styles.navProfileImg} 
           />
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{t('nav.profile', 'Profile')}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -373,7 +384,7 @@ const createStyles = (colors) => StyleSheet.create({
   searchInput: { flex: 1, marginLeft: 10, fontSize: 14, color: colors.text },
   tabsContainer: { flexDirection: 'row', backgroundColor: colors.cardAlt, borderRadius: 12, padding: 4, marginBottom: 20 },
   tabWrapper: { flex: 1 },
-  activeTabGradient: { borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
+  activeTabGradient: { borderRadius: 8, paddingVertical: 10, alignItems: 'center', borderRadius: 12 },
   activeTabText: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
   inactiveTab: { borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
   inactiveTabText: { color: colors.textMuted, fontWeight: 'bold', fontSize: 14 },

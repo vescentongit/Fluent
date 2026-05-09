@@ -5,10 +5,12 @@ import {
   Platform, ActivityIndicator, Alert
 } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import WaveHeader from '../components/WaveHeader';
-import { login } from '../services/api';  // ← import API
+import { login } from '../services/api';
 
 const LoginScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -53,7 +55,7 @@ const LoginScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.greetingText}>Welcome Back!</Text>
+        <Text style={styles.greetingText}>{t('auth.welcomeBack', 'Welcome Back!')}</Text>
 
         <View style={styles.formCard}>
           <Text style={styles.label}>Email</Text>
@@ -67,7 +69,7 @@ const LoginScreen = ({ navigation }) => {
             autoCapitalize="none"
           />
 
-          <Text style={styles.label}>Password</Text>
+          <Text style={styles.label}>{t('auth.password', 'Password')}</Text>
           <View style={styles.passwordContainer}>
             <TextInput
               style={styles.passwordInput}
@@ -89,19 +91,19 @@ const LoginScreen = ({ navigation }) => {
           >
             {isLoading
               ? <ActivityIndicator color="#FFFFFF" />
-              : <Text style={styles.loginButtonText}>Login</Text>
+              : <Text style={styles.loginButtonText}>{t('auth.loginBtn', 'Login')}</Text>
             }
           </TouchableOpacity>
         </View>
 
         <View style={styles.footer}>
           <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-            <Text style={styles.forgotPassword}>Forgot your password?</Text>
+            <Text style={styles.forgotPassword}>{t('auth.forgotPassword', 'Forgot your password?')}</Text>
           </TouchableOpacity>
           <View style={styles.signUpContainer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
+            <Text style={styles.footerText}>{t('auth.noAccount', "Don't have an account?")} </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
-              <Text style={styles.signUpText}>Sign up here!</Text>
+              <Text style={styles.signUpText}>{t('auth.registerNow', 'Sign up here!')}</Text>
             </TouchableOpacity>
           </View>
         </View>

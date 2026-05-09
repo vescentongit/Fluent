@@ -1,9 +1,10 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Modal, Switch, Image } from 'react-native';
-import { ArrowLeft, ChevronRight, Bell, Moon, Globe, DollarSign, CircleHelp, Check, Home, Wallet, BookOpen } from 'lucide-react-native';
+import { ArrowLeft, ChevronRight, Bell, Moon, Globe, DollarSign, CircleHelp, Check, Home, Wallet, BookOpen, Crown } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeContext } from '../context/ThemeContext';
 import { UserContext } from '../context/UserContext';
+import SubscriptionModal from '../components/SubscriptionModal';
 
 const SettingToggleRow = ({ icon: Icon, name, value, onValueChange, styles, colors }) => (
   <View style={styles.settingRow}>
@@ -32,8 +33,10 @@ const AppSettingsScreen = ({ navigation }) => {
   const { t, i18n } = useTranslation();
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [notifications, setNotifications] = useState(true);
+  const [currencyModalVisible, setCurrencyModalVisible] = useState(false);
+  const [subscriptionModalVisible, setSubscriptionModalVisible] = useState(false);
   const { isDarkMode, toggleDarkMode, colors } = useContext(ThemeContext);
-  const { currency, currencySymbol } = useContext(UserContext);
+  const { currency, currencySymbol, setCurrency, availableCurrencies, subscriptionPlan } = useContext(UserContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const ASEAN_LANGUAGES = ['en', 'id', 'ms', 'tl', 'vi', 'th', 'my', 'km', 'lo'];
@@ -41,6 +44,11 @@ const AppSettingsScreen = ({ navigation }) => {
   const changeLanguage = (langCode) => {
     i18n.changeLanguage(langCode);
     setLangModalVisible(false);
+  };
+
+  const handleCurrencyChange = (currCode) => {
+    setCurrency(currCode);
+    setCurrencyModalVisible(false);
   };
 
   return (
@@ -86,8 +94,15 @@ const AppSettingsScreen = ({ navigation }) => {
           <SettingNavRow 
             icon={DollarSign} 
             name={t('settings.currency', 'Currency')} 
-            value={currencySymbol} 
-            onPress={() => {}} 
+            value={currency} 
+            onPress={() => setCurrencyModalVisible(true)} 
+            styles={styles} colors={colors}
+          />
+          <SettingNavRow 
+            icon={Crown} 
+            name="Subscription Plan" 
+            value={subscriptionPlan.charAt(0).toUpperCase() + subscriptionPlan.slice(1)} 
+            onPress={() => setSubscriptionModalVisible(true)} 
             styles={styles} colors={colors}
           />
         </View>
@@ -129,6 +144,37 @@ const AppSettingsScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+
+      <Modal visible={currencyModalVisible} transparent animationType="slide">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>{t('settings.selectCurrency', 'Select Currency')}</Text>
+            <ScrollView showsVerticalScrollIndicator={false} style={styles.langScrollView}>
+              {availableCurrencies && availableCurrencies.map((currCode) => (
+                <TouchableOpacity 
+                  key={currCode} 
+                  style={styles.langOption} 
+                  onPress={() => handleCurrencyChange(currCode)}
+                >
+                  <Text style={[styles.langText, currency === currCode && styles.langTextActive]}>
+                    {currCode}
+                  </Text>
+                  {currency === currCode && <Check color={colors.primary} size={20} />}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+            <TouchableOpacity style={styles.closeBtn} onPress={() => setCurrencyModalVisible(false)}>
+              <Text style={styles.closeBtnText}>{t('common.cancel', 'Cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      <SubscriptionModal 
+        visible={subscriptionModalVisible}
+        onClose={() => setSubscriptionModalVisible(false)}
+      />
+
     </View>
   );
 };

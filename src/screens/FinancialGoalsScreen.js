@@ -7,10 +7,12 @@ import Svg, { Path } from 'react-native-svg';
 import { ChevronLeft } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const FinancialGoalsScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [goalName, setGoalName] = useState('');
   const [nominal, setNominal] = useState('');
   const [duration, setDuration] = useState('');
@@ -60,24 +62,24 @@ const FinancialGoalsScreen = ({ navigation }) => {
           >
             <View style={styles.content}>
               <Text style={styles.questionText}>
-                Define your{'\n'}
-                <Text style={styles.emphasis}>financial goal.</Text>
+                {t('onboarding.goals.question1', 'Define your\n')}
+                <Text style={styles.emphasis}>{t('onboarding.goals.emphasis', 'financial goal.')}</Text>
               </Text>
 
               <View style={styles.cardContainer}>
                 
-                <Text style={styles.inputLabel}>Goal Name</Text>
+                <Text style={styles.inputLabel}>{t('onboarding.goals.goalName', 'Goal Name')}</Text>
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.input}
-                    placeholder="E.g., Buy a New Car"
+                    placeholder={t('onboarding.goals.namePlaceholder', 'E.g., Buy a New Car')}
                     placeholderTextColor="#A0AEC0"
                     value={goalName}
                     onChangeText={setGoalName}
                   />
                 </View>
 
-                <Text style={styles.inputLabel}>Target Nominal</Text>
+                <Text style={styles.inputLabel}>{t('onboarding.goals.targetNominal', 'Target Nominal')}</Text>
                 <View style={styles.inputContainer}>
                   <Text style={styles.currencyPrefix}>{currencySymbol} </Text>
                   <TextInput
@@ -90,17 +92,17 @@ const FinancialGoalsScreen = ({ navigation }) => {
                   />
                 </View>
 
-                <Text style={styles.inputLabel}>Time to Achieve (Years)</Text>
+                <Text style={styles.inputLabel}>{t('onboarding.goals.timeToAchieve', 'Time to Achieve (Years)')}</Text>
                 <View style={styles.inputContainer}>
                   <TextInput
                     style={styles.input}
-                    placeholder="E.g., 3"
+                    placeholder={t('onboarding.goals.durationPlaceholder', 'E.g., 3')}
                     placeholderTextColor="#A0AEC0"
                     keyboardType="numeric"
                     value={duration}
                     onChangeText={handleDurationChange}
                   />
-                  <Text style={styles.durationSuffix}>Years</Text>
+                  <Text style={styles.durationSuffix}>{t('onboarding.goals.years', 'Years')}</Text>
                 </View>
                 
               </View>
@@ -112,7 +114,7 @@ const FinancialGoalsScreen = ({ navigation }) => {
               <View style={styles.progressWrapper}>
                 <View style={[styles.progressBar, { width: '100%', backgroundColor: colors.primary }]} />
               </View>
-              <Text style={styles.progressTextComplete}>Complete!</Text>
+              <Text style={styles.progressTextComplete}>{t('onboarding.progress.complete', 'Complete!')}</Text>
             </View>
 
             <TouchableOpacity 
@@ -125,11 +127,11 @@ const FinancialGoalsScreen = ({ navigation }) => {
             >
               {!isValid ? (
                 <View style={styles.disabledButton}>
-                  <Text style={styles.continueText}>Finalize</Text>
+                  <Text style={styles.continueText}>{t('onboarding.goals.finalize', 'Finalize')}</Text>
                 </View>
               ) : (
                 <View style={[styles.gradientButton, { backgroundColor: colors.primary }]}>
-                  <Text style={styles.continueText}>Finalize</Text>
+                  <Text style={styles.continueText}>{t('onboarding.goals.finalize', 'Finalize')}</Text>
                 </View>
               )}
             </TouchableOpacity>

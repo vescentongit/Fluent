@@ -7,10 +7,12 @@ import Svg, { Path } from 'react-native-svg';
 import Slider from '@react-native-community/slider';
 import { ChevronLeft } from 'lucide-react-native';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const EconomicPreferencesScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [organized, setOrganized] = useState(0);
   const [riskTolerance, setRiskTolerance] = useState(0);
   const { colors } = useContext(ThemeContext);
@@ -41,13 +43,13 @@ const EconomicPreferencesScreen = ({ navigation }) => {
         >
           <View style={styles.content}>
             <Text style={styles.questionText}>
-              Choose your{'\n'}economic preference.
+              {t('onboarding.preferences.question1', 'Choose your\neconomic preference.')}
             </Text>
 
             <View style={styles.cardContainer}>
 
               <View style={styles.sliderSection}>
-                <Text style={styles.sliderLabel}>How organized are you in managing money?</Text>
+                <Text style={styles.sliderLabel}>{t('onboarding.preferences.organized', 'How organized are you in managing money?')}</Text>
 
                 <View style={[styles.tooltipContainer, { left: `${(organized / 10) * 88}%` }]}>
                   <View style={[styles.tooltipBubble, { backgroundColor: '#8CB8DA' }]}>
@@ -70,7 +72,7 @@ const EconomicPreferencesScreen = ({ navigation }) => {
               </View>
 
               <View style={styles.sliderSection}>
-                <Text style={styles.sliderLabel}>How big is your risk tolerance?</Text>
+                <Text style={styles.sliderLabel}>{t('onboarding.preferences.risk', 'How big is your risk tolerance?')}</Text>
 
                 <View style={[styles.tooltipContainer, { left: `${(riskTolerance / 10) * 88}%` }]}>
                   <View style={[styles.tooltipBubble, { backgroundColor: '#E19595' }]}>
@@ -103,7 +105,7 @@ const EconomicPreferencesScreen = ({ navigation }) => {
             <View style={styles.progressWrapper}>
               <View style={[styles.progressBar, { width: '83%', backgroundColor: '#023E8A' }]} />
             </View>
-            <Text style={styles.progressText}>5 out of 6</Text>
+            <Text style={styles.progressText}>{t('onboarding.progress.5of6', '5 out of 6')}</Text>
           </View>
 
           <TouchableOpacity
@@ -112,7 +114,7 @@ const EconomicPreferencesScreen = ({ navigation }) => {
               navigation.navigate('FinancialGoals');
             }}
           >
-            <Text style={styles.continueText}>Continue</Text>
+            <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

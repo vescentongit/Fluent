@@ -4,10 +4,23 @@ import {
 } from 'react-native';
 import { ArrowLeft, Calendar, Clock, Video, Star, ChevronRight } from 'lucide-react-native';
 import { ThemeContext } from '../context/ThemeContext';
+import { UserContext } from '../context/UserContext';
+import SubscriptionModal from '../components/SubscriptionModal';
+import { useState } from 'react';
 
 const AdvisorBookingScreen = ({ navigation }) => {
   const { colors } = useContext(ThemeContext);
+  const { subscriptionPlan } = useContext(UserContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
+  const [subModalVisible, setSubModalVisible] = useState(false);
+
+  const handleBook = () => {
+    if (subscriptionPlan !== 'elite') {
+      setSubModalVisible(true);
+      return;
+    }
+    // Real booking logic would go here
+  };
 
   const advisors = [
     {
@@ -93,12 +106,17 @@ const AdvisorBookingScreen = ({ navigation }) => {
               </View>
             </View>
 
-            <TouchableOpacity style={[styles.bookBtn, { backgroundColor: colors.primary }]}>
+            <TouchableOpacity 
+              style={[styles.bookBtn, { backgroundColor: colors.primary }]}
+              onPress={handleBook}
+            >
               <Text style={styles.bookBtnText}>Book Session</Text>
             </TouchableOpacity>
           </TouchableOpacity>
         ))}
       </ScrollView>
+
+      <SubscriptionModal visible={subModalVisible} onClose={() => setSubModalVisible(false)} />
     </View>
   );
 };

@@ -1,17 +1,23 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useCallback, useEffect } from 'react';
 import {
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Modal, TextInput
+  View, Text, StyleSheet, TouchableOpacity, SafeAreaView, Platform, Modal, TextInput, Dimensions
 } from 'react-native';
+import { ScrollView } from 'react-native-gesture-handler';
 import { ArrowLeft, Edit, Trash2, Check, X, CalendarDays, MessageCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { useFocusEffect } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { ThemeContext } from '../context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { UserContext } from '../context/UserContext';
+import SubscriptionModal from '../components/SubscriptionModal';
 
-const formatCurrencyM = (value) => `Rp ${value} M`;
+const GOALS_STORAGE_KEY = '@fluent_goals';
 
 const GoalsScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const { formatCurrencyM, currencySymbol, checkGoalLimit } = useContext(UserContext);
+  const [subModalVisible, setSubModalVisible] = useState(false);
 
   const [goals, setGoals] = useState([
     { id: '1', title: 'New Car', daysLeft: 215, current: 156, target: 300, percentage: 52 },
@@ -32,6 +38,65 @@ const GoalsScreen = ({ navigation }) => {
   const [newTarget, setNewTarget] = useState('');
   const [newDate, setNewDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState(new Date());
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Load goals from storage on mount
+  useEffect(() => {
+    loadGoals();
+  }, []);
+
+  // Save goals whenever they change
+  useEffect(() => {
+    if (!isLoading) {
+      saveGoals();
+    }
+  }, [goals]);
+
+  // Load goals from AsyncStorage
+  const loadGoals = async () => {
+    try {
+      const storedGoals = await AsyncStorage.getItem(GOALS_STORAGE_KEY);
+      if (storedGoals !== null) {
+        const parsedGoals = JSON.parse(storedGoals);
+        // Recalculate days left based on stored date
+        const updatedGoals = parsedGoals.map(goal => {
+          if (goal.daysLeft <= 0) return goal;
+          // Calculate actual days left based on target date
+          if (goal.targetDate) {
+            const targetDate = new Date(goal.targetDate);
+            const today = new Date();
+            const diffTime = targetDate - today;
+            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+            return { ...goal, daysLeft: Math.max(0, diffDays) };
+          }
+          return goal;
+        });
+        setGoals(updatedGoals);
+      }
+    } catch (error) {
+      console.error('Error loading goals:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Save goals to AsyncStorage
+  const saveGoals = async () => {
+    try {
+      await AsyncStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify(goals));
+    } catch (error) {
+      console.error('Error saving goals:', error);
+    }
+  };
+
+  // Refresh data when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      loadGoals();
+      setLastUpdated(new Date());
+    }, [])
+  );
 
   const activeTargets = goals.length;
   const averageProgress = activeTargets > 0
@@ -84,7 +149,8 @@ const GoalsScreen = ({ navigation }) => {
       daysLeft: daysDiff > 0 ? daysDiff : 0,
       current: 0,
       target: parseFloat(newTarget),
-      percentage: 0
+      percentage: 0,
+      targetDate: newDate.toISOString() // Store target date for accurate day calculation
     };
     setGoals(prev => [...prev, newGoal]);
     setNewTitle('');
@@ -102,6 +168,9 @@ const GoalsScreen = ({ navigation }) => {
           <View style={styles.headerTextContainer}>
             <Text style={styles.headerTitle}>{t('goals.title', 'Goals & Targets')}</Text>
             <Text style={styles.headerSubtitle}>{t('goals.subtitle', 'Track your financial goals')}</Text>
+            <View style={styles.updatedBadge}>
+              <Text style={styles.updatedText}>{t('goals.updated', 'Updated: ')}{lastUpdated.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</Text>
+            </View>
           </View>
         </View>
       </SafeAreaView>
@@ -145,8 +214,8 @@ const GoalsScreen = ({ navigation }) => {
               </View>
 
               <View style={styles.amountRow}>
-                <Text style={styles.amountText}>{formatCurrencyM(goal.current)}</Text>
-                <Text style={styles.amountText}>{formatCurrencyM(goal.target)}</Text>
+                <Text style={styles.amountText}>{formatCurrencyM(goal.current * 1000000)}</Text>
+                <Text style={styles.amountText}>{formatCurrencyM(goal.target * 1000000)}</Text>
               </View>
 
               <View style={styles.progressBarTrack}>
@@ -162,7 +231,7 @@ const GoalsScreen = ({ navigation }) => {
                   {t('goals.doneText', "You've done it!")}
                 </Text>
               ) : (
-                <Text style={styles.amountToGo}>{formatCurrencyM(remaining)} {t('goals.toGo', 'to go')}</Text>
+                <Text style={styles.amountToGo}>{formatCurrencyM(remaining * 1000000)} {t('goals.toGo', 'to go')}</Text>
               )}
 
               <View style={styles.badgeContainer}>
@@ -174,21 +243,30 @@ const GoalsScreen = ({ navigation }) => {
                   onPress={() => navigation.navigate('Chatbot', {
                     goalAdvice: {
                       title: goal.title,
-                      currentAmount: `${goal.current} M`,
-                      targetAmount: `${goal.target} M`,
-                      duration: `${goal.daysLeft} days left`,
+                      currentAmount: formatCurrencyM(goal.current * 1000000),
+                      targetAmount: formatCurrencyM(goal.target * 1000000),
+                      duration: `${goal.daysLeft} ${t('goals.daysLeft', 'days left')}`,
                     }
                   })}
                 >
                   <MessageCircle color="#FFFFFF" size={14} />
-                  <Text style={styles.adviceBtnText}>Fluent's Advice</Text>
+                  <Text style={styles.adviceBtnText}>{t('goals.fluentsAdvice', "Fluent's Advice")}</Text>
                 </TouchableOpacity>
               </View>
             </View>
           );
         })}
 
-        <TouchableOpacity style={styles.addButton} onPress={() => setAddModalVisible(true)}>
+        <TouchableOpacity 
+          style={styles.addButton} 
+          onPress={() => {
+            if (!checkGoalLimit(goals.length)) {
+              setSubModalVisible(true);
+            } else {
+              setAddModalVisible(true);
+            }
+          }}
+        >
           <Text style={styles.addButtonText}>+ {t('goals.addNew', 'Add New Goals')}</Text>
         </TouchableOpacity>
 
@@ -217,8 +295,8 @@ const GoalsScreen = ({ navigation }) => {
                 <Text style={styles.modalDaysLeft}>{selectedGoal.daysLeft} {t('goals.daysLeft', 'days left')}</Text>
 
                 <View style={styles.modalAmountRow}>
-                  <Text style={styles.modalAmountText}>{formatCurrencyM(selectedGoal.current)}</Text>
-                  <Text style={[styles.modalAmountText, { color: '#FFFFFF' }]}>{formatCurrencyM(selectedGoal.target)}</Text>
+                  <Text style={styles.modalAmountText}>{formatCurrencyM(selectedGoal.current * 1000000)}</Text>
+                  <Text style={[styles.modalAmountText, { color: '#FFFFFF' }]}>{formatCurrencyM(selectedGoal.target * 1000000)}</Text>
                 </View>
 
                 <View style={styles.modalProgressTrack}>
@@ -226,7 +304,7 @@ const GoalsScreen = ({ navigation }) => {
                 </View>
 
                 <Text style={styles.modalToGoText}>
-                  {formatCurrencyM(Math.max(selectedGoal.target - selectedGoal.current, 0))} {t('goals.toGo', 'to go')}
+                  {formatCurrencyM(Math.max(selectedGoal.target - selectedGoal.current, 0) * 1000000)} {t('goals.toGo', 'to go')}
                 </Text>
 
                 <View style={styles.modalActionRow}>
@@ -320,6 +398,8 @@ const GoalsScreen = ({ navigation }) => {
         </View>
       </Modal>
 
+      <SubscriptionModal visible={subModalVisible} onClose={() => setSubModalVisible(false)} />
+
     </View>
   );
 };
@@ -332,7 +412,9 @@ const styles = StyleSheet.create({
   headerTextContainer: { flex: 1 },
   headerTitle: { fontSize: 26, fontWeight: '900', color: '#000000', marginBottom: 4, letterSpacing: -0.5 },
   headerSubtitle: { fontSize: 14, color: '#718096' },
-  scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
+  updatedBadge: { backgroundColor: '#E2E8F0', borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, alignSelf: 'flex-start', marginTop: 6 },
+  updatedText: { fontSize: 11, color: '#4A5568', fontWeight: '600' },
+  scrollContent: { paddingHorizontal: 24, paddingBottom: 150, minHeight: Dimensions.get('window').height * 1.2 },
   statsRow: { flexDirection: 'row', gap: 16, marginBottom: 24 },
   statCard: { flex: 1, backgroundColor: '#052C5C', borderRadius: 16, padding: 20 },
   statLabel: { fontSize: 14, fontWeight: '600', color: '#E0E7FF', marginBottom: 8 },

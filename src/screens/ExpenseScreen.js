@@ -7,10 +7,12 @@ import Svg, { Path } from 'react-native-svg';
 import { ChevronLeft } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const ExpenseScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [expense, setExpense] = useState('');
   const { currencySymbol } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
@@ -72,7 +74,7 @@ const ExpenseScreen = ({ navigation }) => {
           >
             <View style={styles.content}>
               <Text style={styles.questionText}>
-                How much is your monthly <Text style={styles.emphasis}>expenses</Text>?
+                {t('onboarding.expense.question1', 'How much is your monthly')} <Text style={styles.emphasis}>{t('onboarding.expense.emphasis', 'expenses')}</Text>?
               </Text>
 
               <View style={styles.inputContainer}>
@@ -93,7 +95,7 @@ const ExpenseScreen = ({ navigation }) => {
           <View style={styles.bottomContainer}>
             <View style={styles.progressSection}>
               <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '33.33%' }]} /></View>
-              <Text style={styles.progressText}>2 out of 6</Text>
+              <Text style={styles.progressText}>{t('onboarding.progress.2of6', '2 out of 6')}</Text>
             </View>
 
             <TouchableOpacity
@@ -101,7 +103,7 @@ const ExpenseScreen = ({ navigation }) => {
               onPress={() => expense && navigation.navigate('Assets')}
               disabled={!expense}
             >
-              <Text style={styles.continueText}>Continue</Text>
+              <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

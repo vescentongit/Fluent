@@ -4,14 +4,16 @@ import {
   Image, ScrollView, KeyboardAvoidingView, Platform
 } from 'react-native';
 import { ChevronLeft, Eye, EyeOff } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import BottomWave from '../components/BottomWave';
 import { UserContext } from '../context/UserContext';
 
 const RegisterScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [phone, setPhone] = useState('');
-  const { setCurrency, setPhoneNumber } = useContext(UserContext);
+  const { setCurrency, setPhoneNumber, setXp, setLevel } = useContext(UserContext);
 
   const handleRegister = () => {
     let newCurrency = 'IDR';
@@ -38,6 +40,8 @@ const RegisterScreen = ({ navigation }) => {
     }
     setPhoneNumber(phone);
     setCurrency(newCurrency);
+    setXp(0);
+    setLevel(1);
     navigation.navigate('Loading');
   };
 
@@ -59,17 +63,17 @@ const RegisterScreen = ({ navigation }) => {
 
           <View style={styles.header}>
             <Image source={require('../assets/logo2.png')} style={styles.logo} resizeMode="contain" />
-            <Text style={styles.title}>Create Account</Text>
+            <Text style={styles.title}>{t('auth.createAccount', 'Create Account')}</Text>
           </View>
 
           <View style={styles.formCard}>
-            <Text style={styles.label}>Username</Text>
+            <Text style={styles.label}>{t('auth.username', 'Username')}</Text>
             <TextInput style={styles.input} placeholder="Shaquille" placeholderTextColor="#A0AEC0" />
 
             <Text style={styles.label}>Email</Text>
             <TextInput style={styles.input} placeholder="nathan@std.stei.itb.ac.id" placeholderTextColor="#A0AEC0" keyboardType="email-address" />
 
-            <Text style={styles.label}>Phone Number</Text>
+            <Text style={styles.label}>{t('auth.phone', 'Phone Number')}</Text>
             <TextInput
               style={styles.input}
               placeholder="+62811990125"
@@ -79,7 +83,7 @@ const RegisterScreen = ({ navigation }) => {
               onChangeText={setPhone}
             />
 
-            <Text style={styles.label}>Password</Text>
+            <Text style={styles.label}>{t('auth.password', 'Password')}</Text>
             <View style={styles.passInputContainer}>
               <TextInput style={styles.passInput} placeholder="••••••••" secureTextEntry={!showPass} />
               <TouchableOpacity onPress={() => setShowPass(!showPass)}>
@@ -87,7 +91,7 @@ const RegisterScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
-            <Text style={styles.label}>Confirm Password</Text>
+            <Text style={styles.label}>{t('auth.confirmPassword', 'Confirm Password')}</Text>
             <View style={styles.passInputContainer}>
               <TextInput style={styles.passInput} placeholder="••••••••" secureTextEntry={!showConfirmPass} />
               <TouchableOpacity onPress={() => setShowConfirmPass(!showConfirmPass)}>
@@ -96,19 +100,19 @@ const RegisterScreen = ({ navigation }) => {
             </View>
 
             <TouchableOpacity style={styles.registerButton} onPress={handleRegister}>
-              <Text style={styles.registerText}>Create Account</Text>
+              <Text style={styles.registerText}>{t('auth.createAccount', 'Create Account')}</Text>
             </TouchableOpacity>
 
             <View style={styles.loginLink}>
-              <Text>Already have an account? </Text>
+              <Text>{t('auth.alreadyHaveAccount', 'Already have an account?')} </Text>
               <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={styles.loginText}>Login</Text>
+                <Text style={styles.loginText}>{t('auth.loginBtn', 'Login')}</Text>
               </TouchableOpacity>
             </View>
           </View>
 
           <View style={styles.socialSection}>
-            <Text style={styles.socialText}>Or continue with</Text>
+            <Text style={styles.socialText}>{t('auth.orContinueWith', 'Or continue with')}</Text>
             <View style={styles.socialIcons}>
               <TouchableOpacity style={styles.iconCircle}>
                 <Image source={require('../assets/google_icon.png')} style={styles.socialLogo} />

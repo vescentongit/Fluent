@@ -1,7 +1,7 @@
 // src/services/api.js
 let tokenStorage = { access_token: null };
 
-const BASE_URL = 'https://rare-ants-add.loca.lt'; // ← localtunnel URL
+const BASE_URL = 'https://open-sites-open.loca.lt'; // ← localtunnel URL
 
 const getHeaders = async (includeAuth = true) => {
   const headers = {
@@ -48,28 +48,46 @@ export const logout = async () => {
 // ── RESILIENCE SCORE ──────────────────────────────────────
 
 export const getResilienceScore = async () => {
-  const res = await fetch(`${BASE_URL}/api/resilience`, {
-    headers: await getHeaders()
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/api/resilience`, {
+      headers: await getHeaders()
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
 };
 
 // ── DIGITAL TWIN ──────────────────────────────────────────
 
 export const getDigitalTwin = async () => {
-  const res = await fetch(`${BASE_URL}/api/digital-twin`, {
-    headers: await getHeaders()
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/api/digital-twin`, {
+      headers: await getHeaders()
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
 };
 
 // ── NUDGES ────────────────────────────────────────────────
 
 export const getNudges = async () => {
-  const res = await fetch(`${BASE_URL}/api/nudge/check`, {
-    headers: await getHeaders()
-  });
-  return res.json();
+  try {
+    const res = await fetch(`${BASE_URL}/api/nudge/check`, {
+      headers: await getHeaders()
+    });
+    if (!res.ok) return null;
+    const text = await res.text();
+    return JSON.parse(text);
+  } catch (e) {
+    return null;
+  }
 };
 
 // ── CHATBOT STREAMING ─────────────────────────────────────
@@ -83,27 +101,17 @@ export const streamChat = async (message, language = 'en', onChunk, onDone) => {
     body: JSON.stringify({ message, language })
   });
 
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
+  const text = await response.text();
+  const lines = text.split('\n').filter(l => l.startsWith('data:'));
   let fullText = '';
 
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-
-    const chunk = decoder.decode(value);
-    const lines = chunk.split('\n').filter(l => l.startsWith('data:'));
-
-    for (const line of lines) {
-      try {
-        const data = JSON.parse(line.replace('data: ', ''));
-        if (data.done) { onDone(fullText); return; }
-        if (data.text) {
-          fullText += data.text;
-          onChunk(fullText);
-        }
-      } catch (e) {}
-    }
+  for (const line of lines) {
+    try {
+      const data = JSON.parse(line.replace('data: ', ''));
+      if (data.text) fullText += data.text;
+    } catch (e) { }
   }
+
+  onChunk(fullText);
   onDone(fullText);
 };

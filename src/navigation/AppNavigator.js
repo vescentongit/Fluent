@@ -5,7 +5,7 @@ import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import VerificationScreen from '../screens/VerificationScreen'; 
+import VerificationScreen from '../screens/VerificationScreen';
 import NewPasswordScreen from '../screens/NewPasswordScreen';
 import IncomeSourceScreen from '../screens/IncomeSourceScreen';
 import ExpenseScreen from '../screens/ExpenseScreen';

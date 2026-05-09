@@ -9,55 +9,57 @@ import {
 } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import SubscriptionModal from '../components/SubscriptionModal';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
-const BADGES_DATA = [
+const getBadgesData = (t) => [
   {
     id: 1,
-    title: "Level 1 Badge",
-    name: "Financial Trailblazer",
-    desc: "The first step toward a bright future! You've taken the leap to begin your financial journey. This proves your commitment to learning, tracking your expenses, and taking charge of your money.",
-    statusText: "Unlocked Sunday, August 17, 2025",
+    title: t('badges.lv1Title', "Level 1 Badge"),
+    name: t('badges.lv1Name', "Financial Trailblazer"),
+    desc: t('badges.lv1Desc', "The first step toward a bright future! You've taken the leap to begin your financial journey. This proves your commitment to learning, tracking your expenses, and taking charge of your money."),
+    statusText: t('badges.lv1Status', "Unlocked Sunday, August 17, 2025"),
     isLocked: false,
     listImage: require('../assets/badge_lv1.png'),
     modalImage: require('../assets/m_badge_lv1.png')
   },
   {
     id: 2,
-    title: "Level 2 Badge",
-    name: "Savvy Manager",
-    desc: "A solid foundation is taking shape! You've mastered the art of basic budgeting and can easily spot the difference between needs and wants. Keep up these smart money habits!",
-    statusText: "Unlocked Thursday, October 19, 2025",
+    title: t('badges.lv2Title', "Level 2 Badge"),
+    name: t('badges.lv2Name', "Savvy Manager"),
+    desc: t('badges.lv2Desc', "A solid foundation is taking shape! You've mastered the art of basic budgeting and can easily spot the difference between needs and wants. Keep up these smart money habits!"),
+    statusText: t('badges.lv2Status', "Unlocked Thursday, October 19, 2025"),
     isLocked: false,
     listImage: require('../assets/badge_lv2.png'),
     modalImage: require('../assets/m_badge_lv2.png')
   },
   {
     id: 3,
-    title: "30 Days Streak Badge",
-    name: "Consistency Champion",
-    desc: "Incredible! For 30 consecutive days, you've shown up for your finances without fail. A powerful new habit has officially taken root in your life. Keep this momentum going!",
-    statusText: "Unlocked Sunday, December 21, 2025",
+    title: t('badges.30DaysTitle', "30 Days Streak Badge"),
+    name: t('badges.30DaysName', "Consistency Champion"),
+    desc: t('badges.30DaysDesc', "Incredible! For 30 consecutive days, you've shown up for your finances without fail. A powerful new habit has officially taken root in your life. Keep this momentum going!"),
+    statusText: t('badges.30DaysStatus', "Unlocked Sunday, December 21, 2025"),
     isLocked: false,
     listImage: require('../assets/badge_30.png'),
     modalImage: require('../assets/m_badge_30.png')
   },
   {
     id: 4,
-    title: "Level 3 Badge",
-    name: "Strategic Planner",
-    desc: "You are now fully in the driver's seat of your finances. You understand the power of an emergency fund and have started strategizing to protect your future from financial surprises.",
-    statusText: "Unlocked Monday, February 2, 2026",
+    title: t('badges.lv3Title', "Level 3 Badge"),
+    name: t('badges.lv3Name', "Strategic Planner"),
+    desc: t('badges.lv3Desc', "You are now fully in the driver's seat of your finances. You understand the power of an emergency fund and have started strategizing to protect your future from financial surprises."),
+    statusText: t('badges.lv3Status', "Unlocked Monday, February 2, 2026"),
     isLocked: false,
     listImage: require('../assets/badge_lv3.png'),
     modalImage: require('../assets/m_badge_lv3.png')
   },
   {
     id: 5,
-    title: "Level 4 Badge",
-    name: "Wealth Architect",
-    desc: "Reach level 4 to unlock this badge!",
+    title: t('badges.lv4Title', "Level 4 Badge"),
+    name: t('badges.lv4Name', "Wealth Architect"),
+    desc: t('badges.lv4Desc', "Reach level 4 to unlock this badge!"),
     statusText: "",
     isLocked: true,
     listImage: require('../assets/wealth_locked.png'),
@@ -65,9 +67,9 @@ const BADGES_DATA = [
   },
   {
     id: 6,
-    title: "100 Days Streak Badge",
-    name: "Discipline Centurion",
-    desc: "Log your expenses for 100 consecutive days to unlock!",
+    title: t('badges.100DaysTitle', "100 Days Streak Badge"),
+    name: t('badges.100DaysName', "Discipline Centurion"),
+    desc: t('badges.100DaysDesc', "Log your expenses for 100 consecutive days to unlock!"),
     statusText: "",
     isLocked: true,
     listImage: require('../assets/disc_locked.png'),
@@ -75,9 +77,9 @@ const BADGES_DATA = [
   },
   {
     id: 7,
-    title: "Level 5 Badge",
-    name: "Financial Maestro",
-    desc: "Reach level 5 to unlock this badge!",
+    title: t('badges.lv5Title', "Level 5 Badge"),
+    name: t('badges.lv5Name', "Financial Maestro"),
+    desc: t('badges.lv5Desc', "Reach level 5 to unlock this badge!"),
     statusText: "",
     isLocked: true,
     listImage: require('../assets/maestro_locked.png'),
@@ -86,11 +88,15 @@ const BADGES_DATA = [
 ];
 
 const ProfileScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [cardIndex, setCardIndex] = useState(0);
   const [selectedBadge, setSelectedBadge] = useState(null);
-  const { userName, userImage } = useContext(UserContext);
+  const [subModalVisible, setSubModalVisible] = useState(false);
+  const { userName, userImage, level, xp, getXpForNextLevel, getXpProgress, formatCurrency, subscriptionPlan } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const badges = useMemo(() => getBadgesData(t), [t]);
 
   return (
     <View style={styles.container}>
@@ -114,7 +120,7 @@ const ProfileScreen = ({ navigation }) => {
       </View>
 
       <SafeAreaView style={styles.fixedHeaderSafeArea} pointerEvents="none">
-        <Text style={styles.headerTitle}>Profile</Text>
+        <Text style={styles.headerTitle}>{t('profile.title', 'Profile')}</Text>
       </SafeAreaView>
 
       <ScrollView showsVerticalScrollIndicator={false} style={styles.scrollView}>
@@ -132,7 +138,7 @@ const ProfileScreen = ({ navigation }) => {
             <View style={styles.nameRow}>
               <Text style={styles.userName}>{userName}</Text>
               <View style={styles.levelBadge}>
-                <Text style={styles.levelBadgeText}>LV. 3</Text>
+                <Text style={styles.levelBadgeText}>LV. {level}</Text>
               </View>
             </View>
           </View>
@@ -144,13 +150,13 @@ const ProfileScreen = ({ navigation }) => {
               </TouchableOpacity>
               <View style={styles.cardCenter}>
                 <View style={styles.cardTextRow}>
-                  <Text style={styles.cardTextMain}>6,767 XP</Text>
-                  <Text style={styles.cardTextMain}>10,000 XP (LV 4)</Text>
+                  <Text style={styles.cardTextMain}>{(xp ?? 0).toLocaleString()} XP</Text>
+                  <Text style={styles.cardTextMain}>{level < 4 ? `${(getXpForNextLevel() ?? 0).toLocaleString()} XP (LV ${level + 1})` : t('profile.maxLevel', 'Max Level')}</Text>
                 </View>
                 <View style={styles.cardBarBg}>
-                  <View style={[styles.cardBarFill, { width: '67%' }]} />
+                  <View style={[styles.cardBarFill, { width: `${getXpProgress()}%` }]} />
                 </View>
-                <Text style={styles.cardSubtextLeft}>3,233 XP to next level</Text>
+                <Text style={styles.cardSubtextLeft}>{level < 4 ? `${((getXpForNextLevel() ?? 0) - (xp ?? 0)).toLocaleString()} ${t('profile.xpToNextLevel', 'XP to next level')}` : t('profile.maxLevelReached', 'Max level reached!')}</Text>
               </View>
               <TouchableOpacity onPress={() => setCardIndex(1)}>
                 <ChevronRight color="#FFFFFF" size={24} style={styles.cardArrow} />
@@ -162,7 +168,7 @@ const ProfileScreen = ({ navigation }) => {
                 <ChevronLeft color="#FFFFFF" size={24} style={styles.cardArrow} />
               </TouchableOpacity>
               <View style={styles.cardCenter}>
-                <Text style={styles.cardTextLabel}>Resilience Score</Text>
+                <Text style={styles.cardTextLabel}>{t('profile.resilienceScore', 'Resilience Score')}</Text>
                 <View style={styles.scoreRow}>
                   <Text style={styles.scoreValueMain}>67</Text>
                   <Text style={styles.scoreValueSub}>/100</Text>
@@ -171,8 +177,8 @@ const ProfileScreen = ({ navigation }) => {
                   <View style={[styles.cardBarFill, { width: '67%' }]} />
                 </View>
                 <View style={styles.cardTextRow}>
-                  <Text style={styles.scoreSubtextLeft}>Good Standing!</Text>
-                  <Text style={styles.scoreSubtextRight}>6.7 months</Text>
+                  <Text style={styles.scoreSubtextLeft}>{t('profile.goodStanding', 'Good Standing!')}</Text>
+                  <Text style={styles.scoreSubtextRight}>6.7 {t('profile.months', 'months')}</Text>
                 </View>
               </View>
               <TouchableOpacity onPress={() => setCardIndex(0)}>
@@ -183,15 +189,15 @@ const ProfileScreen = ({ navigation }) => {
 
           <View style={styles.snapshotRow}>
             <View style={[styles.snapshotCardMain, { backgroundColor: colors.primary }]}>
-              <Text style={styles.snapshotLabel}>Total{'\n'}Balance</Text>
-              <Text style={styles.snapshotValue}>Rp 67,676,767</Text>
+              <Text style={styles.snapshotLabel}>{t('profile.totalBalance', 'Total\nBalance')}</Text>
+              <Text style={styles.snapshotValue}>{formatCurrency(67676767)}</Text>
             </View>
             <View style={[styles.snapshotCardMain, { backgroundColor: colors.primary }]}>
-              <Text style={styles.snapshotLabel}>Monthly{'\n'}Spending</Text>
-              <Text style={styles.snapshotValue}>Rp 6,767,676</Text>
+              <Text style={styles.snapshotLabel}>{t('profile.monthlySpending', 'Monthly\nSpending')}</Text>
+              <Text style={styles.snapshotValue}>{formatCurrency(6767676)}</Text>
             </View>
             <View style={[styles.snapshotCardSmall, { backgroundColor: colors.secondary }]}>
-              <Text style={styles.snapshotLabel}>Debt Ratio</Text>
+              <Text style={styles.snapshotLabel}>{t('profile.debtRatio', 'Debt Ratio')}</Text>
               <Text style={styles.snapshotValueLarge}>19%</Text>
             </View>
           </View>
@@ -199,43 +205,49 @@ const ProfileScreen = ({ navigation }) => {
           <View style={[styles.insightsCard, { backgroundColor: colors.primary }]}>
             <View style={styles.insightRow}>
               <AlertTriangle color="#FFFFFF" size={18} style={styles.insightIcon} />
-              <Text style={styles.insightText}>Dining spending increased 21% this week</Text>
+              <Text style={styles.insightText}>{t('profile.insight1', 'Dining spending increased 21% this week')}</Text>
             </View>
             <View style={styles.insightRow}>
               <Lightbulb color="#FFFFFF" size={18} style={styles.insightIcon} />
-              <Text style={styles.insightText}>Paying Rp500k more toward debt could reduce payoff by 3 months</Text>
+              <Text style={styles.insightText}>{t('profile.insight2', 'Paying')} {formatCurrency(500000)} {t('profile.insight2b', 'more toward debt could reduce payoff by 3 months')}</Text>
             </View>
             <View style={styles.insightRow}>
               <TrendingUp color="#FFFFFF" size={18} style={styles.insightIcon} />
-              <Text style={styles.insightText}>Savings rate improved by 6%</Text>
+              <Text style={styles.insightText}>{t('profile.insight3', 'Savings rate improved by 6%')}</Text>
             </View>
           </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate('AdvisorBooking')}>
+          <TouchableOpacity onPress={() => {
+            if (subscriptionPlan !== 'elite') {
+              setSubModalVisible(true);
+            } else {
+              navigation.navigate('AdvisorBooking');
+            }
+          }}>
             <View style={[styles.ctaCard, { backgroundColor: colors.card, borderColor: colors.primary }]}>
               <View style={styles.ctaIconBg}>
                 <Calendar color={colors.primary} size={24} />
               </View>
               <View style={styles.ctaTextContainer}>
-                <Text style={[styles.ctaTitle, { color: colors.text }]}>Book a 1-on-1 Session</Text>
-                <Text style={[styles.ctaSubtitle, { color: colors.textMuted }]}>Get personalized advice from a financial advisor</Text>
+                <Text style={[styles.ctaTitle, { color: colors.text }]}>{t('profile.bookSession', 'Book a 1-on-1 Session')}</Text>
+                <Text style={[styles.ctaSubtitle, { color: colors.textMuted }]}>{t('profile.getAdvice', 'Get personalized advice from a financial advisor')}</Text>
               </View>
               <ChevronRight color={colors.primary} size={20} />
             </View>
           </TouchableOpacity>
 
           <View style={[styles.streakCard, { backgroundColor: colors.primary }]}>
-            <Text style={styles.streakLabel}>Current Streak</Text>
+            <Text style={styles.streakLabel}>{t('profile.currentStreak', 'Current Streak')}</Text>
             <View style={styles.streakRow}>
               <Image source={require('../assets/streak_fire.png')} style={styles.streakIcon} />
-              <Text style={styles.streakValue}>67 Days</Text>
+              <Text style={styles.streakValue}>67 {t('profile.days', 'Days')}</Text>
             </View>
           </View>
 
           <View style={[styles.badgesBox, { backgroundColor: colors.secondary }]}>
-            <Text style={styles.badgesBoxTitle}>Badges</Text>
+            <Text style={styles.badgesBoxTitle}>{t('profile.badges', 'Badges')}</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesScroll}>
-              {BADGES_DATA.map((badge) => (
+              {badges.map((badge) => (
                 <TouchableOpacity key={badge.id} style={styles.badgeItem} onPress={() => setSelectedBadge(badge)}>
                   <Image source={badge.listImage} style={styles.badgeImage} />
                 </TouchableOpacity>
@@ -246,7 +258,7 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.navigate('Goals')}>
             <View style={[styles.actionButton, { backgroundColor: colors.primary }]}>
               <Target color="#FFFFFF" size={24} style={styles.actionIcon} />
-              <Text style={styles.actionButtonText}>Goals & Targets</Text>
+              <Text style={styles.actionButtonText}>{t('profile.goalsTargets', 'Goals & Targets')}</Text>
               <ChevronRight color="#FFFFFF" size={20} />
             </View>
           </TouchableOpacity>
@@ -254,7 +266,7 @@ const ProfileScreen = ({ navigation }) => {
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
             <View style={[styles.actionButton, { backgroundColor: colors.secondary }]}>
               <Settings color="#FFFFFF" size={24} style={styles.actionIcon} />
-              <Text style={styles.actionButtonText}>App Settings</Text>
+              <Text style={styles.actionButtonText}>{t('profile.appSettings', 'App Settings')}</Text>
               <ChevronRight color="#FFFFFF" size={20} />
             </View>
           </TouchableOpacity>
@@ -281,14 +293,16 @@ const ProfileScreen = ({ navigation }) => {
         </View>
       </Modal>
 
+      <SubscriptionModal visible={subModalVisible} onClose={() => setSubModalVisible(false)} />
+
       <View style={styles.bottomNavbar}>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
           <Home color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navText}>{t('nav.home', 'Home')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Wallet')}>
           <Wallet color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Wallet</Text>
+          <Text style={styles.navText}>{t('nav.wallet', 'Wallet')}</Text>
         </TouchableOpacity>
         <View style={styles.fabWrapper}>
           <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Chatbot')}>
@@ -297,13 +311,13 @@ const ProfileScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>
           <BookOpen color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Learn</Text>
+          <Text style={styles.navText}>{t('nav.learn', 'Learn')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem}>
           <View style={styles.navProfileImgActiveWrapper}>
             <Image source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} style={styles.navProfileImgActive} />
           </View>
-          <Text style={styles.navTextActive}>Profile</Text>
+          <Text style={styles.navTextActive}>{t('nav.profile', 'Profile')}</Text>
         </TouchableOpacity>
       </View>
     </View>

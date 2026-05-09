@@ -6,30 +6,33 @@ import {
 import Svg, { Path } from 'react-native-svg';
 import { ThemeContext } from '../context/ThemeContext';
 import { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const IncomeSourceScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [selectedSources, setSelectedSources] = useState([]);
   const { colors } = useContext(ThemeContext);
   const options = [
-    "Full-time employee",
-    "Freelancer",
-    "Part-Time",
-    "Allowance / Student",
-    "Not Working"
+    t('onboarding.income.fullTime', 'Full-time employee'),
+    t('onboarding.income.freelancer', 'Freelancer'),
+    t('onboarding.income.partTime', 'Part-Time'),
+    t('onboarding.income.allowance', 'Allowance / Student'),
+    t('onboarding.income.notWorking', 'Not Working')
   ];
 
   const toggleSource = (option) => {
-    if (option === "Not Working") {
-      if (selectedSources.includes("Not Working")) {
+    const notWorkingStr = t('onboarding.income.notWorking', 'Not Working');
+    if (option === notWorkingStr) {
+      if (selectedSources.includes(notWorkingStr)) {
         setSelectedSources([]);
       } else {
-        setSelectedSources(["Not Working"]);
+        setSelectedSources([notWorkingStr]);
       }
       return;
     }
-    let currentSelections = selectedSources.filter(item => item !== "Not Working");
+    let currentSelections = selectedSources.filter(item => item !== notWorkingStr);
 
     if (currentSelections.includes(option)) {
       setSelectedSources(currentSelections.filter(item => item !== option));
@@ -76,7 +79,7 @@ const IncomeSourceScreen = ({ navigation }) => {
 
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.content}>
-          <Text style={styles.questionText}>How do you primarily earn your <Text style={styles.emphasis}>income</Text>?</Text>
+          <Text style={styles.questionText}>{t('onboarding.income.question1', 'How do you primarily earn your')} <Text style={styles.emphasis}>{t('onboarding.income.emphasis', 'income')}</Text>?</Text>
 
           <View style={styles.optionsContainer}>
             {options.map((option) => (
@@ -101,7 +104,7 @@ const IncomeSourceScreen = ({ navigation }) => {
         <View style={styles.bottomContainer}>
           <View style={styles.progressSection}>
             <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '16.75%' }]} /></View>
-            <Text style={styles.progressText}>1 out of 6</Text>
+            <Text style={styles.progressText}>{t('onboarding.progress.1of6', '1 out of 6')}</Text>
           </View>
 
           <TouchableOpacity
@@ -109,7 +112,7 @@ const IncomeSourceScreen = ({ navigation }) => {
             onPress={() => selectedSources.length > 0 && navigation.navigate('Expense')}
             disabled={selectedSources.length === 0}
           >
-            <Text style={styles.continueText}>Continue</Text>
+            <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>

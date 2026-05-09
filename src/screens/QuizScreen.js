@@ -5,10 +5,12 @@ import { LessonContext } from '../context/LessonContext';
 import { ThemeContext } from '../context/ThemeContext';
 
 const QuizScreen = ({ route, navigation }) => {
-  const { quizId = 1 } = route.params || {};
-  const { markQuizDone } = useContext(LessonContext);
+  const { quizId = 1, courseId = 'budgeting101' } = route.params || {};
+  const { markQuizDone, courses } = useContext(LessonContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
+  
+  const quizData = courses[courseId]?.quizzes.find(q => q.id === quizId) || {};
   
   const [answers, setAnswers] = useState({});
   const [showError, setShowError] = useState(false);
@@ -75,7 +77,7 @@ const QuizScreen = ({ route, navigation }) => {
   };
 
   const handleConfirmResults = () => {
-    markQuizDone('budgeting101', quizId);
+    markQuizDone(courseId, quizId);
     setShowResultsModal(false);
     setShowSuccessModal(true);
   };
@@ -86,11 +88,11 @@ const QuizScreen = ({ route, navigation }) => {
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
           <ArrowLeft color={colors.primary} size={24} />
         </TouchableOpacity>
-        <Text style={styles.headerTitle}>Budgeting Basics Quiz</Text>
-        <Text style={styles.headerDesc}>Test your understanding of fundamental budgeting concepts!</Text>
+        <Text style={styles.headerTitle}>{quizData.title || 'Quiz'}</Text>
+        <Text style={styles.headerDesc}>{quizData.desc || 'Test your understanding!'}</Text>
         <View style={styles.metaRow}>
-          <Text style={styles.metaText}>5 questions</Text>
-          <View style={styles.xpBadge}><Text style={styles.xpText}>+ 50 XP</Text></View>
+          <Text style={styles.metaText}>{questions.length} questions</Text>
+          <View style={styles.xpBadge}><Text style={styles.xpText}>+ {quizData.xpReward || 50} XP</Text></View>
         </View>
       </View>
 
@@ -176,7 +178,7 @@ const QuizScreen = ({ route, navigation }) => {
               <Trophy color="#DD6B20" size={40} />
             </View>
             <Text style={styles.modalTitle}>Congratulations! 🎉</Text>
-            <Text style={styles.modalDesc}>You completed the quiz and earned +50 XP!</Text>
+            <Text style={styles.modalDesc}>You completed the quiz and earned +{quizData.xpReward || 50} XP!</Text>
             <TouchableOpacity 
               style={styles.modalBtn} 
               onPress={() => {

@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { Eye, EyeOff, ChevronLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import WaveHeader from '../components/WaveHeader';
 
 const NewPasswordScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [showPass, setShowPass] = useState(false);
 
   return (
@@ -20,11 +22,11 @@ const NewPasswordScreen = ({ navigation }) => {
               />
               </View>
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>New Password</Text>
-        <Text style={styles.subtitle}>Enter your new password to access your account.</Text>
+        <Text style={styles.title}>{t('auth.newPasswordTitle', 'New Password')}</Text>
+        <Text style={styles.subtitle}>{t('auth.enterNewPassword', 'Enter your new password to access your account.')}</Text>
 
         <View style={styles.formCard}>
-          <Text style={styles.label}>New Password</Text>
+          <Text style={styles.label}>{t('auth.newPassword', 'New Password')}</Text>
           <View style={styles.passInputContainer}>
             <TextInput style={styles.passInput} placeholder="••••••••" secureTextEntry={!showPass} />
             <TouchableOpacity onPress={() => setShowPass(!showPass)}>
@@ -32,7 +34,7 @@ const NewPasswordScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.label}>Confirm New Password</Text>
+          <Text style={styles.label}>{t('auth.confirmNewPassword', 'Confirm New Password')}</Text>
           <View style={styles.passInputContainer}>
             <TextInput style={styles.passInput} placeholder="••••••••" secureTextEntry={!showPass} />
           </View>
@@ -41,7 +43,7 @@ const NewPasswordScreen = ({ navigation }) => {
             style={styles.submitButton}
             onPress={() => navigation.navigate('Login')}
           >
-            <Text style={styles.submitButtonText}>Submit</Text>
+            <Text style={styles.submitButtonText}>{t('auth.submit', 'Submit')}</Text>
           </TouchableOpacity>
         </View>
       </View>

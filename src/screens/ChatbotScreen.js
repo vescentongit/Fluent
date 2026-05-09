@@ -1,45 +1,77 @@
 import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
-import { 
-  View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, 
+import {
+  View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView,
   KeyboardAvoidingView, Platform, SafeAreaView, Image, Keyboard
 } from 'react-native';
 import { Mic, Send, Home, Wallet, BookOpen } from 'lucide-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { streamChat } from '../services/api';
+import SubscriptionModal from '../components/SubscriptionModal';
+import { useTranslation } from 'react-i18next';
 
 const ChatbotScreen = ({ navigation, route }) => {
+  const { t } = useTranslation();
   const [inputText, setInputText] = useState('');
-  const [isStreaming, setIsStreaming] = useState(false);  // ← tambahkan ini
+  const [isStreaming, setIsStreaming] = useState(false);
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const scrollViewRef = useRef();
-  const { userImage } = useContext(UserContext);
+  const { userImage, checkAiLimit, incrementAi, subscriptionPlan, usage } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
-
-  useEffect(() => {
-    const goalAdvice = route.params?.goalAdvice;
-    if (goalAdvice) {
-      const prompt = `I want advice on how to achieve my goal: ${goalAdvice.title}. I currently have ${goalAdvice.currentAmount} saved for my target and my target is ${goalAdvice.targetAmount}. I have ${goalAdvice.duration} remaining. Can you help me with a plan?`;
-      sendMessage(prompt);
-      navigation.setParams({ goalAdvice: undefined });
-    }
-  }, [route.params?.goalAdvice]);
+  const [subModalVisible, setSubModalVisible] = useState(false);
 
   const [messages, setMessages] = useState([
     {
       id: '1',
       sender: 'bot',
-      text: "Hello! 👋 I'm Fluent AI, your personal financial assistant. I've analyzed your recent financial activity and prepared some personalized insights just for you. What would you like to explore today?"
+      text: t('chatbot.greeting', "Hello! 👋 I'm Fluent AI, your personal financial assistant. I've analyzed your recent financial activity and prepared some personalized insights just for you. What would you like to explore today?")
     }
   ]);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    const loadMessages = async () => {
+      try {
+        const stored = await AsyncStorage.getItem('@fluent_chatbot_messages');
+        if (stored) {
+          setMessages(JSON.parse(stored));
+        }
+      } catch (e) {
+        console.error('Failed to load chat history', e);
+      } finally {
+        setIsLoaded(true);
+      }
+    };
+    loadMessages();
+  }, []);
+
+  useEffect(() => {
+    if (isLoaded) {
+      AsyncStorage.setItem('@fluent_chatbot_messages', JSON.stringify(messages)).catch(e =>
+        console.error('Failed to save chat history', e)
+      );
+    }
+  }, [messages, isLoaded]);
+
+  useEffect(() => {
+    if (isLoaded) {
+      const goalAdvice = route.params?.goalAdvice;
+      if (goalAdvice) {
+        const prompt = `I want advice on how to achieve my goal: ${goalAdvice.title}. I currently have ${goalAdvice.currentAmount} saved for my target and my target is ${goalAdvice.targetAmount}. I have ${goalAdvice.duration} remaining. Can you help me with a plan?`;
+        sendMessage(prompt);
+        navigation.setParams({ goalAdvice: undefined });
+      }
+    }
+  }, [route.params?.goalAdvice, isLoaded]);
 
   const quickPrompts = [
-    "Evaluate my spending\nthis month",
-    "Help me use the\n50/30/20 rule",
-    "How do I start investing\nas a beginner?",
-    "What's the difference between\nregular saving and investing?",
-    "Tips to pay off Paylater\nso it doesn't pile up"
+    t('chatbot.quickPrompt1', "Evaluate my spending\nthis month"),
+    t('chatbot.quickPrompt2', "Help me use the\n50/30/20 rule"),
+    t('chatbot.quickPrompt3', "How do I start investing\nas a beginner?"),
+    t('chatbot.quickPrompt4', "What's the difference between\nregular saving and investing?"),
+    t('chatbot.quickPrompt5', "Tips to pay off Paylater\nso it doesn't pile up")
   ];
 
   useEffect(() => {
@@ -60,8 +92,15 @@ const ChatbotScreen = ({ navigation, route }) => {
   }, []);
 
   const sendMessage = async (text) => {
+    if (!checkAiLimit()) {
+      setSubModalVisible(true);
+      return;
+    }
+    
     const cleanText = (text || '').replace(/\n/g, ' ').trim();
     if (!cleanText || isStreaming) return;
+
+    incrementAi();
 
     // Tambah pesan user
     const userMsgId = Date.now().toString();
@@ -106,26 +145,26 @@ const ChatbotScreen = ({ navigation, route }) => {
         <SafeAreaView>
           <View style={styles.headerContent}>
             <View style={styles.headerIconContainer}>
-              <Image 
-                source={require('../assets/robot_profile.png')} 
-                style={styles.robotProfileIcon} 
+              <Image
+                source={require('../assets/robot_profile.png')}
+                style={styles.robotProfileIcon}
                 resizeMode="contain"
               />
             </View>
             <View>
-              <Text style={styles.headerTitle}>Fluent's Financial Assistant</Text>
-              <Text style={styles.headerSubtitle}>• Helping you get fluent in money</Text>
+              <Text style={styles.headerTitle}>{t('chatbot.title', "Fluent's Financial Assistant")}</Text>
+              <Text style={styles.headerSubtitle}>{t('chatbot.subtitle', "• Helping you get fluent in money")}</Text>
             </View>
           </View>
         </SafeAreaView>
       </View>
 
-      <KeyboardAvoidingView 
-        style={styles.keyboardAvoiding} 
+      <KeyboardAvoidingView
+        style={styles.keyboardAvoiding}
         behavior="padding"
         keyboardVerticalOffset={0}
       >
-        <ScrollView 
+        <ScrollView
           ref={scrollViewRef}
           style={{ flex: 1 }}
           contentContainerStyle={styles.chatScrollContent}
@@ -133,17 +172,17 @@ const ChatbotScreen = ({ navigation, route }) => {
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
         >
           {messages.map((msg) => (
-            <View 
-              key={msg.id} 
+            <View
+              key={msg.id}
               style={[
-                styles.messageRow, 
+                styles.messageRow,
                 msg.sender === 'user' ? styles.messageRowUser : styles.messageRowBot
               ]}
             >
               {msg.sender === 'bot' && (
-                <Image 
-                  source={require('../assets/robot_profile.png')} 
-                  style={styles.chatAvatar} 
+                <Image
+                  source={require('../assets/robot_profile.png')}
+                  style={styles.chatAvatar}
                 />
               )}
 
@@ -158,9 +197,9 @@ const ChatbotScreen = ({ navigation, route }) => {
               )}
 
               {msg.sender === 'user' && (
-                <Image 
-                  source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
-                  style={styles.chatAvatar} 
+                <Image
+                  source={userImage ? { uri: userImage } : require('../assets/user_profile.png')}
+                  style={styles.chatAvatar}
                 />
               )}
             </View>
@@ -168,14 +207,14 @@ const ChatbotScreen = ({ navigation, route }) => {
         </ScrollView>
 
         <View style={styles.bottomArea}>
-          <ScrollView 
-            horizontal 
-            showsHorizontalScrollIndicator={false} 
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.quickPromptsCont}
           >
             {quickPrompts.map((prompt, index) => (
-              <TouchableOpacity 
-                key={index} 
+              <TouchableOpacity
+                key={index}
                 style={[styles.promptChip, { backgroundColor: isDarkMode ? colors.cardAlt : '#E2E8F0' }]}
                 onPress={() => sendMessage(prompt)}
               >
@@ -184,19 +223,22 @@ const ChatbotScreen = ({ navigation, route }) => {
             ))}
           </ScrollView>
 
+          {subscriptionPlan === 'basic' && (
+            <Text style={{ textAlign: 'center', fontSize: 12, color: colors.textMuted, marginBottom: 8 }}>
+              {t('chatbot.promptsToday', 'Prompts today: ')} {usage.aiPrompts} / 5
+            </Text>
+          )}
+
           <View style={styles.inputContainer}>
             <View style={[styles.inputWrapper, { backgroundColor: isDarkMode ? colors.card : '#FFFFFF' }]}>
               <TextInput
                 style={[styles.input, { color: isDarkMode ? colors.text : '#1A202C' }]}
-                placeholder="Ask your AI assistant anything..."
+                placeholder={t('chatbot.inputPlaceholder', "Ask your AI assistant anything...")}
                 placeholderTextColor={isDarkMode ? colors.textMuted : "#A0AEC0"}
                 value={inputText}
                 onChangeText={setInputText}
                 multiline
               />
-              <TouchableOpacity style={styles.micBtn}>
-                <Mic color={isDarkMode ? colors.textMuted : "#718096"} size={20} />
-              </TouchableOpacity>
               <TouchableOpacity
                 style={[styles.sendBtn, isStreaming && { opacity: 0.4 }]}
                 onPress={() => sendMessage(inputText)}
@@ -215,22 +257,22 @@ const ChatbotScreen = ({ navigation, route }) => {
         <View style={styles.bottomNavbar}>
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
             <Home color="#8CA8D1" size={24} />
-            <Text style={styles.navText}>Home</Text>
+            <Text style={styles.navText}>{t('nav.home', 'Home')}</Text>
           </TouchableOpacity>
-          
-          <TouchableOpacity 
-          style={styles.navItem}
-          onPress={() => navigation.navigate('Wallet')}
+
+          <TouchableOpacity
+            style={styles.navItem}
+            onPress={() => navigation.navigate('Wallet')}
           >
             <Wallet color="#8CA8D1" size={24} />
-            <Text style={styles.navText}>Wallet</Text>
+            <Text style={styles.navText}>{t('nav.wallet', 'Wallet')}</Text>
           </TouchableOpacity>
 
           <View style={styles.fabWrapper}>
             <View style={[styles.fabGradient, { backgroundColor: colors.primary }]}>
               <TouchableOpacity style={styles.fabInner}>
-                <Image 
-                  source={require('../assets/aihover.png')} 
+                <Image
+                  source={require('../assets/aihover.png')}
                   style={styles.fabIcon}
                   resizeMode="contain"
                 />
@@ -240,18 +282,23 @@ const ChatbotScreen = ({ navigation, route }) => {
 
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>
             <BookOpen color="#8CA8D1" size={24} />
-            <Text style={styles.navText}>Learn</Text>
+            <Text style={styles.navText}>{t('nav.learn', 'Learn')}</Text>
           </TouchableOpacity>
 
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-            <Image 
-              source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
-              style={styles.navProfileImg} 
+            <Image
+              source={userImage ? { uri: userImage } : require('../assets/user_profile.png')}
+              style={styles.navProfileImg}
             />
-            <Text style={styles.navText}>Profile</Text>
+            <Text style={styles.navText}>{t('nav.profile', 'Profile')}</Text>
           </TouchableOpacity>
         </View>
       )}
+
+      <SubscriptionModal 
+        visible={subModalVisible}
+        onClose={() => setSubModalVisible(false)}
+      />
     </View>
   );
 };
@@ -276,14 +323,39 @@ const createStyles = (colors, isDarkMode) => StyleSheet.create({
   messageTextUser: { fontSize: 14, lineHeight: 22, color: colors.white },
   bottomArea: { backgroundColor: colors.backgroundAlt, paddingBottom: 10 },
   quickPromptsCont: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
-  promptChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
+  promptChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 20,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    borderWidth: 1,
+    borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
+  },
   promptText: { fontSize: 13, textAlign: 'center' },
   inputContainer: { paddingHorizontal: 16, paddingBottom: 15 },
-  inputWrapper: { flexDirection: 'row', alignItems: 'center', borderRadius: 30, paddingLeft: 20, paddingRight: 10, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 3 },
+  inputWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 30,
+    paddingLeft: 20,
+    paddingRight: 10,
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 4,
+    backgroundColor: isDarkMode ? colors.card : '#FFFFFF',
+    borderWidth: 1,
+    borderColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)'
+  },
   input: { flex: 1, height: 50, fontSize: 14 },
   micBtn: { padding: 8 },
   sendBtn: { padding: 8, marginLeft: 4 },
-  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: {width: 0, height: -4}, shadowOpacity: 0.1, shadowRadius: 10 },
+  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10 },
   navItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
   navText: { color: colors.navIcon, fontSize: 11, marginTop: 4, fontWeight: '500' },
   navProfileImg: { width: 26, height: 26, borderRadius: 13 },

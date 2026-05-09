@@ -147,66 +147,66 @@ export const LessonProvider = ({ children }) => {
       lessons: [
         { id: 1, title: 'Lesson 1: Introduction to Passive Income', type: 'video', duration: '15 min', status: 'pending', xpReward: 50, videoUrl: 'https://youtu.be/sUOIlve7TYE?si=Nnt3BZ6R_RL8SuB5' },
         { id: 2, title: 'Lesson 2: Digital Products & Online Business', type: 'article', duration: '20 min', status: 'pending', xpReward: 60 },
-        { id: 3, title: 'Lesson 3: Real Estate Investment Basics', type: 'video', duration: '25 min', status: 'pending', xpReward: 70, videoUrl: 'https://youtu.be/D69VhdRNok0?si=p4PRYnWkNY4JCAvd' },
-        { id: 4, title: 'Lesson 4: Dividend Stock Strategies', type: 'interactive', duration: '18 min', status: 'pending', xpReward: 65 },
-        { id: 5, title: 'Lesson 5: Content Creation & Monetization', type: 'article', duration: '22 min', status: 'pending', xpReward: 55 },
-        { id: 6, title: 'Lesson 6: Peer-to-Peer Lending', type: 'video', duration: '16 min', status: 'pending', xpReward: 50, videoUrl: 'https://youtu.be/g3YiXV0rPqs?si=Ye6vJVjiLzDfmh_5' },
-        { id: 7, title: 'Lesson 7: Building Automated Systems', type: 'interactive', duration: '20 min', status: 'pending', xpReward: 75 },
-        { id: 8, title: 'Lesson 8: Scaling Your Passive Income', type: 'video', duration: '18 min', status: 'pending', xpReward: 75, videoUrl: 'https://youtu.be/h4WNZYZokLU?si=XYMPG9RlZ7LkMerx' },
-        { id: 9, title: 'Lesson 9: Coming Soon - Advanced Strategies', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
-        { id: 10, title: 'Lesson 10: Coming Soon - Case Studies', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
-        { id: 11, title: 'Lesson 11: Coming Soon - Expert Interviews', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
-        { id: 12, title: 'Lesson 12: Coming Soon - Future Trends', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
-        { id: 13, title: 'Lesson 13: Coming Soon - Risk Management', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
-        { id: 14, title: 'Lesson 14: Coming Soon - Tax Optimization', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
-        { id: 15, title: 'Lesson 15: Coming Soon - Exit Strategies', type: 'locked', duration: '--', status: 'locked', xpReward: 0 },
       ],
       quizzes: [
-        { id: 1, title: 'Passive Income Fundamentals', desc: 'Test your understanding of basic passive income concepts', questionsCount: 8, xpReward: 100, status: 'locked', unlockCondition: 'Finish min. 4 lessons to unlock this quiz!' },
-        { id: 2, title: 'Advanced Passive Income Strategies', desc: 'Apply advanced concepts to real-world scenarios', questionsCount: 12, xpReward: 200, status: 'locked', unlockCondition: 'Finish all available lessons to unlock this quiz!' }
+        { id: 1, title: 'Passive Income Fundamentals', desc: 'Test your understanding of basic passive income concepts', questionsCount: 8, xpReward: 100, status: 'locked', unlockCondition: 'Finish all lessons to unlock this quiz!' }
       ]
     }
   });
 
   useEffect(() => {
     setCourses(prev => {
+      let changed = false;
       const next = { ...prev };
       Object.keys(next).forEach(courseKey => {
         const course = { ...next[courseKey] };
         const doneCount = course.lessons.filter(l => l.status === 'done').length;
         const availableLessons = course.lessons.filter(l => l.status !== 'locked').length;
-        const allLessonsDone = doneCount === availableLessons;
+        const allLessonsDone = doneCount >= availableLessons && availableLessons > 0;
 
+        let quizzesChanged = false;
         course.quizzes = course.quizzes.map(q => {
-          if (q.id === 1) {
-            const requiredLessons = courseKey === 'passiveIncome' ? 4 : 3;
-            if (doneCount >= requiredLessons && q.status === 'locked') {
-              return { ...q, status: 'pending' };
-            }
-          }
-          if (q.id === 2 && allLessonsDone && q.status === 'locked') {
+          if (allLessonsDone && q.status === 'locked') {
+            quizzesChanged = true;
             return { ...q, status: 'pending' };
           }
           return q;
         });
 
-        next[courseKey] = course;
+        if (quizzesChanged) {
+          next[courseKey] = course;
+          changed = true;
+        }
       });
-      return next;
+      return changed ? next : prev;
     });
-  }, [courses.budgeting101.lessons, courses.investingBasics.lessons, courses.emergencyFundGuide.lessons, courses.passiveIncome.lessons]);
+  }, [courses]);
 
   const markLessonDone = (courseId, lessonId) => {
     setCourses(prev => {
       const next = { ...prev };
       const course = { ...next[courseId] };
+      
+      let lessonAward = 0;
       course.lessons = course.lessons.map(lesson => {
         if (lesson.id === lessonId && lesson.status !== 'done') {
-          setUserXp(prevXp => prevXp + lesson.xpReward);
+          lessonAward = lesson.xpReward;
           return { ...lesson, status: 'done' };
         }
         return lesson;
       });
+
+      if (lessonAward > 0) {
+        let courseAward = 0;
+        const allQuizzesDone = course.quizzes.every(q => q.status === 'done');
+        const allLessonsDone = course.lessons.every(l => l.status === 'done' || l.status === 'locked');
+        if (allQuizzesDone && allLessonsDone && !course.completed) {
+           course.completed = true;
+           courseAward = course.xpReward;
+        }
+        setUserXp(prevXp => prevXp + lessonAward + courseAward);
+      }
+
       next[courseId] = course;
       return next;
     });
@@ -216,13 +216,27 @@ export const LessonProvider = ({ children }) => {
     setCourses(prev => {
       const next = { ...prev };
       const course = { ...next[courseId] };
+      
+      let quizAward = 0;
       course.quizzes = course.quizzes.map(quiz => {
         if (quiz.id === quizId && quiz.status !== 'done') {
-          setUserXp(prevXp => prevXp + quiz.xpReward);
+          quizAward = quiz.xpReward;
           return { ...quiz, status: 'done' };
         }
         return quiz;
       });
+
+      if (quizAward > 0) {
+        let courseAward = 0;
+        const allQuizzesDone = course.quizzes.every(q => q.status === 'done');
+        const allLessonsDone = course.lessons.every(l => l.status === 'done' || l.status === 'locked');
+        if (allQuizzesDone && allLessonsDone && !course.completed) {
+           course.completed = true;
+           courseAward = course.xpReward;
+        }
+        setUserXp(prevXp => prevXp + quizAward + courseAward);
+      }
+
       next[courseId] = course;
       return next;
     });

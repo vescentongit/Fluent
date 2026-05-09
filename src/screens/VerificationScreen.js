@@ -4,9 +4,11 @@ import {
   KeyboardAvoidingView, Platform 
 } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import WaveHeader from '../components/WaveHeader';
 
 const VerificationScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [code, setCode] = useState(['', '', '', '']);
   const inputs = useRef([]);
 
@@ -36,8 +38,8 @@ const VerificationScreen = ({ navigation }) => {
         </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>Verification</Text>
-        <Text style={styles.subtitle}>Enter your verification code that we sent to your email.</Text>
+        <Text style={styles.title}>{t('auth.verification', 'Verification')}</Text>
+        <Text style={styles.subtitle}>{t('auth.sentCode', 'Enter your verification code that we sent to your email.')}</Text>
 
         <View style={styles.codeContainer}>
           {code.map((digit, index) => (
@@ -57,12 +59,12 @@ const VerificationScreen = ({ navigation }) => {
           style={styles.verifyButton}
           onPress={() => navigation.navigate('NewPassword')}
         >
-          <Text style={styles.verifyButtonText}>Verify</Text>
+          <Text style={styles.verifyButtonText}>{t('auth.verify', 'Verify')}</Text>
         </TouchableOpacity>
 
         <View style={styles.resendContainer}>
-          <Text style={styles.resendText}>Didn't receive the code? </Text>
-          <TouchableOpacity><Text style={styles.resendLink}>Resend</Text></TouchableOpacity>
+          <Text style={styles.resendText}>{t('auth.didNotReceive', "Didn't receive the code?")} </Text>
+          <TouchableOpacity><Text style={styles.resendLink}>{t('auth.resendCode', 'Resend')}</Text></TouchableOpacity>
         </View>
       </View>
     </KeyboardAvoidingView>

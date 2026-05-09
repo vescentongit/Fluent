@@ -3,7 +3,7 @@
 function buildSystemPrompt(userData) {
     const { name, resilienceScore, savingsRunwayMonths,
         totalBnplDebt, monthlyIncome, riskLevel,
-        debtToIncomeRatio, language = 'id' } = userData;
+        debtToIncomeRatio, language = 'en' } = userData;
 
     const languageInstruction = {
         id: 'Respond ONLY in Bahasa Indonesia.',

@@ -1,7 +1,7 @@
 # ai/prompts/systemPrompt.py
 
 def build_system_prompt(user_data: dict) -> str:
-    language = user_data.get("language", "id")
+    language = user_data.get("language", "en")
 
     lang_instruction = {
         "id": "Respond ONLY in Bahasa Indonesia.",

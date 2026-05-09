@@ -4,9 +4,11 @@ import {
   KeyboardAvoidingView, Platform, Image 
 } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
+import { useTranslation } from 'react-i18next';
 import WaveHeader from '../components/WaveHeader';
 
 const ForgotPasswordScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState('');
 
   return (
@@ -29,13 +31,13 @@ const ForgotPasswordScreen = ({ navigation }) => {
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.title}>Forgot Password?</Text>
+        <Text style={styles.title}>{t('auth.forgotPasswordTitle', 'Forgot Password?')}</Text>
         <Text style={styles.subtitle}>
-          Enter the email address associated with your account and we'll send you a link to reset your password.
+          {t('auth.resetInstructions', "Enter the email address associated with your account and we'll send you a link to reset your password.")}
         </Text>
 
         <View style={styles.formCard}>
-          <Text style={styles.label}>Email Address</Text>
+          <Text style={styles.label}>{t('auth.emailAddress', 'Email Address')}</Text>
           <TextInput
             style={styles.input}
             placeholder="darrel@std.stei.itb.ac.id"
@@ -49,7 +51,7 @@ const ForgotPasswordScreen = ({ navigation }) => {
             style={styles.submitButton}
             onPress={() => navigation.navigate('Verification')}
           >
-            <Text style={styles.submitButtonText}>Send Reset Link</Text>
+            <Text style={styles.submitButtonText}>{t('auth.sendResetLink', 'Send Reset Link')}</Text>
           </TouchableOpacity>
         </View>
       </View>

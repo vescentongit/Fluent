@@ -8,14 +8,16 @@ import { ChevronLeft, Plus, Trash2, Edit2, CreditCard, Calendar as CalendarIcon 
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const DebtScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const { currencySymbol } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
   const [debts, setDebts] = useState([
-    { id: Date.now().toString(), name: '', nominal: '', dueDate: new Date(), dueDateText: 'Select Date', interest: '' }
+    { id: Date.now().toString(), name: '', nominal: '', dueDate: new Date(), dueDateText: t('onboarding.debt.selectDate', 'Select Date'), interest: '' }
   ]);
 
   const [showPicker, setShowPicker] = useState(false);
@@ -27,7 +29,7 @@ const DebtScreen = ({ navigation }) => {
       name: '',
       nominal: '',
       dueDate: new Date(),
-      dueDateText: 'Select Date',
+      dueDateText: t('onboarding.debt.selectDate', 'Select Date'),
       interest: ''
     };
     setDebts([...debts, newDebt]);
@@ -93,7 +95,7 @@ const DebtScreen = ({ navigation }) => {
         >
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <View style={styles.content}>
-              <Text style={styles.questionText}>List your current outstanding <Text style={styles.emphasis}>debts</Text>.</Text>
+              <Text style={styles.questionText}>{t('onboarding.debt.question1', 'List your current outstanding')} <Text style={styles.emphasis}>{t('onboarding.debt.emphasis', 'debts')}</Text>.</Text>
 
               {debts.map((debt) => (
                 <View key={debt.id} style={styles.debtCard}>
@@ -101,7 +103,7 @@ const DebtScreen = ({ navigation }) => {
                     <CreditCard color="#023E8A" size={20} style={{ marginRight: 8 }} />
                     <TextInput
                       style={styles.debtNameInput}
-                      placeholder="Debt Name : KPR, KTA..."
+                      placeholder={t('onboarding.debt.namePlaceholder', 'Debt Name : KPR, KTA...')}
                       value={debt.name}
                       onChangeText={(text) => updateDebt(debt.id, 'name', text)}
                     />
@@ -111,7 +113,7 @@ const DebtScreen = ({ navigation }) => {
 
                   <View style={styles.debtDetailsRow}>
                     <View style={styles.detailColumn}>
-                      <Text style={styles.detailLabel}>Nominal ({currencySymbol})</Text>
+                      <Text style={styles.detailLabel}>{t('onboarding.debt.nominal', 'Nominal')} ({currencySymbol})</Text>
                       <TextInput
                         style={styles.detailInput}
                         placeholder={`${currencySymbol} 0`}
@@ -122,12 +124,12 @@ const DebtScreen = ({ navigation }) => {
                     </View>
 
                     <View style={styles.detailColumn}>
-                      <Text style={styles.detailLabel}>Due Date</Text>
+                      <Text style={styles.detailLabel}>{t('onboarding.debt.dueDate', 'Due Date')}</Text>
                       <TouchableOpacity
                         style={styles.datePickerButton}
                         onPress={() => openDatePicker(debt.id)}
                       >
-                        <Text style={[styles.detailInputText, debt.dueDateText === 'Select Date' && { color: '#CBD5E0' }]}>
+                        <Text style={[styles.detailInputText, debt.dueDateText === t('onboarding.debt.selectDate', 'Select Date') && { color: '#CBD5E0' }]}>
                           {debt.dueDateText}
                         </Text>
                         <CalendarIcon color="#023E8A" size={14} />
@@ -135,7 +137,7 @@ const DebtScreen = ({ navigation }) => {
                     </View>
 
                     <View style={styles.detailColumnSmall}>
-                      <Text style={styles.detailLabel1}>Interest (%)</Text>
+                      <Text style={styles.detailLabel1}>{t('onboarding.debt.interest', 'Interest (%)')}</Text>
                       <TextInput
                         style={styles.detailInput}
                         placeholder="0"
@@ -156,7 +158,7 @@ const DebtScreen = ({ navigation }) => {
 
               <TouchableOpacity style={styles.addDebtButton} onPress={addDebt}>
                 <Plus color="#023E8A" size={20} style={{ marginRight: 8 }} />
-                <Text style={styles.addDebtText}>Add Debt</Text>
+                <Text style={styles.addDebtText}>{t('onboarding.debt.addDebt', 'Add Debt')}</Text>
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -173,10 +175,10 @@ const DebtScreen = ({ navigation }) => {
           <View style={styles.bottomContainer}>
             <View style={styles.progressSection}>
               <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '66%' }]} /></View>
-              <Text style={styles.progressText}>4 out of 6</Text>
+              <Text style={styles.progressText}>{t('onboarding.progress.4of6', '4 out of 6')}</Text>
             </View>
             <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('EconomicPreferences')}>
-              <Text style={styles.continueText}>Continue</Text>
+              <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>

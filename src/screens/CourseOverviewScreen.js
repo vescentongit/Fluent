@@ -8,29 +8,25 @@ import {
 import { LessonContext } from '../context/LessonContext';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const CourseOverviewScreen = ({ route, navigation }) => {
-  const courseId = route.params?.courseId || 'investingBasics';
+  const { t } = useTranslation();
+  const courseId = route.params?.courseId || 'budgeting101';
   const [activeTab, setActiveTab] = useState('Overview');
-  const { lessons, quizzes, progressPercentage } = useContext(LessonContext);
+  const { courses, getCourseProgress } = useContext(LessonContext);
   const { userImage } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
 
-  const bullets = [
-    "The 50/30/20 budgeting rule explained",
-    "How to track and categorize your expenses",
-    "Setting realistic financial goals",
-    "Creating a budget that works for you",
-    "Adjusting your budget overtime"
-  ];
+  const course = courses[courseId];
+  const lessons = course?.lessons || [];
+  const quizzes = course?.quizzes || [];
+  const progressPercentage = getCourseProgress(courseId);
 
-  const benefits = [
-    "Take control of your money",
-    "Reduce financial stress",
-    "Save more effectively",
-    "Build better spending habits"
-  ];
+  const bullets = course?.bullets || [];
+  const requirements = course?.requirements || [];
+  const benefits = course?.benefits || [];
 
   return (
     <View style={styles.container}>
@@ -41,16 +37,16 @@ const CourseOverviewScreen = ({ route, navigation }) => {
           </TouchableOpacity>
           
           <View style={styles.courseHeaderInfo}>
-            <View style={styles.courseIconBg}>
-              <Image source={require('../assets/piggy_bank.png')} style={styles.courseIcon} resizeMode="contain" />
+            <View style={[styles.courseIconBg, { backgroundColor: course?.themeColor || colors.primary }]}>
+              <Image source={course?.icon} style={styles.courseIcon} resizeMode="contain" />
             </View>
             <View>
-              <Text style={styles.courseTitle}>Budgeting 101</Text>
+              <Text style={styles.courseTitle}>{course?.title}</Text>
               <View style={styles.courseMetaRow}>
                 <Clock color={colors.textMuted} size={14} />
-                <Text style={styles.courseTime}>2.5 hours</Text>
+                <Text style={styles.courseTime}>{course?.duration}</Text>
                 <View style={styles.xpBadge}>
-                  <Text style={styles.xpText}>+ 200 XP</Text>
+                  <Text style={styles.xpText}>+ {course?.xpReward} XP</Text>
                 </View>
               </View>
             </View>
@@ -60,26 +56,26 @@ const CourseOverviewScreen = ({ route, navigation }) => {
         {/* PROGRESS BAR 100% DINAMIS SEKARANG! */}
         <View style={styles.progressContainer}>
           <View style={styles.progressTextRow}>
-            <Text style={styles.progressLabel}>Overall Progress</Text>
-            <Text style={styles.progressValue}>{progressPercentage}%</Text>
+            <Text style={styles.progressLabel}>{t('courseOverview.overallProgress', 'Overall Progress')}</Text>
+            <Text style={[styles.progressValue, { color: course?.themeColor || colors.primary }]}>{progressPercentage}%</Text>
           </View>
           <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, { width: `${progressPercentage}%` }]} />
+            <View style={[styles.progressBarFill, { width: `${progressPercentage}%`, backgroundColor: course?.themeColor || colors.primary }]} />
           </View>
         </View>
 
         <View style={styles.tabsContainer}>
-          <TouchableOpacity style={[styles.tabItem, activeTab === 'Overview' && styles.tabItemActive]} onPress={() => setActiveTab('Overview')}>
-            <Target color={activeTab === 'Overview' ? colors.primary : colors.textMuted} size={20} />
-            <Text style={[styles.tabText, activeTab === 'Overview' && styles.tabTextActive]}>Overview</Text>
+          <TouchableOpacity style={[styles.tabItem, activeTab === 'Overview' && { borderBottomColor: course?.themeColor || colors.primary }]} onPress={() => setActiveTab('Overview')}>
+            <Target color={activeTab === 'Overview' ? (course?.themeColor || colors.primary) : colors.textMuted} size={20} />
+            <Text style={[styles.tabText, activeTab === 'Overview' && { color: course?.themeColor || colors.primary }]}>{t('courseOverview.overview', 'Overview')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tabItem, activeTab === 'Lessons' && styles.tabItemActive]} onPress={() => setActiveTab('Lessons')}>
-            <BookOpen color={activeTab === 'Lessons' ? colors.primary : colors.textMuted} size={20} />
-            <Text style={[styles.tabText, activeTab === 'Lessons' && styles.tabTextActive]}>Lessons</Text>
+          <TouchableOpacity style={[styles.tabItem, activeTab === 'Lessons' && { borderBottomColor: course?.themeColor || colors.primary }]} onPress={() => setActiveTab('Lessons')}>
+            <BookOpen color={activeTab === 'Lessons' ? (course?.themeColor || colors.primary) : colors.textMuted} size={20} />
+            <Text style={[styles.tabText, activeTab === 'Lessons' && { color: course?.themeColor || colors.primary }]}>{t('courseOverview.lessons', 'Lessons')}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={[styles.tabItem, activeTab === 'Quizzes' && styles.tabItemActive]} onPress={() => setActiveTab('Quizzes')}>
-            <Trophy color={activeTab === 'Quizzes' ? colors.primary : colors.textMuted} size={20} />
-            <Text style={[styles.tabText, activeTab === 'Quizzes' && styles.tabTextActive]}>Quizzes</Text>
+          <TouchableOpacity style={[styles.tabItem, activeTab === 'Quizzes' && { borderBottomColor: course?.themeColor || colors.primary }]} onPress={() => setActiveTab('Quizzes')}>
+            <Trophy color={activeTab === 'Quizzes' ? (course?.themeColor || colors.primary) : colors.textMuted} size={20} />
+            <Text style={[styles.tabText, activeTab === 'Quizzes' && { color: course?.themeColor || colors.primary }]}>{t('courseOverview.quizzes', 'Quizzes')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -89,7 +85,7 @@ const CourseOverviewScreen = ({ route, navigation }) => {
         {activeTab === 'Overview' && (
           <>
             <View style={styles.cardWhite}>
-              <View style={styles.cardHeader}><Target color={colors.primary} size={22} /><Text style={styles.cardTitle}>What You'll Learn</Text></View>
+              <View style={styles.cardHeader}><Target color={course?.themeColor || colors.primary} size={22} /><Text style={styles.cardTitle}>{t('courseOverview.whatYouWillLearn', "What You'll Learn")}</Text></View>
               <View style={styles.bulletList}>
                 {bullets.map((text, index) => (
                   <View key={index} style={styles.bulletRow}><Text style={styles.bulletDot}>•</Text><Text style={styles.bulletText}>{text}</Text></View>
@@ -97,27 +93,29 @@ const CourseOverviewScreen = ({ route, navigation }) => {
               </View>
             </View>
 
-            <View style={styles.cardWhite}>
-              <View style={styles.cardHeader}><FileText color={colors.primary} size={22} /><Text style={styles.cardTitle}>Requirements</Text></View>
-              <View style={styles.bulletList}>
-                {bullets.map((text, index) => (
-                  <View key={index} style={styles.bulletRow}><Text style={styles.bulletDot}>•</Text><Text style={styles.bulletText}>{text}</Text></View>
-                ))}
+            {requirements.length > 0 && (
+              <View style={styles.cardWhite}>
+                <View style={styles.cardHeader}><FileText color={course?.themeColor || colors.primary} size={22} /><Text style={styles.cardTitle}>{t('courseOverview.requirements', 'Requirements')}</Text></View>
+                <View style={styles.bulletList}>
+                  {requirements.map((text, index) => (
+                    <View key={index} style={styles.bulletRow}><Text style={styles.bulletDot}>•</Text><Text style={styles.bulletText}>{text}</Text></View>
+                  ))}
+                </View>
               </View>
-            </View>
+            )}
 
             <View style={styles.cardGrey}>
-              <View style={styles.cardHeader}><Award color={colors.primary} size={22} /><Text style={styles.cardTitle}>Benefits</Text></View>
+              <View style={styles.cardHeader}><Award color={course?.themeColor || colors.primary} size={22} /><Text style={styles.cardTitle}>{t('courseOverview.benefits', 'Benefits')}</Text></View>
               <View style={styles.benefitsGrid}>
                 {benefits.map((text, index) => (
-                  <View key={index} style={styles.benefitItem}><Star color={colors.primary} size={16} fill={colors.primary} style={styles.benefitIcon} /><Text style={styles.benefitText}>{text}</Text></View>
+                  <View key={index} style={styles.benefitItem}><Star color={course?.themeColor || colors.primary} size={16} fill={course?.themeColor || colors.primary} style={styles.benefitIcon} /><Text style={styles.benefitText}>{text}</Text></View>
                 ))}
               </View>
             </View>
 
-            <TouchableOpacity style={styles.startButton} onPress={() => setActiveTab('Lessons')}>
+            <TouchableOpacity style={[styles.startButton, { backgroundColor: course?.themeColor || colors.primary, shadowColor: course?.themeColor || colors.primary }]} onPress={() => setActiveTab('Lessons')}>
               <Play color={colors.white} size={20} fill={colors.white} />
-              <Text style={styles.startButtonText}>Start Learning</Text>
+              <Text style={styles.startButtonText}>{t('courseOverview.startLearning', 'Start Learning')}</Text>
             </TouchableOpacity>
           </>
         )}
@@ -127,8 +125,8 @@ const CourseOverviewScreen = ({ route, navigation }) => {
             {lessons.map((lesson) => (
               <TouchableOpacity 
                 key={lesson.id} 
-                style={lesson.status === 'done' ? styles.lessonCardDone : styles.lessonCardTodo}
-                onPress={() => navigation.navigate('LessonDetail', { lessonId: lesson.id })}
+                style={lesson.status === 'done' ? [styles.lessonCardDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.1)' : '#F0FDF4' }] : styles.lessonCardTodo}
+                onPress={() => navigation.navigate('LessonDetail', { lessonId: lesson.id, courseId: courseId })}
               >
                 <View style={styles.lessonIconWrapper}>
                   {lesson.status === 'done' ? <CheckCircle2 color={colors.white} fill={colors.success} size={24} /> : <Hourglass color={colors.warning} size={24} />}
@@ -159,7 +157,7 @@ const CourseOverviewScreen = ({ route, navigation }) => {
                     <View style={styles.quizInfo}>
                       <Text style={styles.quizTitleLocked}>{quiz.title}</Text>
                       <Text style={styles.quizDescLocked}>{quiz.desc}</Text>
-                      <Text style={styles.lockedText}>Finish all lessons to unlock this quiz!</Text>
+                      <Text style={styles.lockedText}>{t('courseOverview.finishAllLessons', 'Finish all lessons to unlock this quiz!')}</Text>
                     </View>
                     <Lock color={colors.text} size={20} />
                   </View>
@@ -180,9 +178,9 @@ const CourseOverviewScreen = ({ route, navigation }) => {
                     <Text style={styles.quizTitle}>{quiz.title}</Text>
                     <Text style={styles.quizDesc}>{quiz.desc}</Text>
                     <View style={styles.quizMetaRow}>
-                      <Text style={styles.quizQuestionCount}>{quiz.questionsCount} questions</Text>
+                      <Text style={styles.quizQuestionCount}>{quiz.questionsCount} {t('courseOverview.questions', 'questions')}</Text>
                       {isDone ? (
-                        <Text style={styles.doneText}>Completed</Text>
+                        <Text style={styles.doneText}>{t('courseOverview.completed', 'Completed')}</Text>
                       ) : (
                         <View style={styles.xpBadgeSmall}>
                           <Text style={styles.xpTextSmall}>+ {quiz.xpReward} XP</Text>
@@ -201,11 +199,11 @@ const CourseOverviewScreen = ({ route, navigation }) => {
 
       {/* NAVBAR */}
       <View style={styles.bottomNavbar}>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}><Home color="#8CA8D1" size={24} /><Text style={styles.navText}>Home</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Wallet')}><Wallet color="#8CA8D1" size={24} /><Text style={styles.navText}>Wallet</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}><Home color="#8CA8D1" size={24} /><Text style={styles.navText}>{t('nav.home', 'Home')}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Wallet')}><Wallet color="#8CA8D1" size={24} /><Text style={styles.navText}>{t('nav.wallet', 'Wallet')}</Text></TouchableOpacity>
         <View style={styles.fabWrapper}><TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Chatbot')}><Image source={require('../assets/robot_navbar.png')} style={styles.fabIcon} resizeMode="contain" /></TouchableOpacity></View>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}><BookOpen color="#FFFFFF" size={24} /><Text style={styles.navTextActive}>Learn</Text></TouchableOpacity>
-        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}><Image source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} style={styles.navProfileImg} /><Text style={styles.navText}>Profile</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}><BookOpen color="#FFFFFF" size={24} /><Text style={styles.navTextActive}>{t('nav.learn', 'Learn')}</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}><Image source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} style={styles.navProfileImg} /><Text style={styles.navText}>{t('nav.profile', 'Profile')}</Text></TouchableOpacity>
       </View>
     </View>
   );

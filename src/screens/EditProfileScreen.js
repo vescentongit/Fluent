@@ -11,12 +11,11 @@ import { UserContext } from '../context/UserContext';
 const EditProfileScreen = ({ navigation }) => {
   const { t } = useTranslation();
   // Ambil data global
-  const { userName, setUserName, userImage, setUserImage } = useContext(UserContext); 
+  const { userName, setUserName, userImage, setUserImage, userEmail } = useContext(UserContext); 
   
   // State sementara (berubah di global kalau di-save)
   const [tempImage, setTempImage] = useState(userImage);
   const [tempName, setTempName] = useState(userName);
-  const [email] = useState('nathan@std.stei.itb.ac.id');
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -84,7 +83,7 @@ const EditProfileScreen = ({ navigation }) => {
             <Text style={styles.inputLabel}>{t('profile.emailLabel', 'Email')}</Text>
             <TextInput
               style={styles.inputField}
-              value={email}
+              value={userEmail}
               editable={false}
               placeholderTextColor="#A0AEC0"
             />

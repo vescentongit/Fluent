@@ -1,193 +1,243 @@
 import React, { useContext, useMemo } from 'react';
-import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions 
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions
 } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { Home, Wallet, BookOpen, Star, CheckCircle2, Hourglass, PlayCircle, Shield, Lock } from 'lucide-react-native';
 import { LessonContext } from '../context/LessonContext';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const LearnScreen = ({ navigation }) => {
-    const { xp, progressPercentage } = useContext(LessonContext);
-    const { userImage } = useContext(UserContext);
-    const { isDarkMode, colors } = useContext(ThemeContext);
-    const styles = useMemo(() => createStyles(colors), [colors]);
+  const { t } = useTranslation();
+  const { xp, progressPercentage, getCourseProgress, courses } = useContext(LessonContext);
+  const { userImage, level, xp: userXp } = useContext(UserContext);
+  const { isDarkMode, colors } = useContext(ThemeContext);
+  const styles = useMemo(() => createStyles(colors), [colors]);
+
+  const totalCompletedLessons = useMemo(() => {
+    let count = 0;
+    if (courses) {
+      Object.values(courses).forEach(course => {
+        if (course.lessons) {
+          course.lessons.forEach(lesson => {
+            if (lesson.status === 'done') count++;
+          });
+        }
+      });
+    }
+    return count;
+  }, [courses]);
+
   return (
     <View style={styles.container}>
       <View style={styles.fixedHeaderContainer} pointerEvents="box-none">
         <Svg height="160" width={width} style={styles.headerWave} pointerEvents="none">
-          <Path 
+          <Path
             fill={colors.headerWave1}
-            d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`} 
+            d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`}
             transform="translate(0, 6)"
-        />
-        <Path 
+          />
+          <Path
             fill={colors.headerWave2}
-            d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`} 
+            d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`}
             transform="translate(0, 3)"
-        />
-        <Path 
+          />
+          <Path
             fill={colors.headerWave3}
-            d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`} 
-        />
+            d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`}
+          />
         </Svg>
 
         <SafeAreaView pointerEvents="box-none">
           <View style={styles.headerRow} pointerEvents="auto">
             <View>
-              <Text style={styles.headerTitle}>Learn & Level Up</Text>
-              <Text style={styles.headerSubtitle}>Earn XP, unlock badges!</Text>
+              <Text style={styles.headerTitle}>{t('learn.title', 'Learn & Level Up')}</Text>
+              <Text style={styles.headerSubtitle}>{t('learn.subtitle', 'Earn XP, unlock badges!')}</Text>
             </View>
-            <View style={styles.xpBadge}>
-              <Star color="#F6AD55" size={16} fill="#F6AD55" />
-              <Text style={styles.xpText}>{(xp ?? 0).toLocaleString()} XP</Text>
+            <View style={[styles.xpBadge, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEFCBF' }]}>
+              <Star color="#D69E2E" size={16} fill="#D69E2E" />
+              <Text style={[styles.xpText, { color: '#D69E2E' }]}>{userXp || 0} XP</Text>
             </View>
           </View>
         </SafeAreaView>
       </View>
 
-      <ScrollView 
+      <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <View style={[styles.streakCard, { backgroundColor: colors.primary }]}>
           <View>
-            <Text style={styles.streakLabel}>Current Streak</Text>
+            <Text style={styles.streakLabel}>{t('learn.currentStreak', 'Current Streak')}</Text>
             <View style={styles.streakValueRow}>
               <Image source={require('../assets/streak_fire.png')} style={styles.streakIcon} />
-              <Text style={styles.streakDays}>67 Days</Text>
+              <Text style={styles.streakDays}>67 {t('learn.days', 'Days')}</Text>
             </View>
-            <Text style={styles.streakBonus}>Keep it up! +50 XP streak bonus</Text>
+            <Text style={styles.streakBonus}>{t('learn.streakBonus', 'Keep it up! +50 XP streak bonus')}</Text>
           </View>
         </View>
 
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Daily Challenges</Text>
-          
-          <View style={[styles.challengeItemDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.15)' : '#F0FFF4' }]}>
-            <CheckCircle2 color={colors.success} size={20} />
-            <Text style={styles.challengeTextDone}>Finish 1 lesson in any courses</Text>
-            <View style={[styles.challengeXpDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.3)' : '#C6F6D5' }]}><Text style={[styles.xpAmountDone, { color: isDarkMode ? '#68D391' : '#2F855A' }]}>+ 20 XP</Text></View>
-          </View>
+          <Text style={styles.sectionTitle}>{t('learn.dailyChallenges', 'Daily Challenges')}</Text>
+
+          {totalCompletedLessons >= 1 ? (
+            <View style={[styles.challengeItemDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.15)' : '#F0FFF4' }]}>
+              <CheckCircle2 color={colors.success} size={20} />
+              <Text style={[styles.challengeTextDone, { textDecorationLine: 'line-through' }]}>{t('learn.finish1Lesson', 'Finish 1 lesson in any courses')}</Text>
+              <View style={[styles.challengeXpDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.3)' : '#C6F6D5' }]}><Text style={[styles.xpAmountDone, { color: isDarkMode ? '#68D391' : '#2F855A' }]}>+ 20 XP</Text></View>
+            </View>
+          ) : (
+            <View style={[styles.challengeItemTodo, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.15)' : '#FFFBF0' }]}>
+              <Hourglass color={colors.warning} size={20} />
+              <Text style={styles.challengeTextTodo}>{t('learn.finish1Lesson', 'Finish 1 lesson in any courses')}</Text>
+              <View style={[styles.challengeXpTodo, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.3)' : '#FEEBC8' }]}><Text style={[styles.xpAmountTodo, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 20 XP</Text></View>
+            </View>
+          )}
 
           <View style={[styles.challengeItemDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.15)' : '#F0FFF4' }]}>
             <CheckCircle2 color={colors.success} size={20} />
-            <Text style={styles.challengeTextDone}>Get 80% in any quizzes</Text>
+            <Text style={styles.challengeTextDone}>{t('learn.get80Quiz', 'Get 80% in any quizzes')}</Text>
             <View style={[styles.challengeXpDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.3)' : '#C6F6D5' }]}><Text style={[styles.xpAmountDone, { color: isDarkMode ? '#68D391' : '#2F855A' }]}>+ 30 XP</Text></View>
           </View>
 
-          <View style={[styles.challengeItemTodo, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.15)' : '#FFFBF0' }]}>
-            <Hourglass color={colors.warning} size={20} />
-            <Text style={styles.challengeTextTodo}>Finish 3 lessons in any courses</Text>
-            <View style={[styles.challengeXpTodo, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.3)' : '#FEEBC8' }]}><Text style={[styles.xpAmountTodo, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 50 XP</Text></View>
-          </View>
+          {totalCompletedLessons >= 3 ? (
+            <View style={[styles.challengeItemDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.15)' : '#F0FFF4' }]}>
+              <CheckCircle2 color={colors.success} size={20} />
+              <Text style={[styles.challengeTextDone, { textDecorationLine: 'line-through' }]}>{t('learn.finish3Lessons', 'Finish 3 lessons in any courses')}</Text>
+              <View style={[styles.challengeXpDone, { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.3)' : '#C6F6D5' }]}><Text style={[styles.xpAmountDone, { color: isDarkMode ? '#68D391' : '#2F855A' }]}>+ 50 XP</Text></View>
+            </View>
+          ) : (
+            <View style={[styles.challengeItemTodo, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.15)' : '#FFFBF0' }]}>
+              <Hourglass color={colors.warning} size={20} />
+              <Text style={styles.challengeTextTodo}>{t('learn.finish3Lessons', 'Finish 3 lessons in any courses')}</Text>
+              <View style={[styles.challengeXpTodo, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.3)' : '#FEEBC8' }]}><Text style={[styles.xpAmountTodo, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 50 XP</Text></View>
+            </View>
+          )}
         </View>
 
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Courses</Text>
-          
-          <View style={styles.courseCard}>
+          <Text style={styles.sectionTitle}>{t('learn.courses', 'Courses')}</Text>
+
+          <TouchableOpacity
+            style={styles.courseCard}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('CourseOverview', { courseId: 'budgeting101' })}
+          >
             <View style={styles.courseTopRow}>
               <View style={[styles.courseIconBgBlue, { backgroundColor: isDarkMode ? 'rgba(49,130,206,0.2)' : '#EBF4FF' }]}>
                 <Image source={require('../assets/piggy_bank.png')} style={styles.courseIcon} />
               </View>
               <View style={styles.courseInfo}>
-                <Text style={styles.courseTitle}>Budgeting 101</Text>
-                <Text style={styles.courseDesc}>Master the 50/30/20 rule and take control of your finances</Text>
+                <Text style={styles.courseTitle}>{t('learn.budgeting101', 'Budgeting 101')}</Text>
+                <Text style={styles.courseDesc}>{t('learn.budgetingDesc', 'Master the 50/30/20 rule and take control of your finances')}</Text>
                 <View style={styles.courseMeta}>
-                  <Text style={styles.metaText}>8 lessons</Text>
+                  <Text style={styles.metaText}>8 {t('learn.lessons', 'lessons')}</Text>
                   <View style={[styles.metaXp, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEEBC8' }]}><Text style={[styles.metaXpText, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 200 XP</Text></View>
                   <View style={[styles.metaLvl, { backgroundColor: isDarkMode ? 'rgba(49,130,206,0.2)' : '#EBF4FF' }]}><Text style={[styles.metaLvlText, { color: isDarkMode ? '#63B3ED' : '#2B6CB0' }]}>Lvl 1</Text></View>
                 </View>
               </View>
-              <TouchableOpacity onPress={() => navigation.navigate('CourseOverview')}>
-                <PlayCircle color={colors.primary} size={32} />
-            </TouchableOpacity>
+              <PlayCircle color={colors.primary} size={32} />
             </View>
             <View style={styles.progressHeader}>
-               <Text style={styles.progressLabel}>Progress</Text>
-               <Text style={[styles.progressPercentage, { color: colors.primary }]}>{progressPercentage}%</Text>
+              <Text style={styles.progressLabel}>{t('learn.progress', 'Progress')}</Text>
+              <Text style={[styles.progressPercentage, { color: colors.primary }]}>{progressPercentage}%</Text>
             </View>
             <View style={styles.progressBarBg}>
-               <View style={[styles.progressBarFill, {width: '80%', backgroundColor: colors.primary}]} />
+              <View style={[styles.progressBarFill, { width: `${progressPercentage}%`, backgroundColor: colors.primary }]} />
             </View>
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.courseCard}>
+          <TouchableOpacity
+            style={styles.courseCard}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('CourseOverview', { courseId: 'investingBasics' })}
+          >
             <View style={styles.courseTopRow}>
               <View style={[styles.courseIconBgGreen, { backgroundColor: isDarkMode ? 'rgba(4,173,173,0.2)' : '#E6FFFA' }]}>
                 <Image source={require('../assets/investing_graph.png')} style={styles.courseIcon} />
               </View>
               <View style={styles.courseInfo}>
-                <Text style={styles.courseTitle}>Investing Basics</Text>
-                <Text style={styles.courseDesc}>Stocks, bonds, Reksa Dana. Start building wealth today</Text>
+                <Text style={styles.courseTitle}>{t('learn.investingBasics', 'Investing Basics')}</Text>
+                <Text style={styles.courseDesc}>{t('learn.investingDesc', 'Stocks, bonds, Reksa Dana. Start building wealth today')}</Text>
                 <View style={styles.courseMeta}>
-                  <Text style={styles.metaText}>5 lessons</Text>
+                  <Text style={styles.metaText}>5 {t('learn.lessons', 'lessons')}</Text>
                   <View style={[styles.metaXp, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEEBC8' }]}><Text style={[styles.metaXpText, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 350 XP</Text></View>
-                  <View style={[styles.metaLvl, {backgroundColor: isDarkMode ? 'rgba(4,173,173,0.2)' : '#E6FFFA'}]}><Text style={[styles.metaLvlText, {color: isDarkMode ? '#38B2AC' : '#04ADAD'}]}>Lvl 2</Text></View>
+                  <View style={[styles.metaLvl, { backgroundColor: isDarkMode ? 'rgba(4,173,173,0.2)' : '#E6FFFA' }]}><Text style={[styles.metaLvlText, { color: isDarkMode ? '#38B2AC' : '#04ADAD' }]}>Lvl 2</Text></View>
                 </View>
               </View>
-              <TouchableOpacity><PlayCircle color={isDarkMode ? '#38B2AC' : '#04ADAD'} size={32} /></TouchableOpacity>
+              <PlayCircle color={isDarkMode ? '#38B2AC' : '#04ADAD'} size={32} />
             </View>
             <View style={styles.progressHeader}>
-               <Text style={styles.progressLabel}>Progress</Text>
-               <Text style={[styles.progressPercentage, { color: isDarkMode ? '#38B2AC' : '#04ADAD' }]}>40%</Text>
+              <Text style={styles.progressLabel}>{t('learn.progress', 'Progress')}</Text>
+              <Text style={[styles.progressPercentage, { color: isDarkMode ? '#38B2AC' : '#04ADAD' }]}>40%</Text>
             </View>
             <View style={styles.progressBarBg}>
-               <View style={[styles.progressBarFill, {width: '40%', backgroundColor: isDarkMode ? '#38B2AC' : '#04ADAD'}]} />
+              <View style={[styles.progressBarFill, { width: '40%', backgroundColor: isDarkMode ? '#38B2AC' : '#04ADAD' }]} />
             </View>
-          </View>
+          </TouchableOpacity>
 
-          <View style={styles.courseCard}>
+          <TouchableOpacity
+            style={styles.courseCard}
+            activeOpacity={0.8}
+            onPress={() => navigation.navigate('CourseOverview', { courseId: 'emergencyFundGuide' })}
+          >
             <View style={styles.courseTopRow}>
-              <View style={[styles.courseIconBgGreen, {backgroundColor: isDarkMode ? 'rgba(46,204,113,0.2)' : '#E8F5E9'}]}>
+              <View style={[styles.courseIconBgGreen, { backgroundColor: isDarkMode ? 'rgba(46,204,113,0.2)' : '#E8F5E9' }]}>
                 <Shield color={colors.success} size={24} fill={colors.success} />
               </View>
               <View style={styles.courseInfo}>
-                <Text style={styles.courseTitle}>Emergency Fund Guide</Text>
-                <Text style={styles.courseDesc}>Build your financial safety net in 90 days</Text>
+                <Text style={styles.courseTitle}>{t('learn.emergencyFund', 'Emergency Fund Guide')}</Text>
+                <Text style={styles.courseDesc}>{t('learn.emergencyDesc', 'Build your financial safety net in 90 days')}</Text>
                 <View style={styles.courseMeta}>
-                  <Text style={styles.metaText}>6 lessons</Text>
+                  <Text style={styles.metaText}>6 {t('learn.lessons', 'lessons')}</Text>
                   <View style={[styles.metaXp, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEEBC8' }]}><Text style={[styles.metaXpText, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 150 XP</Text></View>
-                  <View style={[styles.metaLvl, {backgroundColor: isDarkMode ? 'rgba(46,204,113,0.2)' : '#E8F5E9'}]}><Text style={[styles.metaLvlText, {color: isDarkMode ? '#68D391' : '#2ECC71'}]}>Lvl 1</Text></View>
+                  <View style={[styles.metaLvl, { backgroundColor: isDarkMode ? 'rgba(46,204,113,0.2)' : '#E8F5E9' }]}><Text style={[styles.metaLvlText, { color: isDarkMode ? '#68D391' : '#2ECC71' }]}>Lvl 1</Text></View>
                 </View>
               </View>
-              <TouchableOpacity><PlayCircle color={colors.success} size={32} /></TouchableOpacity>
+              <PlayCircle color={colors.success} size={32} />
             </View>
             <View style={styles.progressHeader}>
-               <Text style={styles.progressLabel}>Progress</Text>
-               <Text style={[styles.progressPercentage, { color: colors.success }]}>100%</Text>
+              <Text style={styles.progressLabel}>{t('learn.progress', 'Progress')}</Text>
+              <Text style={[styles.progressPercentage, { color: colors.success }]}>100%</Text>
             </View>
             <View style={styles.progressBarBg}>
-               <View style={[styles.progressBarFill, {width: '100%', backgroundColor: colors.success}]} />
+              <View style={[styles.progressBarFill, { width: '100%', backgroundColor: colors.success }]} />
             </View>
-          </View>
+          </TouchableOpacity>
 
-          <View style={[styles.courseCard, { borderBottomWidth: 0, paddingBottom: 0 }]}>
-            <View style={[styles.courseTopRow, { opacity: 0.6 }]}>
-              <View style={[styles.courseIconBgBlue, {backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEFCBF'}]}>
+          <TouchableOpacity
+            style={[styles.courseCard, { borderBottomWidth: 0, paddingBottom: 0 }]}
+            activeOpacity={level >= 4 ? 0.8 : 1}
+            onPress={() => level >= 4 ? navigation.navigate('CourseOverview', { courseId: 'passiveIncome' }) : null}
+          >
+            <View style={[styles.courseTopRow, level < 4 && { opacity: 0.6 }]}>
+              <View style={[styles.courseIconBgBlue, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEFCBF' }]}>
                 <Image source={require('../assets/checkbox.png')} style={[styles.courseIcon, { tintColor: colors.warning }]} />
               </View>
               <View style={styles.courseInfo}>
                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={styles.courseTitle}>Passive Income</Text>
-                  <Lock color="#A0AEC0" size={16} />
+                  <Text style={styles.courseTitle}>{t('learn.passiveIncome', 'Passive Income')}</Text>
+                  {level < 4 && <Lock color="#A0AEC0" size={16} />}
                 </View>
-                <Text style={styles.courseDesc}>7 proven strategies to earn while you sleep</Text>
+                <Text style={styles.courseDesc}>{t('learn.passiveDesc', '7 proven strategies to earn while you sleep')}</Text>
                 <View style={styles.courseMeta}>
-                  <Text style={styles.metaText}>15 lessons</Text>
+                  <Text style={styles.metaText}>2 {t('learn.lessons', 'lessons')}</Text>
                   <View style={[styles.metaXp, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEEBC8' }]}><Text style={[styles.metaXpText, { color: isDarkMode ? '#F6AD55' : '#C05621' }]}>+ 500 XP</Text></View>
-                  <View style={[styles.metaLvl, {backgroundColor: isDarkMode ? 'rgba(221,107,32,0.1)' : '#FFFBF0'}]}><Text style={[styles.metaLvlText, {color: colors.warning}]}>Lvl 4</Text></View>
+                  <View style={[styles.metaLvl, { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.1)' : '#FFFBF0' }]}><Text style={[styles.metaLvlText, { color: colors.warning }]}>Lvl 4</Text></View>
                 </View>
               </View>
+              {level >= 4 && <PlayCircle color={colors.warning} size={32} />}
             </View>
-            <View style={styles.lockedMessage}>
-              <Text style={styles.lockedMessageText}>Reach Level 4 to unlock!</Text>
-            </View>
-          </View>
+            {level < 4 && (
+              <View style={styles.lockedMessage}>
+                <Text style={styles.lockedMessageText}>{t('learn.reachLevel4', 'Reach Level 4 to unlock!')}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
 
         </View>
       </ScrollView>
@@ -195,11 +245,11 @@ const LearnScreen = ({ navigation }) => {
       <View style={styles.bottomNavbar}>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Home')}>
           <Home color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Home</Text>
+          <Text style={styles.navText}>{t('nav.home', 'Home')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Wallet')}>
           <Wallet color="#8CA8D1" size={24} />
-          <Text style={styles.navText}>Wallet</Text>
+          <Text style={styles.navText}>{t('nav.wallet', 'Wallet')}</Text>
         </TouchableOpacity>
         <View style={styles.fabWrapper}>
           <TouchableOpacity style={styles.fab} onPress={() => navigation.navigate('Chatbot')}>
@@ -208,11 +258,11 @@ const LearnScreen = ({ navigation }) => {
         </View>
         <TouchableOpacity style={styles.navItem}>
           <BookOpen color="#FFFFFF" size={24} />
-          <Text style={styles.navTextActive}>Learn</Text>
+          <Text style={styles.navTextActive}>{t('nav.learn', 'Learn')}</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
           <Image source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} style={styles.navProfileImg} />
-          <Text style={styles.navText}>Profile</Text>
+          <Text style={styles.navText}>{t('nav.profile', 'Profile')}</Text>
         </TouchableOpacity>
       </View>
     </View>

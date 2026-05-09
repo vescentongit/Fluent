@@ -7,10 +7,12 @@ import Svg, { Path } from 'react-native-svg';
 import { ChevronLeft } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
 const AssetsScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const [nominal, setNominal] = useState('');
   const { currencySymbol } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
@@ -22,13 +24,14 @@ const AssetsScreen = ({ navigation }) => {
   const [otherAssetInput, setOtherAssetInput] = useState('');
 
   const defaultOptions = [
-    "Property", "Vehicle", "Crypto",
-    "Gold", "Stocks/ETF"
+    t('assets.property', 'Property'), t('assets.vehicle', 'Vehicle'), t('assets.crypto', 'Crypto'),
+    t('assets.gold', 'Gold'), t('assets.stocks', 'Stocks/ETF')
   ];
 
   const options = [...defaultOptions, ...customAssets];
+  const otherStr = t('assets.other', 'Other');
   if (customAssets.length < 3) {
-    options.push("Other");
+    options.push(otherStr);
   }
 
   const handleNominalChange = (text) => {
@@ -38,7 +41,7 @@ const AssetsScreen = ({ navigation }) => {
   };
 
   const toggleAsset = (option) => {
-    if (option === "Other") {
+    if (option === otherStr) {
       setShowOtherModal(true);
       return;
     }
@@ -83,7 +86,7 @@ const AssetsScreen = ({ navigation }) => {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Add Custom Asset</Text>
+            <Text style={styles.modalTitle}>{t('onboarding.assets.addCustom', 'Add Custom Asset')}</Text>
             <TextInput
               style={styles.modalInput}
               placeholder="E.g., Business, Art"
@@ -94,10 +97,10 @@ const AssetsScreen = ({ navigation }) => {
             />
             <View style={styles.modalButtons}>
               <TouchableOpacity style={styles.modalCancel} onPress={() => { setShowOtherModal(false); setOtherAssetInput(''); }}>
-                <Text style={styles.modalCancelText}>Cancel</Text>
+                <Text style={styles.modalCancelText}>{t('common.cancel', 'Cancel')}</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.modalAdd} onPress={handleAddOtherAsset}>
-                <Text style={styles.modalAddText}>Add</Text>
+                <Text style={styles.modalAddText}>{t('common.add', 'Add')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -116,10 +119,10 @@ const AssetsScreen = ({ navigation }) => {
           >
             <View style={styles.content}>
               <Text style={styles.questionText}>
-                What <Text style={styles.emphasis}>assets</Text> do you currently own?
+                {t('assets.question1', 'What')} <Text style={styles.emphasis}>{t('assets.emphasis', 'assets')}</Text> {t('assets.question2', 'do you currently own?')}
               </Text>
 
-              <Text style={styles.questionText1}>Total Asset Value</Text>
+              <Text style={styles.questionText1}>{t('assets.totalValue', 'Total Asset Value')}</Text>
               <View style={styles.inputContainer}>
                 <Text style={styles.currencyPrefix}>{currencySymbol} </Text>
                 <TextInput
@@ -132,7 +135,7 @@ const AssetsScreen = ({ navigation }) => {
                 />
               </View>
 
-              <Text style={styles.questionText1}>Asset Types</Text>
+              <Text style={styles.questionText1}>{t('assets.types', 'Asset Types')}</Text>
               <View style={styles.gridContainer}>
                 {options.map((option) => (
                   <TouchableOpacity
@@ -156,14 +159,14 @@ const AssetsScreen = ({ navigation }) => {
           <View style={styles.bottomContainer}>
             <View style={styles.progressSection}>
               <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '50%' }]} /></View>
-              <Text style={styles.progressText}>3 out of 6</Text>
+              <Text style={styles.progressText}>{t('onboarding.progress.3of6', '3 out of 6')}</Text>
             </View>
             <TouchableOpacity
               style={[styles.continueButton, (!nominal || selectedAssets.length === 0) && styles.disabledButton]}
               onPress={() => nominal && selectedAssets.length > 0 && navigation.navigate('Debt')}
               disabled={!nominal || selectedAssets.length === 0}
             >
-              <Text style={styles.continueText}>Continue</Text>
+              <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
             </TouchableOpacity>
           </View>
         </KeyboardAvoidingView>
