@@ -7,14 +7,14 @@ from sqlalchemy import extract
 from datetime import datetime, timezone
 import json
 
-from Fluent_Project.src.backend.ai.database import get_db
-import Fluent_Project.src.backend.ai.models as models
-from Fluent_Project.src.backend.ai.auth import get_user_saat_ini
+from ai.database import get_db
+import ai.models as models
+from ai.auth import get_user_saat_ini
 
-from ai.resilience_score import calculate_resilience_score
+from ai.resilienceScore import calculate_resilience_score
 from ai.chatbot import stream_chat_response
-from ai.digital_twin import build_digital_twin
-from ai.nudge_logic import generate_nudges 
+from ai.digitalTwin import build_digital_twin
+from ai.nudgelogic import generate_nudges
 
 router = APIRouter(prefix="/api")
 

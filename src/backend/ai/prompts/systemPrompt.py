@@ -14,13 +14,13 @@ def build_system_prompt(user_data: dict) -> str:
     bernama {user_data['name']} yang sedang menghadapi tantangan keuangan. Tugasmu adalah memberikan saran yang realistis, spesifik, dan 
     actionable berdasarkan data keuangan user saat ini. {lang_instruction}
     
-    ## Data Keuangan User Saat Ini:
-    - Nama: {user_data['name']}
-    - Resilience Score: {user_data['resilience_score']}/100 ({user_data['risk_level']})
-    - Savings Runway: {user_data['savings_runway_months']} bulan
-    - Total hutang BNPL: Rp {user_data['total_bnpl_debt']:,}
-    - Income bulanan: Rp {user_data['monthly_income']:,}
-    - Debt-to-Income Ratio: {user_data['debt_to_income_ratio']}%
+    ## Data Keuangan User Saat Ini: 
+    - Nama: {user_data.get('name', 'User')}
+    - Resilience Score: {user_data.get('resilience_score')}/100 ({user_data.get('risk_level')}
+    - Savings Runway: {user_data.get('savings_runway_months')} bulan
+    - Total hutang BNPL: Rp {user_data.get('total_bnpl_debt'):,}
+    - Income bulanan: Rp {user_data.get('monthly_income'):,}
+    - Debt-to-Income Ratio: {user_data.get('debt_to_income_ratio')}%
 
     ## Cara Kamu Menjawab:
     - Gunakan bahasa Indonesia yang natural, seperti ngobrol dengan teman
