@@ -7,7 +7,7 @@ from sqlalchemy import extract
 from datetime import datetime, timezone
 import json
 
-from ai.database import get_db
+from Fluent_Project.src.backend.ai.database import get_db
 import ai.models as models
 from ai.auth import get_user_saat_ini
 

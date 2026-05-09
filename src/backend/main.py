@@ -5,17 +5,18 @@ from sqlalchemy.orm import Session
 import ai.models as models
 import schemas
 from ai.auth import get_user_saat_ini
-import ai.database
+import ai.database as database
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from ai.database import engine, get_db
+import ai.auth
 
 
 # Import router baru untuk fitur AI
 from routes import resilience_routes, digital_twin_routes, chat_routes, nudge_routes
 
 # Membuat tabel baru (pastikan sudah DROP TABLE di Neon sebelumnya)
-ai.database.Base.metadata.create_all(bind=engine)
+database.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fluent API - AI Integrated")
 
@@ -46,7 +47,7 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
         name=user.name,
         email=user.email,
-        hashed_password=ai.auth.get_password_hash(user.password),
+        hashed_password= ai.auth.get_password_hash(user.password),
         monthly_income=user.monthly_income,
         total_savings=user.total_savings,
         has_insurance=user.has_insurance
