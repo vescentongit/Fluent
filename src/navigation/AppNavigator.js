@@ -1,6 +1,5 @@
-// src/navigation/AppNavigator.js
 import React from 'react';
-import { createStackNavigator } from '@react-navigation/stack';
+import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
@@ -14,7 +13,6 @@ import LoadingScreen from '../screens/LoadingScreen';
 import DebtScreen from '../screens/DebtScreen';
 import EconomicPreferencesScreen from '../screens/EconomicPreferencesScreen';
 import HomeScreen from '../screens/HomeScreen';
-import { Home } from 'lucide-react-native';
 import LoadingScreen2 from '../screens/LoadingScreen2';
 import ChatbotScreen from '../screens/ChatbotScreen';
 import WalletScreen from '../screens/WalletScreen';
@@ -22,6 +20,11 @@ import LearnScreen from '../screens/LearnScreen';
 import CourseOverviewScreen from '../screens/CourseOverviewScreen';
 import LessonDetailScreen from '../screens/LessonDetailScreen';
 import QuizScreen from '../screens/QuizScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import AppSettingsScreen from '../screens/AppSettingsScreen';
+import EditProfileScreen from '../screens/EditProfileScreen';
+import GoalsScreen from '../screens/GoalsScreen';
+import SupportScreen from '../screens/SupportScreen';
 
 const Stack = createStackNavigator();
 
@@ -29,7 +32,10 @@ export default function AppNavigator() {
   return (
     <Stack.Navigator 
       initialRouteName="Home" 
-      screenOptions={{ headerShown: false }}
+      screenOptions={{ 
+        headerShown: false,
+        gestureEnabled: true,
+      }}
     >
       <Stack.Screen name="Splash" component={SplashScreen} />
       <Stack.Screen name="Login" component={LoginScreen} />
@@ -52,8 +58,27 @@ export default function AppNavigator() {
       <Stack.Screen name="Learn" component={LearnScreen} />
 
       <Stack.Screen name="CourseOverview" component={CourseOverviewScreen} />
-      <Stack.Screen name="LessonDetail" component={LessonDetailScreen} options={{ headerShown: false }} />
+      <Stack.Screen name="LessonDetail" component={LessonDetailScreen} />
       <Stack.Screen name="Quiz" component={QuizScreen} />
+
+      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Support" component={SupportScreen} options={{ ...TransitionPresets.ModalSlideFromBottomIOS }} />
+      
+      <Stack.Screen 
+        name="Settings" 
+        component={AppSettingsScreen} 
+        options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+      />
+      <Stack.Screen 
+        name="Goals" 
+        component={GoalsScreen} 
+        options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+      />
+      <Stack.Screen 
+        name="Edit" 
+        component={EditProfileScreen} 
+        options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+      />
     </Stack.Navigator>
   );
 }

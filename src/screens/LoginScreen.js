@@ -39,7 +39,7 @@ const LoginScreen = ({ navigation }) => {
           <Text style={styles.label}>Username</Text>
           <TextInput
             style={styles.input}
-            placeholder="Darrelshane"
+            placeholder="Shaquille"
             placeholderTextColor="#A0AEC0"
             value={username}
             onChangeText={setUsername}

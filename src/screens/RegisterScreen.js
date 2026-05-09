@@ -33,10 +33,10 @@ const RegisterScreen = ({ navigation }) => {
 
                 <View style={styles.formCard}>
                   <Text style={styles.label}>Username</Text>
-                  <TextInput style={styles.input} placeholder="Darrelshane" placeholderTextColor="#A0AEC0" />
+                  <TextInput style={styles.input} placeholder="Shaquille" placeholderTextColor="#A0AEC0" />
 
                   <Text style={styles.label}>Email</Text>
-                  <TextInput style={styles.input} placeholder="darrel@std.stei.itb.ac.id" placeholderTextColor="#A0AEC0" keyboardType="email-address" />
+                  <TextInput style={styles.input} placeholder="nathan@std.stei.itb.ac.id" placeholderTextColor="#A0AEC0" keyboardType="email-address" />
 
                   <Text style={styles.label}>Password</Text>
                   <View style={styles.passInputContainer}>

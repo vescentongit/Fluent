@@ -8,6 +8,8 @@ import {
   Home, Wallet as WalletIcon, BookOpen, Plus, Search, TrendingUp, TrendingDown 
 } from 'lucide-react-native';
 import { TransactionContext } from '../context/TransactionContext';
+import { UserContext } from '../context/UserContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
@@ -25,6 +27,9 @@ const WalletScreen = ({ navigation }) => {
   ];
 
   const { transactions, setTransactions } = useContext(TransactionContext);
+  const { userImage } = useContext(UserContext);
+  const { isDarkMode, colors } = useContext(ThemeContext);
+  const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [transactionType, setTransactionType] = useState('expense');
@@ -94,17 +99,17 @@ const WalletScreen = ({ navigation }) => {
       <View style={styles.fixedHeaderContainer} pointerEvents="box-none">
         <Svg height="180" width={width} style={styles.headerWave} pointerEvents="none">
           <Path 
-            fill="rgba(0, 0, 0, 0.15)"
+            fill={colors.headerWave1}
             d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`} 
             transform="translate(0, 6)"
           />
           <Path 
-            fill="rgba(0, 0, 0, 0.08)"
+            fill={colors.headerWave2}
             d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`} 
             transform="translate(0, 3)"
           />
           <Path 
-            fill="#03045E"
+            fill={colors.headerWave3}
             d={`M0 0 L${width} 0 L${width} 120 C${width * 0.7} 150 ${width * 0.3} 100 0 120 Z`} 
           />
         </Svg>
@@ -130,7 +135,7 @@ const WalletScreen = ({ navigation }) => {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.summaryContainer}>
-          <View style={[styles.summaryCard, { backgroundColor: '#E8F5E9' }]}>
+          <View style={[styles.summaryCard, { backgroundColor: isDarkMode ? 'rgba(46,204,113,0.15)' : '#E8F5E9' }]}>
             <View style={styles.summaryLabelRow}>
               <TrendingUp color="#2ECC71" size={16} />
               <Text style={[styles.summaryLabel, { color: '#2ECC71' }]}>Income</Text>
@@ -138,7 +143,7 @@ const WalletScreen = ({ navigation }) => {
             <Text style={styles.summaryAmountDark}>{totalIncome}</Text>
           </View>
 
-          <View style={[styles.summaryCard, { backgroundColor: '#FCE4EC' }]}>
+          <View style={[styles.summaryCard, { backgroundColor: isDarkMode ? 'rgba(255,77,77,0.15)' : '#FCE4EC' }]}>
             <View style={styles.summaryLabelRow}>
               <TrendingDown color="#FF4D4D" size={16} />
               <Text style={[styles.summaryLabel, { color: '#FF4D4D' }]}>Expenses</Text>
@@ -324,9 +329,9 @@ const WalletScreen = ({ navigation }) => {
           <Text style={styles.navText}>Learn</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.navItem}>
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
           <Image 
-            source={require('../assets/user_profile.png')} 
+            source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
             style={styles.navProfileImg} 
           />
           <Text style={styles.navText}>Profile</Text>
@@ -336,66 +341,66 @@ const WalletScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F8FAFC' },
+const createStyles = (colors) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.backgroundAlt },
   fixedHeaderContainer: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, height: 180 },
   headerWave: { position: 'absolute', top: 0 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 24, paddingTop: Platform.OS === 'android' ? 40 : 20 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#FFFFFF' },
-  headerSubtitle: { fontSize: 16, color: '#D0D6F5', marginTop: 2, fontWeight: '400' },
-  addButton: { width: 44, height: 44, backgroundColor: '#FFFFFF', borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
+  headerTitle: { fontSize: 20, fontWeight: 'bold', color: colors.white },
+  headerSubtitle: { fontSize: 16, color: 'rgba(255,255,255,0.8)', marginTop: 2, fontWeight: '400' },
+  addButton: { width: 44, height: 44, backgroundColor: colors.card, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginTop: 10 },
   scrollContent: { paddingHorizontal: 20, paddingTop: 140, paddingBottom: 120 }, 
   summaryContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 20, marginTop: 15 },
   summaryCard: { flex: 1, borderRadius: 20, padding: 16, marginHorizontal: 4 },
   summaryLabelRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
   summaryLabel: { fontSize: 14, fontWeight: '600', marginLeft: 6 },
-  summaryAmountDark: { fontSize: 22, fontWeight: 'bold', color: '#1A202C' },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 20, borderWidth: 1, borderColor: '#EDF2F7' },
-  searchInput: { flex: 1, marginLeft: 10, fontSize: 14, color: '#1A202C' },
-  tabsContainer: { flexDirection: 'row', backgroundColor: '#F1F5F9', borderRadius: 12, padding: 4, marginBottom: 20 },
+  summaryAmountDark: { fontSize: 22, fontWeight: 'bold', color: colors.text },
+  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 20, borderWidth: 1, borderColor: colors.border },
+  searchInput: { flex: 1, marginLeft: 10, fontSize: 14, color: colors.text },
+  tabsContainer: { flexDirection: 'row', backgroundColor: colors.cardAlt, borderRadius: 12, padding: 4, marginBottom: 20 },
   tabWrapper: { flex: 1 },
   activeTabGradient: { borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
-  activeTabText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 },
+  activeTabText: { color: colors.white, fontWeight: 'bold', fontSize: 14 },
   inactiveTab: { borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
-  inactiveTabText: { color: '#A0AEC0', fontWeight: 'bold', fontSize: 14 },
+  inactiveTabText: { color: colors.textMuted, fontWeight: 'bold', fontSize: 14 },
   transactionsList: { gap: 12 },
-  transactionCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 20, padding: 16, borderWidth: 1, borderColor: '#EDF2F7' },
+  transactionCard: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: colors.card, borderRadius: 20, padding: 16, borderWidth: 1, borderColor: colors.border },
   transactionLeft: { flexDirection: 'row', alignItems: 'center' },
   transactionIcon: { width: 48, height: 48, marginRight: 12 },
-  transactionTitle: { fontSize: 14, fontWeight: 'bold', color: '#1A202C', marginBottom: 4 },
-  transactionTime: { fontSize: 12, color: '#A0AEC0' },
+  transactionTitle: { fontSize: 14, fontWeight: 'bold', color: colors.text, marginBottom: 4 },
+  transactionTime: { fontSize: 12, color: colors.textMuted },
   transactionAmount: { fontSize: 15, fontWeight: 'bold' },
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#FFFFFF', borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 24, paddingBottom: 40, paddingTop: 12 },
-  modalHandle: { width: 40, height: 4, backgroundColor: '#E2E8F0', borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
-  modalTitle: { fontSize: 24, fontWeight: 'bold', color: '#1A202C', marginBottom: 24 },
-  toggleContainer: { flexDirection: 'row', backgroundColor: '#F1F5F9', borderRadius: 16, padding: 4, marginBottom: 20 },
+  modalContent: { backgroundColor: colors.card, borderTopLeftRadius: 30, borderTopRightRadius: 30, paddingHorizontal: 24, paddingBottom: 40, paddingTop: 12 },
+  modalHandle: { width: 40, height: 4, backgroundColor: colors.border, borderRadius: 2, alignSelf: 'center', marginBottom: 20 },
+  modalTitle: { fontSize: 24, fontWeight: 'bold', color: colors.text, marginBottom: 24 },
+  toggleContainer: { flexDirection: 'row', backgroundColor: colors.cardAlt, borderRadius: 16, padding: 4, marginBottom: 20 },
   toggleButton: { flex: 1, paddingVertical: 12, alignItems: 'center', borderRadius: 12 },
-  toggleButtonActive: { backgroundColor: '#FFFFFF', elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
-  toggleText: { fontSize: 16, fontWeight: '600', color: '#718096' },
+  toggleButtonActive: { backgroundColor: colors.card, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
+  toggleText: { fontSize: 16, fontWeight: '600', color: colors.textMuted },
   toggleTextExpenseActive: { color: '#D9534F' },
   toggleTextIncomeActive: { color: '#47DD62' },
-  inputLabel: { fontSize: 14, color: '#718096', marginBottom: 8, fontWeight: '600' },
-  inputBoxContainer: { borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 20 },
-  textInputStyle: { fontSize: 18, fontWeight: 'bold', color: '#1A202C' },
+  inputLabel: { fontSize: 14, color: colors.textMuted, marginBottom: 8, fontWeight: '600' },
+  inputBoxContainer: { borderWidth: 1, borderColor: colors.border, borderRadius: 16, paddingHorizontal: 16, paddingVertical: 12, marginBottom: 20 },
+  textInputStyle: { fontSize: 18, fontWeight: 'bold', color: colors.text },
   iconScroll: { flexDirection: 'row', marginBottom: 30 },
-  iconOption: { width: 60, height: 60, borderRadius: 16, borderWidth: 2, borderColor: 'transparent', justifyContent: 'center', alignItems: 'center', marginRight: 12, backgroundColor: '#F8FAFC' },
-  iconOptionSelected: { borderColor: '#447ADF', backgroundColor: '#EBF4FF' },
+  iconOption: { width: 60, height: 60, borderRadius: 16, borderWidth: 2, borderColor: 'transparent', justifyContent: 'center', alignItems: 'center', marginRight: 12, backgroundColor: colors.backgroundAlt },
+  iconOptionSelected: { borderColor: colors.primary, backgroundColor: colors.cardAlt },
   iconOptionImage: { width: 40, height: 40 },
   saveButton: { borderRadius: 16, paddingVertical: 18, alignItems: 'center' },
   saveButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
-  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: '#023E8A', borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: {width: 0, height: -4}, shadowOpacity: 0.1, shadowRadius: 10 },
+  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: {width: 0, height: -4}, shadowOpacity: 0.1, shadowRadius: 10 },
   navItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
-  navTextActive: { color: '#FFFFFF', fontSize: 11, fontWeight: 'bold', marginTop: 4 },
-  navText: { color: '#8CA8D1', fontSize: 11, marginTop: 4, fontWeight: '600' },
+  navTextActive: { color: colors.navIconActive, fontSize: 11, fontWeight: 'bold', marginTop: 4 },
+  navText: { color: colors.navIcon, fontSize: 11, marginTop: 4, fontWeight: '600' },
   navProfileImg: { width: 24, height: 24, borderRadius: 12 },
   fabWrapper: { flex: 1, alignItems: 'center', marginBottom: 20},
   fab: { 
     width: 88, height: 88, borderRadius: 64, 
-    backgroundColor: '#FFFFFF', 
+    backgroundColor: colors.white, 
     justifyContent: 'center', alignItems: 'center',
     position: 'absolute', top: -44, 
-    borderWidth: 6, borderColor: '#023E8A', 
+    borderWidth: 6, borderColor: colors.navBg, 
   },
   fabIcon: { width: 44, height: 44 }
 });
