@@ -8,6 +8,7 @@ import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
 import VerificationScreen from '../screens/VerificationScreen';
 import NewPasswordScreen from '../screens/NewPasswordScreen';
 import IncomeSourceScreen from '../screens/IncomeSourceScreen';
+import MonthlyIncomeScreen from '../screens/MonthlyIncomeScreen';
 import ExpenseScreen from '../screens/ExpenseScreen';
 import AssetsScreen from '../screens/AssetsScreen';
 import LoadingScreen from '../screens/LoadingScreen';
@@ -49,6 +50,7 @@ export default function AppNavigator() {
       <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
 
       <Stack.Screen name="IncomeSource" component={IncomeSourceScreen} />
+      <Stack.Screen name="MonthlyIncome" component={MonthlyIncomeScreen} />
       <Stack.Screen name="Expense" component={ExpenseScreen} />
       <Stack.Screen name="Assets" component={AssetsScreen} />
       <Stack.Screen name="Debt" component={DebtScreen} />

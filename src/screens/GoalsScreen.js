@@ -6,7 +6,7 @@ import { ScrollView } from 'react-native-gesture-handler';
 import { ArrowLeft, Edit, Trash2, Check, X, CalendarDays, MessageCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 import { ThemeContext } from '../context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { UserContext } from '../context/UserContext';

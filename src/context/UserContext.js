@@ -1,5 +1,5 @@
 import React, { createContext, useState, useEffect } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 
 export const UserContext = createContext();
 
@@ -19,7 +19,7 @@ export const UserProvider = ({ children }) => {
   const [userImage, setUserImage] = useState(null);
   const [currency, setCurrencyState] = useState('IDR');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [financialGoal, setFinancialGoal] = useState({ title: 'New Car', nominal: '300000000', duration: '3' });
+  const [financialGoal, setFinancialGoalState] = useState({ title: '', nominal: '', duration: '' });
   const [xp, setXp] = useState(6767);
   const [subscriptionPlan, setSubscriptionPlanState] = useState('basic');
   const [usage, setUsage] = useState({
@@ -28,6 +28,18 @@ export const UserProvider = ({ children }) => {
     lastDate: new Date().toISOString().split('T')[0]
   });
 
+// Tambah setelah state yang sudah ada:
+  const [incomeSources, setIncomeSources] = useState([]);
+  const [monthlyIncome, setMonthlyIncome] = useState(0);
+  const [monthlyExpense, setMonthlyExpense] = useState(0);
+  const [assetTypes, setAssetTypes] = useState([]);
+  const [totalAssetValue, setTotalAssetValue] = useState(0);
+  const [debts, setDebts] = useState([]);
+  const [organizedScore, setOrganizedScore] = useState(0);
+  const [riskToleranceScore, setRiskToleranceScore] = useState(0);
+
+  // Financial Goals — sudah ada (financialGoal)
+
   useEffect(() => {
     const loadSettings = async () => {
       try {
@@ -35,26 +47,25 @@ export const UserProvider = ({ children }) => {
         if (savedCurrency && EXCHANGE_RATES[savedCurrency]) {
           setCurrencyState(savedCurrency);
         }
-        // Force default plan to 'basic' on every app start during development
-        setSubscriptionPlanState('basic');
-        const savedUsage = await AsyncStorage.getItem('user_usage');
-        if (savedUsage) {
-          const parsed = JSON.parse(savedUsage);
-          const today = new Date().toISOString().split('T')[0];
-          if (parsed.lastDate !== today) {
-            const resetUsage = { aiPrompts: 0, transactions: 0, lastDate: today };
-            setUsage(resetUsage);
-            AsyncStorage.setItem('user_usage', JSON.stringify(resetUsage));
-          } else {
-            setUsage(parsed);
-          }
+        
+        // ← Tambah load financialGoal
+        const savedGoal = await AsyncStorage.getItem('user_financial_goal');
+        if (savedGoal) {
+          setFinancialGoalState(JSON.parse(savedGoal));
         }
+        
+        // ... rest of existing code
       } catch (e) {
         console.log('Failed to load settings', e);
       }
     };
     loadSettings();
   }, []);
+
+  const localToIDR = (amount) => {
+    const config = EXCHANGE_RATES[currency] || EXCHANGE_RATES['IDR'];
+    return Math.round(amount / config.rate);
+  };
 
   const setCurrency = async (newCurrency) => {
     if (EXCHANGE_RATES[newCurrency]) {
@@ -104,6 +115,15 @@ export const UserProvider = ({ children }) => {
     return true;
   };
 
+  const setFinancialGoal = async (goal) => {
+    setFinancialGoalState(goal);
+    try {
+      await AsyncStorage.setItem('user_financial_goal', JSON.stringify(goal));
+    } catch (e) {
+      console.log('Could not save goal:', e);
+    }
+  };
+
   const checkGoalLimit = (currentCount) => {
     if ((subscriptionPlan || 'basic').toLowerCase() !== 'basic') return true;
     return currentCount < 2;
@@ -118,6 +138,7 @@ export const UserProvider = ({ children }) => {
   };
 
   const level = calculateLevel(xp);
+  const setLevel = () => { };
 
   const getXpForNextLevel = () => {
     const levels = [0, 1000, 3000, 7000, 15000];
@@ -140,7 +161,7 @@ export const UserProvider = ({ children }) => {
   const formatCurrency = (amountInIdr, showSymbol = true) => {
     const config = EXCHANGE_RATES[currency] || EXCHANGE_RATES['IDR'];
     const convertedAmount = amountInIdr * config.rate;
-    
+
     // Format number with commas and decimals
     const parts = convertedAmount.toFixed(config.decimals).split('.');
     parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
@@ -158,12 +179,12 @@ export const UserProvider = ({ children }) => {
   const formatCurrencyM = (amountInIdr) => {
     const config = EXCHANGE_RATES[currency] || EXCHANGE_RATES['IDR'];
     const convertedAmount = amountInIdr * config.rate;
-    
+
     if (Math.abs(convertedAmount) >= 1000000) {
       let formatted = (Math.abs(convertedAmount) / 1000000).toFixed(currency === 'IDR' || currency === 'VND' ? 1 : 2);
       if (formatted.endsWith('.0')) formatted = formatted.slice(0, -2);
       else if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
-      
+
       const sign = convertedAmount < 0 ? '-' : '';
       return `${sign}${config.prefix ? config.symbol + ' ' : ''}${formatted} M${!config.prefix ? ' ' + config.symbol : ''}`;
     } else {
@@ -176,7 +197,7 @@ export const UserProvider = ({ children }) => {
       userName, setUserName,
       userEmail, setUserEmail,
       userImage, setUserImage,
-      currency, setCurrency,  
+      currency, setCurrency,
       currencySymbol,
       formatCurrency,
       formatCurrencyM,
@@ -192,9 +213,18 @@ export const UserProvider = ({ children }) => {
       phoneNumber, setPhoneNumber,
       financialGoal, setFinancialGoal,
       xp, setXp,
-      level,
+      level, setLevel,  // ← tambahkan
       getXpForNextLevel,
       getXpProgress,
+      incomeSources, setIncomeSources,
+      monthlyIncome, setMonthlyIncome,
+      monthlyExpense, setMonthlyExpense,
+      assetTypes, setAssetTypes,
+      totalAssetValue, setTotalAssetValue,
+      debts, setDebts,
+      organizedScore, setOrganizedScore,
+      riskToleranceScore, setRiskToleranceScore,
+      localToIDR,
     }}>
       {children}
     </UserContext.Provider>

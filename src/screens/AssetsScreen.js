@@ -9,19 +9,19 @@ import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
 
+
 const { width } = Dimensions.get('window');
 
 const AssetsScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [nominal, setNominal] = useState('');
-  const { currencySymbol } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
-
   const [selectedAssets, setSelectedAssets] = useState([]);
-
   const [customAssets, setCustomAssets] = useState([]);
   const [showOtherModal, setShowOtherModal] = useState(false);
   const [otherAssetInput, setOtherAssetInput] = useState('');
+  const { currencySymbol, setAssetTypes, setTotalAssetValue } = useContext(UserContext);
+
 
   const defaultOptions = [
     t('assets.property', 'Property'), t('assets.vehicle', 'Vehicle'), t('assets.crypto', 'Crypto'),
@@ -36,7 +36,7 @@ const AssetsScreen = ({ navigation }) => {
 
   const handleNominalChange = (text) => {
     const numericValue = text.replace(/[^0-9]/g, '');
-    const formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    const formattedValue = numericValue === '' ? '' : numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     setNominal(formattedValue);
   };
 
@@ -163,8 +163,12 @@ const AssetsScreen = ({ navigation }) => {
             </View>
             <TouchableOpacity
               style={[styles.continueButton, (!nominal || selectedAssets.length === 0) && styles.disabledButton]}
-              onPress={() => nominal && selectedAssets.length > 0 && navigation.navigate('Debt')}
-              disabled={!nominal || selectedAssets.length === 0}
+              onPress={() => {
+                setAssetTypes(selectedAssets); // ← simpan
+                setTotalAssetValue(parseInt(nominal.replace(/\./g, ''), 10) || 0); // ← simpan
+                navigation.navigate('Debt');
+              }}
+              disabled={false}  
             >
               <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
             </TouchableOpacity>

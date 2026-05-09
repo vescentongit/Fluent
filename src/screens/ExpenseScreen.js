@@ -14,8 +14,8 @@ const { width } = Dimensions.get('window');
 const ExpenseScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [expense, setExpense] = useState('');
-  const { currencySymbol } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
+  const { currencySymbol, setMonthlyExpense, localToIDR } = useContext(UserContext);
 
   const handleExpenseChange = (text) => {
     const numericValue = text.replace(/[^0-9]/g, '');
@@ -100,7 +100,12 @@ const ExpenseScreen = ({ navigation }) => {
 
             <TouchableOpacity
               style={[styles.continueButton, !expense && styles.disabledButton]}
-              onPress={() => expense && navigation.navigate('Assets')}
+              onPress={() => {
+                if (expense) {
+                  setMonthlyExpense(parseInt(expense.replace(/\./g, ''), 10) || 0); // ← simpan
+                  navigation.navigate('Assets');
+                }
+              }}
               disabled={!expense}
             >
               <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>

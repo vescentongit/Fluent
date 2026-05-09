@@ -115,3 +115,13 @@ export const streamChat = async (message, language = 'en', onChunk, onDone) => {
   onChunk(fullText);
   onDone(fullText);
 };
+
+// ── USER PROFILE UPDATE ─────────────────────────────────────
+export const updateUserProfile = async (data) => {
+  const res = await fetch(`${BASE_URL}/user/update`, {
+    method: 'PUT',
+    headers: await getHeaders(),
+    body: JSON.stringify(data)
+  });
+  return res.json();
+};

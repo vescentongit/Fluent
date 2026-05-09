@@ -8,6 +8,7 @@ import { ChevronLeft } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '../utils/storage';
 
 const { width } = Dimensions.get('window');
 
@@ -16,9 +17,8 @@ const FinancialGoalsScreen = ({ navigation }) => {
   const [goalName, setGoalName] = useState('');
   const [nominal, setNominal] = useState('');
   const [duration, setDuration] = useState('');
-  
-  const { currencySymbol, setFinancialGoal } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
+  const { currencySymbol, setFinancialGoal, localToIDR } = useContext(UserContext);
 
   const handleNominalChange = (text) => {
     const numericValue = text.replace(/[^0-9]/g, '');
@@ -118,10 +118,32 @@ const FinancialGoalsScreen = ({ navigation }) => {
             </View>
 
             <TouchableOpacity 
-              style={styles.buttonWrapper}
-              onPress={() => {
+              style={styles.buttonWrapper}  
+              onPress={async () => {
+                if (!isValid) return;
+                
                 setFinancialGoal({ title: goalName, nominal, duration });
-                navigation.navigate('Loading2', { target: 'Home' }); 
+                
+                // ← Simpan ke AsyncStorage dalam format yang HomeScreen baca
+                const nominalNum = parseInt(nominal.replace(/\./g, ''), 10) || 0;
+                const durationNum = parseInt(duration, 10) || 1;
+                
+                const newGoal = {
+                  id: Date.now().toString(),
+                  title: goalName,
+                  target: localToIDR(nominalNum) / 1000000, // ← convert ke IDR, simpan penuh
+                  current: 0,
+                  percentage: 0,
+                  daysLeft: durationNum * 365,
+                };
+                
+                try {
+                  await AsyncStorage.setItem('@fluent_goals', JSON.stringify([newGoal]));
+                } catch (e) {
+                  console.log('Could not save goal:', e);
+                }
+                
+                navigation.navigate('Home');
               }}
               disabled={!isValid}
             >

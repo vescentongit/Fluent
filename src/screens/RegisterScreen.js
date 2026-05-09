@@ -1,3 +1,4 @@
+import { signup, login } from '../services/api';
 import React, { useState, useContext } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, StyleSheet,
@@ -13,36 +14,53 @@ const RegisterScreen = ({ navigation }) => {
   const [showPass, setShowPass] = useState(false);
   const [showConfirmPass, setShowConfirmPass] = useState(false);
   const [phone, setPhone] = useState('');
-  const { setCurrency, setPhoneNumber, setXp, setLevel } = useContext(UserContext);
+  const { setCurrency, setPhoneNumber, setXp, setLevel, setUserName } = useContext(UserContext);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     let newCurrency = 'IDR';
-    if (phone.startsWith('+60')) {
-      newCurrency = 'MYR';
-    } else if (phone.startsWith('+62')) {
-      newCurrency = 'IDR';
-    } else if (phone.startsWith('+673')) {
-      newCurrency = 'BND';
-    } else if (phone.startsWith('+855')) {
-      newCurrency = 'KHR';
-    } else if (phone.startsWith('+66')) {
-      newCurrency = 'THB';
-    } else if (phone.startsWith('+84')) {
-      newCurrency = 'VND';
-    } else if (phone.startsWith('+65')) {
-      newCurrency = 'SGD';
-    } else if (phone.startsWith('+63')) {
-      newCurrency = "PHP";
-    } else if (phone.startsWith('+95')) {
-      newCurrency = "MMK";
-    } else if (phone.startsWith('+856')) {
-      newCurrency = "LAK";
+    if (phone.startsWith('+60')) newCurrency = 'MYR';
+    else if (phone.startsWith('+62')) newCurrency = 'IDR';
+    else if (phone.startsWith('+65')) newCurrency = 'SGD';
+    else if (phone.startsWith('+66')) newCurrency = 'THB';
+    else if (phone.startsWith('+63')) newCurrency = 'PHP';
+    else if (phone.startsWith('+84')) newCurrency = 'VND';
+    else if (phone.startsWith('+855')) newCurrency = 'KHR';
+    else if (phone.startsWith('+95')) newCurrency = 'MMK';
+    else if (phone.startsWith('+856')) newCurrency = 'LAK';
+    else if (phone.startsWith('+673')) newCurrency = 'BND';
+
+    try {
+      const data = await signup({
+        name: name || 'User',
+        email: email,
+        password: password,
+        monthly_income: 5000000,
+        total_savings: 2300000,
+        has_insurance: false
+      });
+
+      if (data.email || data.id) {
+        setUserName(name || 'User');
+        await login(email, password);
+        setPhoneNumber(phone);
+        setCurrency(newCurrency);
+        setXp(0);
+        setLevel(1);
+        navigation.navigate('Loading'); // ← ke Login setelah register berhasil
+      } else if (data.detail) {
+        alert(`Failed: ${data.detail}`); // ← tampilkan pesan error dari backend
+      } else {
+        const errorMsg = typeof data.detail === 'string' 
+          ? data.detail 
+          : 'Email might already be registered. Try a different email.';
+      }
+    } catch (e) {
+      console.error('Register error:', e);
+      alert('Cannot connect to server.');
     }
-    setPhoneNumber(phone);
-    setCurrency(newCurrency);
-    setXp(0);
-    setLevel(1);
-    navigation.navigate('Loading');
   };
 
   return (
@@ -68,10 +86,23 @@ const RegisterScreen = ({ navigation }) => {
 
           <View style={styles.formCard}>
             <Text style={styles.label}>{t('auth.username', 'Username')}</Text>
-            <TextInput style={styles.input} placeholder="Shaquille" placeholderTextColor="#A0AEC0" />
+            <TextInput 
+              style={styles.input} 
+              placeholder="Shaquille" 
+              placeholderTextColor="#A0AEC0"
+              value={name}           // ← tambah ini
+              onChangeText={setName} // ← tambah ini
+            />
 
             <Text style={styles.label}>Email</Text>
-            <TextInput style={styles.input} placeholder="nathan@std.stei.itb.ac.id" placeholderTextColor="#A0AEC0" keyboardType="email-address" />
+            <TextInput 
+              style={styles.input} 
+              placeholder="nathan@std.stei.itb.ac.id" 
+              placeholderTextColor="#A0AEC0" 
+              keyboardType="email-address"
+              value={email}           // ← tambah ini
+              onChangeText={setEmail} // ← tambah ini
+            />
 
             <Text style={styles.label}>{t('auth.phone', 'Phone Number')}</Text>
             <TextInput
@@ -85,7 +116,13 @@ const RegisterScreen = ({ navigation }) => {
 
             <Text style={styles.label}>{t('auth.password', 'Password')}</Text>
             <View style={styles.passInputContainer}>
-              <TextInput style={styles.passInput} placeholder="••••••••" secureTextEntry={!showPass} />
+              <TextInput 
+                style={styles.passInput} 
+                placeholder="••••••••" 
+                secureTextEntry={!showPass}
+                value={password}           // ← tambah ini
+                onChangeText={setPassword} // ← tambah ini
+              />
               <TouchableOpacity onPress={() => setShowPass(!showPass)}>
                 {showPass ? <EyeOff color="#1A202C" size={20} /> : <Eye color="#1A202C" size={20} />}
               </TouchableOpacity>

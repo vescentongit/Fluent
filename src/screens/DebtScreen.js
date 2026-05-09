@@ -14,8 +14,8 @@ const { width } = Dimensions.get('window');
 
 const DebtScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const { currencySymbol } = useContext(UserContext);
   const { colors } = useContext(ThemeContext);
+  const { currencySymbol, setDebts: saveDebts } = useContext(UserContext);
   const [debts, setDebts] = useState([
     { id: Date.now().toString(), name: '', nominal: '', dueDate: new Date(), dueDateText: t('onboarding.debt.selectDate', 'Select Date'), interest: '' }
   ]);
@@ -177,7 +177,10 @@ const DebtScreen = ({ navigation }) => {
               <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '66%' }]} /></View>
               <Text style={styles.progressText}>{t('onboarding.progress.4of6', '4 out of 6')}</Text>
             </View>
-            <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('EconomicPreferences')}>
+            <TouchableOpacity style={styles.continueButton} onPress={() => {
+                                                              saveDebts(debts); // ← simpan
+                                                              navigation.navigate('EconomicPreferences');
+                                                            }}>
               <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>
             </TouchableOpacity>
           </View>

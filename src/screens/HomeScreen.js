@@ -9,7 +9,7 @@ import {
   Trash2, X, Plus, Edit2, CreditCard, ShoppingBag, Landmark, Shield, Home as HomeIcon, Plane, Crown
 } from 'lucide-react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 import { TransactionContext } from '../context/TransactionContext';
 import { getResilienceScore } from '../services/api';
 import { UserContext } from '../context/UserContext';
@@ -46,6 +46,10 @@ const HomeScreen = () => {
     formatCurrency,
     formatCurrencyM,
     subscriptionPlan,
+    monthlyIncome = 0,        // ← tambah
+    monthlyExpense = 0,       // ← tambah
+    totalAssetValue = 0,      // ← tambah
+    debts: onboardingDebts = [], // ← tambah
   } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
@@ -59,17 +63,8 @@ const HomeScreen = () => {
   const [isSubModalVisible, setSubModalVisible] = useState(false);
   const [activeTab, setActiveTab] = useState('debt');
   const [isEditMode, setIsEditMode] = useState(false);
-  const [assets, setAssets] = useState([
-    { id: '1', title: 'Bank Account', amount: 24750000, type: 'cash', subtitle: '+5.2% this month' },
-    { id: '2', title: 'Emergency Fund', amount: 15000000, type: 'savings', subtitle: '+2.1% this month' },
-    { id: '3', title: 'Stock Portofolio', amount: 42500000, type: 'investment', subtitle: '+12.4% this month' },
-    { id: '4', title: 'Vehicle', amount: 26726767, type: 'property', subtitle: '+3.5% this month' },
-    { id: '5', title: 'Vacation Savings', amount: 8500000, type: 'savings', subtitle: '+15.2% this month' },
-  ]);
-  const [debts, setDebts] = useState([
-    { id: '1', title: 'Credit Card', amount: 35000000, type: 'credit', subtitle: '! Due in 5 days' },
-    { id: '2', title: 'PayLater', amount: 15000000, type: 'loan', subtitle: '! Due next week' },
-  ]);
+  const [assets, setAssets] = useState([]);
+  const [debts, setDebts] = useState([]);
   const [newItemTitle, setNewItemTitle] = useState('');
   const [newItemAmount, setNewItemAmount] = useState('');
 
@@ -80,6 +75,11 @@ const HomeScreen = () => {
     } catch (error) {
       console.error('Error saving assets:', error);
     }
+  };
+
+  const formatGoalAmount = (amount) => {
+    if (!amount || amount === 0) return `${currencySymbol} 0 M`;
+    return formatCurrencyM(amount);
   };
 
   const saveDebts = async (newDebts) => {
@@ -127,8 +127,40 @@ const HomeScreen = () => {
         try {
           const storedAssets = await AsyncStorage.getItem(ASSETS_KEY);
           const storedDebts = await AsyncStorage.getItem(DEBTS_KEY);
-          if (storedAssets) setAssets(JSON.parse(storedAssets));
-          if (storedDebts) setDebts(JSON.parse(storedDebts));
+
+          if (storedAssets) {
+            setAssets(JSON.parse(storedAssets));
+          } else if (totalAssetValue > 0) {
+            // ← Pre-populate dari onboarding
+            const onboardingAsset = [{
+              id: 'onboarding_asset',
+              title: 'Total Savings & Assets',
+              amount: totalAssetValue,
+              type: 'savings',
+              subtitle: 'From your profile setup'
+            }];
+            setAssets(onboardingAsset);
+            await AsyncStorage.setItem(ASSETS_KEY, JSON.stringify(onboardingAsset));
+          }
+
+          if (storedDebts) {
+            setDebts(JSON.parse(storedDebts));
+          } else if (onboardingDebts.length > 0) {
+            // ← Pre-populate dari onboarding debts
+            const mappedDebts = onboardingDebts
+              .filter(d => d.name && d.nominal)
+              .map(d => ({
+                id: d.id,
+                title: d.name || 'Debt',
+                amount: parseInt((d.nominal || '0').replace(/\./g, ''), 10) || 0,
+                type: 'loan',
+                subtitle: `Due: ${d.dueDateText} • ${d.interest || 0}% interest`
+              }));
+            if (mappedDebts.length > 0) {
+              setDebts(mappedDebts);
+              await AsyncStorage.setItem(DEBTS_KEY, JSON.stringify(mappedDebts));
+            }
+          }
         } catch (error) {
           console.error('Error loading assets/debts:', error);
         }
@@ -155,12 +187,12 @@ const HomeScreen = () => {
     }
   };
 
-  const formatGoalAmount = (valStr) => {
-    if (!valStr) return formatCurrencyM(300000000);
-    const num = parseInt(valStr.replace(/[^0-9]/g, ''), 10);
-    if (isNaN(num)) return formatCurrency(0);
-    return formatCurrencyM(num);
-  };
+  // const formatGoalAmount = (valStr) => {
+  //   if (!valStr) return formatCurrencyM(300000000);
+  //   const num = parseInt(valStr.replace(/[^0-9]/g, ''), 10);
+  //   if (isNaN(num)) return formatCurrency(0);
+  //   return formatCurrencyM(num);
+  // };
 
   const totalIncomeNum = useMemo(() => {
     return transactions
@@ -177,21 +209,22 @@ const HomeScreen = () => {
   const totalAssetsNum = useMemo(() => assets.reduce((acc, curr) => acc + curr.amount, 0), [assets]);
   const totalDebtsNum = useMemo(() => debts.reduce((acc, curr) => acc + curr.amount, 0), [debts]);
 
-  const currentBalance = totalAssetsNum - totalDebtsNum + totalIncomeNum - totalExpenseNum;
+  const currentBalance = totalAssetsNum - totalDebtsNum + monthlyIncome - monthlyExpense;
 
   useEffect(() => {
     const loadData = async () => {
       try {
-        const hasSeenSub = await AsyncStorage.getItem('has_seen_subscription');
-        if (!hasSeenSub) {
-          setTimeout(() => {
-            setSubModalVisible(true);
-            AsyncStorage.setItem('has_seen_subscription', 'true');
-          }, 1000);
+        const data = await getResilienceScore();
+
+        // ← tambah null check
+        if (!data) return;
+
+        if (data.detail) {
+          navigation.replace('Login');
+          return;
         }
 
-        const data = await getResilienceScore(); // ← hapus 'user-123'
-        if (data && data.score !== undefined) setScoreData(data);
+        if (data.score !== undefined) setScoreData(data);
       } catch (e) {
         console.error('Failed to load score:', e);
       }
@@ -293,7 +326,7 @@ const HomeScreen = () => {
               </View>
               <View>
                 <Text style={styles.statLabel}>{t('home.income', 'Income')}</Text>
-                <Text style={styles.statValue}>{formatCurrencyM(totalIncomeNum)}</Text>
+                <Text style={styles.statValue}>{formatCurrencyM(monthlyIncome)}</Text>
               </View>
             </View>
             <View style={styles.statDivider} />
@@ -303,7 +336,7 @@ const HomeScreen = () => {
               </View>
               <View>
                 <Text style={styles.statLabel}>{t('home.expenses', 'Expenses')}</Text>
-                <Text style={styles.statValue}>{formatCurrencyM(totalExpenseNum)}</Text>
+                <Text style={styles.statValue}>{formatCurrencyM(monthlyExpense)}</Text>
               </View>
             </View>
           </View>
@@ -316,8 +349,8 @@ const HomeScreen = () => {
             <View style={styles.goalCard}>
               <Text style={styles.goalCardTitle}>{highestTargetGoal.title}</Text>
               <View style={styles.goalAmountRow}>
-                <Text style={styles.goalAmountLeft}>{formatCurrencyM(highestTargetGoal.current * 1000000)}</Text>
-                <Text style={styles.goalAmountRight}>{formatCurrencyM(highestTargetGoal.target * 1000000)}</Text>
+                <Text style={styles.goalAmountLeft}>{formatGoalAmount(highestTargetGoal.current * 1000000)}</Text>
+                <Text style={styles.goalAmountRight}>{formatGoalAmount(highestTargetGoal.target * 1000000)}</Text>
               </View>
               <View style={styles.goalProgressBg}>
                 <View style={[styles.goalProgressFill, { width: `${highestTargetGoal.percentage}%`, backgroundColor: colors.secondary }]} />

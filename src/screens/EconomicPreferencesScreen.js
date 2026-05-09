@@ -8,6 +8,7 @@ import Slider from '@react-native-community/slider';
 import { ChevronLeft } from 'lucide-react-native';
 import { ThemeContext } from '../context/ThemeContext';
 import { useTranslation } from 'react-i18next';
+import { UserContext } from '../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
@@ -16,13 +17,18 @@ const EconomicPreferencesScreen = ({ navigation }) => {
   const [organized, setOrganized] = useState(0);
   const [riskTolerance, setRiskTolerance] = useState(0);
   const { colors } = useContext(ThemeContext);
+  const { setOrganizedScore, setRiskToleranceScore } = useContext(UserContext);
 
 
 
   return (
     <View style={styles.container}>
       <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+        <TouchableOpacity style={styles.backButton} onPress={() => {
+                                                        setOrganizedScore(organized); // ← simpan
+                                                        setRiskToleranceScore(riskTolerance); // ← simpan
+                                                        navigation.navigate('FinancialGoals');
+                                                      }}>
           <ChevronLeft color="#FFFFFF" size={32} />
         </TouchableOpacity>
         <Svg height="240" width={width} viewBox={`0 0 ${width} 240`} style={styles.svg}>

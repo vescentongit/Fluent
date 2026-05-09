@@ -7,6 +7,7 @@ import Svg, { Path } from 'react-native-svg';
 import { ThemeContext } from '../context/ThemeContext';
 import { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { UserContext } from '../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
@@ -14,6 +15,7 @@ const IncomeSourceScreen = ({ navigation }) => {
   const { t } = useTranslation();
   const [selectedSources, setSelectedSources] = useState([]);
   const { colors } = useContext(ThemeContext);
+  const { setIncomeSources } = useContext(UserContext);
   const options = [
     t('onboarding.income.fullTime', 'Full-time employee'),
     t('onboarding.income.freelancer', 'Freelancer'),
@@ -109,7 +111,12 @@ const IncomeSourceScreen = ({ navigation }) => {
 
           <TouchableOpacity
             style={[styles.continueButton, selectedSources.length === 0 && styles.disabledButton]}
-            onPress={() => selectedSources.length > 0 && navigation.navigate('Expense')}
+            onPress={() => {
+              if (selectedSources.length > 0) {
+                setIncomeSources(selectedSources); // ← simpan
+                navigation.navigate('MonthlyIncome');
+              }
+            }}
             disabled={selectedSources.length === 0}
           >
             <Text style={styles.continueText}>{t('common.continue', 'Continue')}</Text>

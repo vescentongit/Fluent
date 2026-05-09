@@ -4,7 +4,7 @@ import {
   KeyboardAvoidingView, Platform, SafeAreaView, Image, Keyboard
 } from 'react-native';
 import { Mic, Send, Home, Wallet, BookOpen } from 'lucide-react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import AsyncStorage from '../utils/storage';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 import { streamChat } from '../services/api';
