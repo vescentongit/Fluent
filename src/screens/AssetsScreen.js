@@ -1,18 +1,20 @@
 import React, { useState, useContext } from 'react';
-import { 
+import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView,
   Dimensions, SafeAreaView, KeyboardAvoidingView, Platform, Modal
 } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { ChevronLeft } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const AssetsScreen = ({ navigation }) => {
   const [nominal, setNominal] = useState('');
   const { currencySymbol } = useContext(UserContext);
-  
+  const { colors } = useContext(ThemeContext);
+
   const [selectedAssets, setSelectedAssets] = useState([]);
 
   const [customAssets, setCustomAssets] = useState([]);
@@ -20,7 +22,7 @@ const AssetsScreen = ({ navigation }) => {
   const [otherAssetInput, setOtherAssetInput] = useState('');
 
   const defaultOptions = [
-    "Property", "Vehicle", "Crypto", 
+    "Property", "Vehicle", "Crypto",
     "Gold", "Stocks/ETF"
   ];
 
@@ -64,16 +66,9 @@ const AssetsScreen = ({ navigation }) => {
           <ChevronLeft color="#FFFFFF" size={32} />
         </TouchableOpacity>
         <Svg height="240" width={width} viewBox={`0 0 ${width} 240`} style={styles.svg}>
-          <Defs>
-            <LinearGradient id="headerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor="#48CAE4" stopOpacity="1" />
-              <Stop offset="50%" stopColor="#76D7EB" stopOpacity="1" />
-              <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="1" />
-            </LinearGradient>
-          </Defs>
-          <Path fill="rgba(0, 0, 0, 0.04)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 8)" />
-          <Path fill="rgba(0, 0, 0, 0.08)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 4)" />
-          <Path fill="url(#headerGrad)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} />
+          <Path fill={colors.border} d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 8)" />
+          <Path fill={colors.cardAlt} d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 4)" />
+          <Path fill={colors.primary} d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} />
         </Svg>
         <View style={styles.assetPlaceholder}>
           <Image source={require('../assets/assets.png')} style={styles.logo} resizeMode="contain" />
@@ -110,11 +105,11 @@ const AssetsScreen = ({ navigation }) => {
       </Modal>
 
       <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
-          <ScrollView 
+          <ScrollView
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
             keyboardShouldPersistTaps="handled"
@@ -140,16 +135,16 @@ const AssetsScreen = ({ navigation }) => {
               <Text style={styles.questionText1}>Asset Types</Text>
               <View style={styles.gridContainer}>
                 {options.map((option) => (
-                  <TouchableOpacity 
+                  <TouchableOpacity
                     key={option}
                     style={[
-                      styles.gridBox, 
+                      styles.gridBox,
                       selectedAssets.includes(option) && styles.selectedBox
                     ]}
                     onPress={() => toggleAsset(option)}
                   >
                     <Text style={[
-                      styles.boxText, 
+                      styles.boxText,
                       selectedAssets.includes(option) && styles.selectedBoxText
                     ]}>{option}</Text>
                   </TouchableOpacity>
@@ -160,10 +155,10 @@ const AssetsScreen = ({ navigation }) => {
 
           <View style={styles.bottomContainer}>
             <View style={styles.progressSection}>
-                <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '60%' }]} /></View>
-                <Text style={styles.progressText}>3 out of 5</Text>
+              <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '50%' }]} /></View>
+              <Text style={styles.progressText}>3 out of 6</Text>
             </View>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={[styles.continueButton, (!nominal || selectedAssets.length === 0) && styles.disabledButton]}
               onPress={() => nominal && selectedAssets.length > 0 && navigation.navigate('Debt')}
               disabled={!nominal || selectedAssets.length === 0}
@@ -188,19 +183,19 @@ const styles = StyleSheet.create({
   progressSection: { flexDirection: 'column' },
   progressText: { fontSize: 12, color: '#4A5568', fontWeight: '600' },
   scrollContent: {
-    flexGrow: 1, 
-    paddingBottom: 20, 
+    flexGrow: 1,
+    paddingBottom: 20,
   },
-  content: { 
-    paddingHorizontal: 24, 
-    marginTop: 10 
+  content: {
+    paddingHorizontal: 24,
+    marginTop: 10
   },
-  questionText: { fontSize: 22, fontWeight: 'bold', color: '#023E8A', marginBottom: 20, marginTop: 12},
+  questionText: { fontSize: 22, fontWeight: 'bold', color: '#023E8A', marginBottom: 20, marginTop: 12 },
   questionText1: { fontSize: 18, fontWeight: 'bold', color: '#023E8A', marginBottom: 20, marginTop: 20 },
   inputLabel: { fontSize: 14, color: '#4A5568', fontWeight: '600', marginBottom: 8 },
   inputContainer: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC', 
-    paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12, 
+    flexDirection: 'row', alignItems: 'center', backgroundColor: '#F8FAFC',
+    paddingHorizontal: 16, paddingVertical: 10, borderRadius: 12,
     borderWidth: 1.5, borderColor: '#023E8A', marginBottom: 20,
   },
   currencyPrefix: { fontSize: 18, fontWeight: 'bold', color: '#028A1B', marginRight: 8 },

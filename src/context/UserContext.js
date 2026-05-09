@@ -7,6 +7,7 @@ export const UserProvider = ({ children }) => {
   const [userImage, setUserImage] = useState(null); 
   const [currency, setCurrency] = useState('IDR');
   const [phoneNumber, setPhoneNumber] = useState('');
+  const [financialGoal, setFinancialGoal] = useState({ title: 'New Car', nominal: '300000000', duration: '3' });
 
   const getCurrencySymbol = (curr) => {
     switch (curr) {
@@ -32,7 +33,8 @@ export const UserProvider = ({ children }) => {
       userImage, setUserImage, 
       currency, setCurrency, 
       currencySymbol,
-      phoneNumber, setPhoneNumber 
+      phoneNumber, setPhoneNumber,
+      financialGoal, setFinancialGoal
     }}>
       {children}
     </UserContext.Provider>

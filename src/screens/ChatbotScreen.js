@@ -4,17 +4,25 @@ import {
   KeyboardAvoidingView, Platform, SafeAreaView, Image, Keyboard
 } from 'react-native';
 import { Mic, Send, Home, Wallet, BookOpen } from 'lucide-react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 
-const ChatbotScreen = ({ navigation }) => {
+const ChatbotScreen = ({ navigation, route }) => {
   const [inputText, setInputText] = useState('');
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const scrollViewRef = useRef();
   const { userImage } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
+
+  useEffect(() => {
+    const goalAdvice = route.params?.goalAdvice;
+    if (goalAdvice) {
+      const prompt = `I want advice on how to achieve my goal: ${goalAdvice.title}. I currently have ${goalAdvice.currentAmount} saved for my target and my target is ${goalAdvice.targetAmount}. I have ${goalAdvice.duration} remaining. Can you help me with a plan?`;
+      sendMessage(prompt);
+      navigation.setParams({ goalAdvice: undefined });
+    }
+  }, [route.params?.goalAdvice]);
 
   const [messages, setMessages] = useState([
     {
@@ -83,11 +91,7 @@ const ChatbotScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <LinearGradient
-        colors={['#447ADF', '#285CCB', '#04ADAD', '#096767']}
-        locations={[0, 0.14, 0.35, 0.89]}
-        style={styles.headerGradient}
-      >
+      <View style={[styles.headerGradient, { backgroundColor: colors.primary }]}>
         <SafeAreaView>
           <View style={styles.headerContent}>
             <View style={styles.headerIconContainer}>
@@ -98,20 +102,21 @@ const ChatbotScreen = ({ navigation }) => {
               />
             </View>
             <View>
-              <Text style={styles.headerTitle}>AI Financial Assistant</Text>
-              <Text style={styles.headerSubtitle}>• Always Online For You</Text>
+              <Text style={styles.headerTitle}>Fluent's Financial Assistant</Text>
+              <Text style={styles.headerSubtitle}>• Helping you get fluent in money</Text>
             </View>
           </View>
         </SafeAreaView>
-      </LinearGradient>
+      </View>
 
       <KeyboardAvoidingView 
         style={styles.keyboardAvoiding} 
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        behavior="padding"
+        keyboardVerticalOffset={0}
       >
         <ScrollView 
           ref={scrollViewRef}
+          style={{ flex: 1 }}
           contentContainerStyle={styles.chatScrollContent}
           showsVerticalScrollIndicator={false}
           onContentSizeChange={() => scrollViewRef.current?.scrollToEnd({ animated: true })}
@@ -132,15 +137,9 @@ const ChatbotScreen = ({ navigation }) => {
               )}
 
               {msg.sender === 'user' ? (
-                <LinearGradient
-                  colors={['#447ADF', '#285CCB', '#04ADAD']}
-                  locations={[0.05, 0.47, 0.97]}
-                  start={{x: 0, y: 0}} 
-                  end={{x: 1, y: 0}}
-                  style={styles.bubbleUser}
-                >
+                <View style={[styles.bubbleUser, { backgroundColor: colors.primary }]}>
                   <Text style={styles.messageTextUser}>{msg.text}</Text>
-                </LinearGradient>
+                </View>
               ) : (
                 <View style={[styles.bubbleBot, { backgroundColor: isDarkMode ? colors.card : '#FFFFFF' }]}>
                   <Text style={[styles.messageTextBot, { color: isDarkMode ? colors.text : '#1A202C' }]}>{msg.text}</Text>
@@ -169,7 +168,7 @@ const ChatbotScreen = ({ navigation }) => {
                 style={[styles.promptChip, { backgroundColor: isDarkMode ? colors.cardAlt : '#E2E8F0' }]}
                 onPress={() => sendMessage(prompt)}
               >
-                <Text style={[styles.promptText, { color: isDarkMode ? colors.primary : '#2B58CE' }]}>{prompt}</Text>
+                <Text style={[styles.promptText, { color: isDarkMode ? colors.primary : '#204bb8' }]}>{prompt}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
@@ -216,12 +215,7 @@ const ChatbotScreen = ({ navigation }) => {
           </TouchableOpacity>
 
           <View style={styles.fabWrapper}>
-            <LinearGradient
-              colors={['#04ADAD', '#447ADF']}
-              start={{x: 0, y: 0}}
-              end={{x: 1, y: 1}}
-              style={styles.fabGradient}
-            >
+            <View style={[styles.fabGradient, { backgroundColor: colors.primary }]}>
               <TouchableOpacity style={styles.fabInner}>
                 <Image 
                   source={require('../assets/aihover.png')} 
@@ -229,7 +223,7 @@ const ChatbotScreen = ({ navigation }) => {
                   resizeMode="contain"
                 />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
           </View>
 
           <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>

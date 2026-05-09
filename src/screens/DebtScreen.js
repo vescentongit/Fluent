@@ -1,17 +1,19 @@
 import React, { useState, useContext } from 'react';
-import { 
+import {
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView,
-  Dimensions, SafeAreaView, KeyboardAvoidingView, Platform 
+  Dimensions, SafeAreaView, KeyboardAvoidingView, Platform
 } from 'react-native';
-import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
+import Svg, { Path } from 'react-native-svg';
 import { ChevronLeft, Plus, Trash2, Edit2, CreditCard, Calendar as CalendarIcon } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { UserContext } from '../context/UserContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const { width } = Dimensions.get('window');
 
 const DebtScreen = ({ navigation }) => {
   const { currencySymbol } = useContext(UserContext);
+  const { colors } = useContext(ThemeContext);
   const [debts, setDebts] = useState([
     { id: Date.now().toString(), name: '', nominal: '', dueDate: new Date(), dueDateText: 'Select Date', interest: '' }
   ]);
@@ -20,13 +22,13 @@ const DebtScreen = ({ navigation }) => {
   const [activeDebtId, setActiveDebtId] = useState(null);
 
   const addDebt = () => {
-    const newDebt = { 
-      id: Date.now().toString(), 
-      name: '', 
-      nominal: '', 
-      dueDate: new Date(), 
-      dueDateText: 'Select Date', 
-      interest: '' 
+    const newDebt = {
+      id: Date.now().toString(),
+      name: '',
+      nominal: '',
+      dueDate: new Date(),
+      dueDateText: 'Select Date',
+      interest: ''
     };
     setDebts([...debts, newDebt]);
   };
@@ -41,21 +43,21 @@ const DebtScreen = ({ navigation }) => {
       const numericValue = value.replace(/[^0-9]/g, '');
       finalValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     }
-    setDebts(debts.map(debt => 
+    setDebts(debts.map(debt =>
       debt.id === id ? { ...debt, [field]: finalValue } : debt
     ));
   };
 
   const onDateChange = (event, selectedDate) => {
-    setShowPicker(false); 
-    
+    setShowPicker(false);
+
     if (selectedDate && activeDebtId) {
       const options = { day: '2-digit', month: 'short', year: 'numeric' };
       const dateString = selectedDate.toLocaleDateString('en-GB', options);
-      
-      setDebts(debts.map(debt => 
-        debt.id === activeDebtId 
-          ? { ...debt, dueDate: selectedDate, dueDateText: dateString } 
+
+      setDebts(debts.map(debt =>
+        debt.id === activeDebtId
+          ? { ...debt, dueDate: selectedDate, dueDateText: dateString }
           : debt
       ));
     }
@@ -70,18 +72,11 @@ const DebtScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.headerContainer}>
         <Svg height="240" width={width} viewBox={`0 0 ${width} 240`} style={styles.svg}>
-          <Defs>
-            <LinearGradient id="headerGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-              <Stop offset="0%" stopColor="#48CAE4" stopOpacity="1" />
-              <Stop offset="50%" stopColor="#76D7EB" stopOpacity="1" />
-              <Stop offset="100%" stopColor="#FFFFFF" stopOpacity="1" />
-            </LinearGradient>
-          </Defs>
-          <Path fill="rgba(0, 0, 0, 0.04)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 8)" />
-          <Path fill="rgba(0, 0, 0, 0.08)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 4)" />
-          <Path fill="url(#headerGrad)" d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} />
+          <Path fill={colors.border} d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 8)" />
+          <Path fill={colors.cardAlt} d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} transform="translate(0, 4)" />
+          <Path fill={colors.primary} d={`M0 0 L${width} 0 L${width} 180 C${width * 0.7} 220 ${width * 0.3} 140 0 180 Z`} />
         </Svg>
-        
+
         <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
           <ChevronLeft color="#FFFFFF" size={32} />
         </TouchableOpacity>
@@ -92,7 +87,7 @@ const DebtScreen = ({ navigation }) => {
       </View>
 
       <SafeAreaView style={styles.safeArea}>
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         >
@@ -111,7 +106,7 @@ const DebtScreen = ({ navigation }) => {
                       onChangeText={(text) => updateDebt(debt.id, 'name', text)}
                     />
                   </View>
-                  
+
                   <View style={styles.divider} />
 
                   <View style={styles.debtDetailsRow}>
@@ -128,11 +123,11 @@ const DebtScreen = ({ navigation }) => {
 
                     <View style={styles.detailColumn}>
                       <Text style={styles.detailLabel}>Due Date</Text>
-                      <TouchableOpacity 
-                        style={styles.datePickerButton} 
+                      <TouchableOpacity
+                        style={styles.datePickerButton}
                         onPress={() => openDatePicker(debt.id)}
                       >
-                        <Text style={[styles.detailInputText, debt.dueDateText === 'Select Date' && {color: '#CBD5E0'}]}>
+                        <Text style={[styles.detailInputText, debt.dueDateText === 'Select Date' && { color: '#CBD5E0' }]}>
                           {debt.dueDateText}
                         </Text>
                         <CalendarIcon color="#023E8A" size={14} />
@@ -177,8 +172,8 @@ const DebtScreen = ({ navigation }) => {
 
           <View style={styles.bottomContainer}>
             <View style={styles.progressSection}>
-              <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '80%' }]} /></View>
-              <Text style={styles.progressText}>4 out of 5</Text>
+              <View style={styles.progressWrapper}><View style={[styles.progressBar, { width: '66%' }]} /></View>
+              <Text style={styles.progressText}>4 out of 6</Text>
             </View>
             <TouchableOpacity style={styles.continueButton} onPress={() => navigation.navigate('EconomicPreferences')}>
               <Text style={styles.continueText}>Continue</Text>
@@ -192,7 +187,7 @@ const DebtScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#FFFFFF' },
-  emphasis : {color: '#eb2929'},
+  emphasis: { color: '#eb2929' },
   headerContainer: { height: 210, position: 'relative' },
   svg: { position: 'absolute', top: 0 },
   backButton: { position: 'absolute', top: 60, left: 20, zIndex: 20 },
@@ -212,7 +207,7 @@ const styles = StyleSheet.create({
   detailLabel: { fontSize: 11, color: '#023E8A', fontWeight: 'bold', marginBottom: 6 },
   detailLabel1: { fontSize: 9, color: '#023E8A', fontWeight: 'bold', marginBottom: 6 },
   detailInput: { borderWidth: 1, borderColor: '#023E8A', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 6, fontSize: 13, color: '#1A202C', backgroundColor: '#FFFFFF', fontWeight: 'bold' },
-  
+
   datePickerButton: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -221,11 +216,11 @@ const styles = StyleSheet.create({
     borderColor: '#023E8A',
     borderRadius: 8,
     paddingHorizontal: 8,
-    paddingVertical: 8, 
+    paddingVertical: 8,
     backgroundColor: '#FFFFFF',
   },
   detailInputText: { fontSize: 11, fontWeight: 'bold', color: '#1A202C' },
-  
+
   actionRow: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
   addDebtButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#023E8A', borderRadius: 24, paddingVertical: 12, backgroundColor: '#F8FAFC', marginBottom: 20 },
   addDebtText: { fontSize: 16, fontWeight: 'bold', color: '#023E8A' },

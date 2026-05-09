@@ -1,15 +1,17 @@
-import React, { useState } from 'react';
-import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Modal, TextInput 
+import React, { useState, useContext } from 'react';
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Modal, TextInput
 } from 'react-native';
-import { ArrowLeft, Edit, Trash2, Check, X, CalendarDays } from 'lucide-react-native';
+import { ArrowLeft, Edit, Trash2, Check, X, CalendarDays, MessageCircle } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
+import { ThemeContext } from '../context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 
 const formatCurrencyM = (value) => `Rp ${value} M`;
 
 const GoalsScreen = ({ navigation }) => {
   const { t } = useTranslation();
+  const { colors } = useContext(ThemeContext);
 
   const [goals, setGoals] = useState([
     { id: '1', title: 'New Car', daysLeft: 215, current: 156, target: 300, percentage: 52 },
@@ -21,19 +23,19 @@ const GoalsScreen = ({ navigation }) => {
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isAddModalVisible, setAddModalVisible] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState(null);
-  
+
   const [editTitle, setEditTitle] = useState('');
   const [addAmount, setAddAmount] = useState('');
   const [reduceAmount, setReduceAmount] = useState('');
-  
+
   const [newTitle, setNewTitle] = useState('');
   const [newTarget, setNewTarget] = useState('');
   const [newDate, setNewDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
 
   const activeTargets = goals.length;
-  const averageProgress = activeTargets > 0 
-    ? Math.round(goals.reduce((acc, goal) => acc + goal.percentage, 0) / activeTargets) 
+  const averageProgress = activeTargets > 0
+    ? Math.round(goals.reduce((acc, goal) => acc + goal.percentage, 0) / activeTargets)
     : 0;
 
   const openEditModal = (goal) => {
@@ -79,7 +81,7 @@ const GoalsScreen = ({ navigation }) => {
     const newGoal = {
       id: Date.now().toString(),
       title: newTitle,
-      daysLeft: daysDiff > 0 ? daysDiff : 0, 
+      daysLeft: daysDiff > 0 ? daysDiff : 0,
       current: 0,
       target: parseFloat(newTarget),
       percentage: 0
@@ -104,8 +106,8 @@ const GoalsScreen = ({ navigation }) => {
         </View>
       </SafeAreaView>
 
-      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-        
+      <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+
         <View style={styles.statsRow}>
           <View style={styles.statCard}>
             <Text style={styles.statLabel}>{t('goals.activeTarget', 'Active Target')}</Text>
@@ -120,7 +122,7 @@ const GoalsScreen = ({ navigation }) => {
         {goals.map((goal) => {
           const isCompleted = goal.percentage === 100;
           const remaining = Math.max(goal.target - goal.current, 0);
-          
+
           return (
             <View key={goal.id} style={styles.goalCard}>
               <View style={styles.goalHeaderRow}>
@@ -133,11 +135,11 @@ const GoalsScreen = ({ navigation }) => {
                 <View style={styles.goalActions}>
                   {!isCompleted && (
                     <TouchableOpacity onPress={() => openEditModal(goal)} style={styles.iconBtn}>
-                      <Edit color="#1A202C" size={22} strokeWidth={2} />
+                      <Edit color="#FFFFFF" size={22} strokeWidth={2} />
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity onPress={() => handleDelete(goal.id)} style={styles.iconBtn}>
-                    <Trash2 color="#1A202C" size={22} strokeWidth={2} />
+                    <Trash2 color="#FFFFFF" size={22} strokeWidth={2} />
                   </TouchableOpacity>
                 </View>
               </View>
@@ -149,7 +151,7 @@ const GoalsScreen = ({ navigation }) => {
 
               <View style={styles.progressBarTrack}>
                 <View style={[
-                  styles.progressBarFill, 
+                  styles.progressBarFill,
                   { width: `${goal.percentage}%` },
                   isCompleted && { backgroundColor: '#22C55E' }
                 ]} />
@@ -167,6 +169,20 @@ const GoalsScreen = ({ navigation }) => {
                 <View style={[styles.badge, isCompleted && styles.badgeSuccess]}>
                   <Text style={styles.badgeText}>{goal.percentage}% {t('goals.complete', 'complete')}</Text>
                 </View>
+                <TouchableOpacity
+                  style={styles.adviceBtn}
+                  onPress={() => navigation.navigate('Chatbot', {
+                    goalAdvice: {
+                      title: goal.title,
+                      currentAmount: `${goal.current} M`,
+                      targetAmount: `${goal.target} M`,
+                      duration: `${goal.daysLeft} days left`,
+                    }
+                  })}
+                >
+                  <MessageCircle color="#FFFFFF" size={14} />
+                  <Text style={styles.adviceBtnText}>Fluent's Advice</Text>
+                </TouchableOpacity>
               </View>
             </View>
           );
@@ -184,8 +200,8 @@ const GoalsScreen = ({ navigation }) => {
             {selectedGoal && (
               <>
                 <View style={styles.modalHeaderRow}>
-                  <TextInput 
-                    style={styles.modalTitleInput} 
+                  <TextInput
+                    style={styles.modalTitleInput}
                     value={editTitle}
                     onChangeText={setEditTitle}
                     placeholderTextColor="#A0AEC0"
@@ -197,25 +213,25 @@ const GoalsScreen = ({ navigation }) => {
                     <X color="#A0AEC0" size={28} strokeWidth={2.5} />
                   </TouchableOpacity>
                 </View>
-                
+
                 <Text style={styles.modalDaysLeft}>{selectedGoal.daysLeft} {t('goals.daysLeft', 'days left')}</Text>
-                
+
                 <View style={styles.modalAmountRow}>
                   <Text style={styles.modalAmountText}>{formatCurrencyM(selectedGoal.current)}</Text>
                   <Text style={[styles.modalAmountText, { color: '#FFFFFF' }]}>{formatCurrencyM(selectedGoal.target)}</Text>
                 </View>
-                
+
                 <View style={styles.modalProgressTrack}>
                   <View style={[styles.modalProgressFill, { width: `${selectedGoal.percentage}%` }]} />
                 </View>
-                
+
                 <Text style={styles.modalToGoText}>
                   {formatCurrencyM(Math.max(selectedGoal.target - selectedGoal.current, 0))} {t('goals.toGo', 'to go')}
                 </Text>
 
                 <View style={styles.modalActionRow}>
-                  <TextInput 
-                    style={styles.modalActionInput} 
+                  <TextInput
+                    style={styles.modalActionInput}
                     placeholder={t('goals.addSavings', 'Add Savings')}
                     placeholderTextColor="#A0AEC0"
                     keyboardType="numeric"
@@ -228,8 +244,8 @@ const GoalsScreen = ({ navigation }) => {
                 </View>
 
                 <View style={styles.modalActionRow}>
-                  <TextInput 
-                    style={styles.modalActionInput} 
+                  <TextInput
+                    style={styles.modalActionInput}
                     placeholder={t('goals.reduceSavings', 'Reduce Savings')}
                     placeholderTextColor="#A0AEC0"
                     keyboardType="numeric"
@@ -249,18 +265,18 @@ const GoalsScreen = ({ navigation }) => {
       <Modal visible={isAddModalVisible} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.blueModalCard}>
-            <TextInput 
-              style={styles.modalAddTitleInput} 
+            <TextInput
+              style={styles.modalAddTitleInput}
               placeholder={t('goals.enterTargetTitle', 'Enter Target Title')}
               placeholderTextColor="#A0AEC0"
               value={newTitle}
               onChangeText={setNewTitle}
             />
-            
+
             <View style={styles.modalInputGroup}>
               <Text style={styles.modalInputLabel}>{t('goals.targetNominal', 'TARGET NOMINAL (M)')}</Text>
-              <TextInput 
-                style={styles.modalAddInput} 
+              <TextInput
+                style={styles.modalAddInput}
                 placeholder="0"
                 placeholderTextColor="#A0AEC0"
                 keyboardType="numeric"
@@ -271,7 +287,7 @@ const GoalsScreen = ({ navigation }) => {
 
             <View style={styles.modalInputGroup}>
               <Text style={styles.modalInputLabel}>{t('goals.targetDate', 'TARGET DATE')}</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 style={styles.datePickerBtn}
                 onPress={() => setShowDatePicker(true)}
               >
@@ -318,26 +334,28 @@ const styles = StyleSheet.create({
   headerSubtitle: { fontSize: 14, color: '#718096' },
   scrollContent: { paddingHorizontal: 24, paddingBottom: 40 },
   statsRow: { flexDirection: 'row', gap: 16, marginBottom: 24 },
-  statCard: { flex: 1, backgroundColor: '#F1F5F9', borderRadius: 16, padding: 20 },
-  statLabel: { fontSize: 14, fontWeight: '600', color: '#1A202C', marginBottom: 8 },
-  statValue: { fontSize: 48, fontWeight: 'bold', color: '#1A202C', letterSpacing: -1 },
-  goalCard: { backgroundColor: '#F1F5F9', borderRadius: 16, padding: 20, marginBottom: 16 },
+  statCard: { flex: 1, backgroundColor: '#052C5C', borderRadius: 16, padding: 20 },
+  statLabel: { fontSize: 14, fontWeight: '600', color: '#E0E7FF', marginBottom: 8 },
+  statValue: { fontSize: 48, fontWeight: 'bold', color: '#FFFFFF', letterSpacing: -1 },
+  goalCard: { backgroundColor: '#052C5C', borderRadius: 16, padding: 20, marginBottom: 16 },
   goalHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 },
-  goalTitle: { fontSize: 16, fontWeight: '700', color: '#1A202C', marginBottom: 4 },
-  goalDaysLeft: { fontSize: 13, color: '#718096', fontWeight: '500' },
+  goalTitle: { fontSize: 16, fontWeight: '700', color: '#FFFFFF', marginBottom: 4 },
+  goalDaysLeft: { fontSize: 13, color: '#A0AEC0', fontWeight: '500' },
   goalActions: { flexDirection: 'row', gap: 12 },
   iconBtn: { padding: 2 },
   amountRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 },
-  amountText: { fontSize: 13, color: '#718096', fontWeight: '600' },
-  progressBarTrack: { height: 8, backgroundColor: '#CBD5E0', borderRadius: 4, marginBottom: 8, overflow: 'hidden' },
-  progressBarFill: { height: '100%', backgroundColor: '#0284C7', borderRadius: 4 },
-  amountToGo: { fontSize: 12, color: '#718096', textAlign: 'right', marginBottom: 16, fontWeight: '500' },
+  amountText: { fontSize: 13, color: '#A0AEC0', fontWeight: '600' },
+  progressBarTrack: { height: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 4, marginBottom: 8, overflow: 'hidden' },
+  progressBarFill: { height: '100%', backgroundColor: '#48CAE4', borderRadius: 4 },
+  amountToGo: { fontSize: 12, color: '#A0AEC0', textAlign: 'right', marginBottom: 16, fontWeight: '500' },
   badgeContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  badge: { backgroundColor: '#0284C7', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
+  badge: { backgroundColor: '#48CAE4', paddingHorizontal: 12, paddingVertical: 4, borderRadius: 12 },
   badgeSuccess: { backgroundColor: '#22C55E' },
-  badgeText: { color: '#FFFFFF', fontSize: 12, fontWeight: '600' },
-  addButton: { backgroundColor: '#F1F5F9', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8, marginBottom: 20 },
-  addButtonText: { color: '#718096', fontSize: 15, fontWeight: '600' },
+  badgeText: { color: '#000000', fontSize: 12, fontWeight: '700' },
+  addButton: { backgroundColor: '#052C5C', borderRadius: 12, paddingVertical: 16, alignItems: 'center', marginTop: 8, marginBottom: 20 },
+  adviceBtn: { flexDirection: 'row', alignItems: 'center', gap: 4, backgroundColor: 'rgba(255,255,255,0.15)', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 12 },
+  adviceBtnText: { color: '#FFFFFF', fontSize: 11, fontWeight: '600' },
+  addButtonText: { color: '#FFFFFF', fontSize: 15, fontWeight: '600' },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', paddingHorizontal: 20 },
   blueModalCard: { width: '100%', backgroundColor: '#03045E', borderRadius: 20, padding: 24, elevation: 10 },

@@ -1,8 +1,7 @@
 import React, { useState, useMemo, useContext } from 'react';
 import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions, TextInput, Modal
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions, TextInput, Modal, PanResponder
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { 
   Home, Wallet as WalletIcon, BookOpen, Plus, Search, TrendingUp, TrendingDown 
@@ -32,6 +31,18 @@ const WalletScreen = ({ navigation }) => {
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const [modalVisible, setModalVisible] = useState(false);
+
+  const panResponder = useMemo(() => PanResponder.create({
+    onStartShouldSetPanResponder: () => false,
+    onMoveShouldSetPanResponder: (evt, gestureState) => {
+      return gestureState.dy > 15 && gestureState.vy > 0.1;
+    },
+    onPanResponderRelease: (evt, gestureState) => {
+      if (gestureState.dy > 50) {
+        setModalVisible(false);
+      }
+    }
+  }), []);
   const [transactionType, setTransactionType] = useState('expense');
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
@@ -166,9 +177,9 @@ const WalletScreen = ({ navigation }) => {
         <View style={styles.tabsContainer}>
           <TouchableOpacity style={styles.tabWrapper} onPress={() => setActiveTab('All')}>
             {activeTab === 'All' ? (
-              <LinearGradient colors={['#447ADF', '#04ADAD']} start={{x:0, y:0}} end={{x:1, y:0}} style={styles.activeTabGradient}>
+              <View style={[styles.activeTabGradient, { backgroundColor: colors.primary }]}>
                 <Text style={styles.activeTabText}>All</Text>
-              </LinearGradient>
+              </View>
             ) : (
               <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>All</Text></View>
             )}
@@ -176,9 +187,9 @@ const WalletScreen = ({ navigation }) => {
 
           <TouchableOpacity style={styles.tabWrapper} onPress={() => setActiveTab('Income')}>
             {activeTab === 'Income' ? (
-              <LinearGradient colors={['#447ADF', '#04ADAD']} start={{x:0, y:0}} end={{x:1, y:0}} style={styles.activeTabGradient}>
+              <View style={[styles.activeTabGradient, { backgroundColor: colors.primary }]}>
                 <Text style={styles.activeTabText}>Income</Text>
-              </LinearGradient>
+              </View>
             ) : (
               <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>Income</Text></View>
             )}
@@ -186,9 +197,9 @@ const WalletScreen = ({ navigation }) => {
 
           <TouchableOpacity style={styles.tabWrapper} onPress={() => setActiveTab('Expense')}>
             {activeTab === 'Expense' ? (
-              <LinearGradient colors={['#447ADF', '#04ADAD']} start={{x:0, y:0}} end={{x:1, y:0}} style={styles.activeTabGradient}>
+              <View style={[styles.activeTabGradient, { backgroundColor: colors.primary }]}>
                 <Text style={styles.activeTabText}>Expense</Text>
-              </LinearGradient>
+              </View>
             ) : (
               <View style={styles.inactiveTab}><Text style={styles.inactiveTabText}>Expense</Text></View>
             )}
@@ -223,7 +234,7 @@ const WalletScreen = ({ navigation }) => {
         onRequestClose={() => setModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
+          <View style={styles.modalContent} {...panResponder.panHandlers}>
             <View style={styles.modalHandle} />
             <Text style={styles.modalTitle}>Add Transaction</Text>
 

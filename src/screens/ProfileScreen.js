@@ -2,11 +2,10 @@ import React, { useState, useContext, useMemo } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions, Modal 
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { 
   Home, Wallet, BookOpen, Edit2, ChevronLeft, ChevronRight, 
-  AlertTriangle, Lightbulb, TrendingUp, Target, Settings, Undo2 
+  AlertTriangle, Lightbulb, TrendingUp, Target, Settings, Undo2, Calendar 
 } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
@@ -139,7 +138,7 @@ const ProfileScreen = ({ navigation }) => {
           </View>
 
           {cardIndex === 0 ? (
-            <LinearGradient colors={['#447ADF', '#04ADAD']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.switchableCard}>
+            <View style={[styles.switchableCard, { backgroundColor: colors.primary }]}>
               <TouchableOpacity onPress={() => setCardIndex(1)}>
                 <ChevronLeft color="#FFFFFF" size={24} style={styles.cardArrow} />
               </TouchableOpacity>
@@ -156,9 +155,9 @@ const ProfileScreen = ({ navigation }) => {
               <TouchableOpacity onPress={() => setCardIndex(1)}>
                 <ChevronRight color="#FFFFFF" size={24} style={styles.cardArrow} />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
           ) : (
-            <LinearGradient colors={['#447ADF', '#04ADAD']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.switchableCard}>
+            <View style={[styles.switchableCard, { backgroundColor: colors.primary }]}>
               <TouchableOpacity onPress={() => setCardIndex(0)}>
                 <ChevronLeft color="#FFFFFF" size={24} style={styles.cardArrow} />
               </TouchableOpacity>
@@ -179,25 +178,25 @@ const ProfileScreen = ({ navigation }) => {
               <TouchableOpacity onPress={() => setCardIndex(0)}>
                 <ChevronRight color="#FFFFFF" size={24} style={styles.cardArrow} />
               </TouchableOpacity>
-            </LinearGradient>
+            </View>
           )}
 
           <View style={styles.snapshotRow}>
-            <LinearGradient colors={['#447ADF', '#2B58CE']} style={styles.snapshotCardMain}>
+            <View style={[styles.snapshotCardMain, { backgroundColor: colors.primary }]}>
               <Text style={styles.snapshotLabel}>Total{'\n'}Balance</Text>
               <Text style={styles.snapshotValue}>Rp 67,676,767</Text>
-            </LinearGradient>
-            <LinearGradient colors={['#447ADF', '#2B58CE']} style={styles.snapshotCardMain}>
+            </View>
+            <View style={[styles.snapshotCardMain, { backgroundColor: colors.primary }]}>
               <Text style={styles.snapshotLabel}>Monthly{'\n'}Spending</Text>
               <Text style={styles.snapshotValue}>Rp 6,767,676</Text>
-            </LinearGradient>
-            <LinearGradient colors={['#04ADAD', '#038888']} style={styles.snapshotCardSmall}>
+            </View>
+            <View style={[styles.snapshotCardSmall, { backgroundColor: colors.secondary }]}>
               <Text style={styles.snapshotLabel}>Debt Ratio</Text>
               <Text style={styles.snapshotValueLarge}>19%</Text>
-            </LinearGradient>
+            </View>
           </View>
 
-          <LinearGradient colors={['#04ADAD', '#2B58CE']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.insightsCard}>
+          <View style={[styles.insightsCard, { backgroundColor: colors.primary }]}>
             <View style={styles.insightRow}>
               <AlertTriangle color="#FFFFFF" size={18} style={styles.insightIcon} />
               <Text style={styles.insightText}>Dining spending increased 21% this week</Text>
@@ -210,17 +209,30 @@ const ProfileScreen = ({ navigation }) => {
               <TrendingUp color="#FFFFFF" size={18} style={styles.insightIcon} />
               <Text style={styles.insightText}>Savings rate improved by 6%</Text>
             </View>
-          </LinearGradient>
+          </View>
 
-          <LinearGradient colors={['#447ADF', '#04ADAD']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.streakCard}>
+          <TouchableOpacity onPress={() => navigation.navigate('AdvisorBooking')}>
+            <View style={[styles.ctaCard, { backgroundColor: colors.card, borderColor: colors.primary }]}>
+              <View style={styles.ctaIconBg}>
+                <Calendar color={colors.primary} size={24} />
+              </View>
+              <View style={styles.ctaTextContainer}>
+                <Text style={[styles.ctaTitle, { color: colors.text }]}>Book a 1-on-1 Session</Text>
+                <Text style={[styles.ctaSubtitle, { color: colors.textMuted }]}>Get personalized advice from a financial advisor</Text>
+              </View>
+              <ChevronRight color={colors.primary} size={20} />
+            </View>
+          </TouchableOpacity>
+
+          <View style={[styles.streakCard, { backgroundColor: colors.primary }]}>
             <Text style={styles.streakLabel}>Current Streak</Text>
             <View style={styles.streakRow}>
               <Image source={require('../assets/streak_fire.png')} style={styles.streakIcon} />
               <Text style={styles.streakValue}>67 Days</Text>
             </View>
-          </LinearGradient>
+          </View>
 
-          <LinearGradient colors={['#82622d', '#cbad28', '#eec53f']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.badgesBox}>
+          <View style={[styles.badgesBox, { backgroundColor: colors.secondary }]}>
             <Text style={styles.badgesBoxTitle}>Badges</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesScroll}>
               {BADGES_DATA.map((badge) => (
@@ -229,22 +241,22 @@ const ProfileScreen = ({ navigation }) => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-          </LinearGradient>
+          </View>
 
           <TouchableOpacity onPress={() => navigation.navigate('Goals')}>
-            <LinearGradient colors={['#1b1e27', '#04ADAD']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.actionButton}>
+            <View style={[styles.actionButton, { backgroundColor: colors.primary }]}>
               <Target color="#FFFFFF" size={24} style={styles.actionIcon} />
               <Text style={styles.actionButtonText}>Goals & Targets</Text>
               <ChevronRight color="#FFFFFF" size={20} />
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={() => navigation.navigate('Settings')}>
-            <LinearGradient colors={['#565657', '#767676']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={styles.actionButton}>
+            <View style={[styles.actionButton, { backgroundColor: colors.secondary }]}>
               <Settings color="#FFFFFF" size={24} style={styles.actionIcon} />
               <Text style={styles.actionButtonText}>App Settings</Text>
               <ChevronRight color="#FFFFFF" size={20} />
-            </LinearGradient>
+            </View>
           </TouchableOpacity>
 
         </View>
@@ -253,7 +265,7 @@ const ProfileScreen = ({ navigation }) => {
       <Modal visible={!!selectedBadge} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           {selectedBadge && (
-            <LinearGradient colors={['#447ADF', '#04ADAD']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.modalCard}>
+            <View style={[styles.modalCard, { backgroundColor: colors.primary }]}>
               <TouchableOpacity style={styles.modalBackBtn} onPress={() => setSelectedBadge(null)}>
                 <Undo2 color="#FFFFFF" size={28} />
               </TouchableOpacity>
@@ -264,7 +276,7 @@ const ProfileScreen = ({ navigation }) => {
               {selectedBadge.statusText ? (
                 <Text style={styles.modalStatusText}>{selectedBadge.statusText}</Text>
               ) : null}
-            </LinearGradient>
+            </View>
           )}
         </View>
       </Modal>
@@ -335,6 +347,31 @@ const createStyles = (colors) => StyleSheet.create({
   snapshotValue: { color: '#FFFFFF', fontSize: 14, fontWeight: 'bold' },
   snapshotValueLarge: { color: '#FFFFFF', fontSize: 28, fontWeight: 'bold' },
   insightsCard: { borderRadius: 24, padding: 20, marginBottom: 24, gap: 16, elevation: 4, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8 },
+  ctaCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 20,
+    padding: 20,
+    marginBottom: 24,
+    borderWidth: 2,
+    elevation: 3,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+  },
+  ctaIconBg: {
+    width: 50,
+    height: 50,
+    borderRadius: 14,
+    backgroundColor: 'rgba(16,72,146,0.1)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 16,
+  },
+  ctaTextContainer: { flex: 1 },
+  ctaTitle: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+  ctaSubtitle: { fontSize: 13, lineHeight: 18 },
   insightRow: { flexDirection: 'row', alignItems: 'flex-start' },
   insightIcon: { marginRight: 12, marginTop: 2 },
   insightText: { color: '#FFFFFF', fontSize: 14, flex: 1, lineHeight: 20, fontWeight: '600' },

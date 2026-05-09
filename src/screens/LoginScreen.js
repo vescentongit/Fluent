@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  TouchableOpacity, 
-  StyleSheet, 
-  Image, 
-  KeyboardAvoidingView, 
-  Platform 
+import {
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  StyleSheet,
+  Image,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { Eye, EyeOff } from 'lucide-react-native';
 import WaveHeader from '../components/WaveHeader';
@@ -18,17 +18,17 @@ const LoginScreen = ({ navigation }) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <KeyboardAvoidingView 
-      style={styles.container} 
+    <KeyboardAvoidingView
+      style={styles.container}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <WaveHeader />
 
       <View style={styles.headerContent}>
-        <Image 
-          source={require('../assets/logo2.png')} 
-          style={styles.logo} 
-          resizeMode="contain" 
+        <Image
+          source={require('../assets/logo2.png')}
+          style={[styles.logo, { tintColor: '#FFFFFF' }]}
+          resizeMode="contain"
         />
       </View>
 
@@ -64,7 +64,7 @@ const LoginScreen = ({ navigation }) => {
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity 
+          <TouchableOpacity
             style={styles.loginButton}
             onPress={() => navigation.navigate('Loading')}
           >
@@ -73,10 +73,10 @@ const LoginScreen = ({ navigation }) => {
         </View>
 
         <View style={styles.footer}>
-            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
-                <Text style={styles.forgotPassword}>Forgot your password?</Text>
-            </TouchableOpacity>
-          
+          <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+            <Text style={styles.forgotPassword}>Forgot your password?</Text>
+          </TouchableOpacity>
+
           <View style={styles.signUpContainer}>
             <Text style={styles.footerText}>Don't have an account? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -92,7 +92,7 @@ const LoginScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FAFCFF', 
+    backgroundColor: '#FAFCFF',
   },
   headerContent: {
     height: 250,
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     flex: 1,
     paddingHorizontal: 24,
-    marginTop: -30, 
+    marginTop: -30,
   },
   greetingText: {
     fontSize: 28,
@@ -126,7 +126,7 @@ const styles = StyleSheet.create({
     marginTop: 40,
   },
   formCard: {
-    backgroundColor: '#F4F7FA', 
+    backgroundColor: '#F4F7FA',
     borderRadius: 16,
     padding: 24,
     shadowColor: '#000',

@@ -2,7 +2,6 @@ import React, { useContext, useMemo } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions 
 } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
 import { Home, Wallet, BookOpen, Star, CheckCircle2, Hourglass, PlayCircle, Shield, Lock } from 'lucide-react-native';
 import { LessonContext } from '../context/LessonContext';
@@ -54,12 +53,7 @@ const LearnScreen = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <LinearGradient
-          colors={['#447ADF', '#04ADAD']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 1 }}
-          style={styles.streakCard}
-        >
+        <View style={[styles.streakCard, { backgroundColor: colors.primary }]}>
           <View>
             <Text style={styles.streakLabel}>Current Streak</Text>
             <View style={styles.streakValueRow}>
@@ -68,7 +62,7 @@ const LearnScreen = ({ navigation }) => {
             </View>
             <Text style={styles.streakBonus}>Keep it up! +50 XP streak bonus</Text>
           </View>
-        </LinearGradient>
+        </View>
 
         <View style={styles.sectionContainer}>
           <Text style={styles.sectionTitle}>Daily Challenges</Text>

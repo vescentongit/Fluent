@@ -14,6 +14,7 @@ import DebtScreen from '../screens/DebtScreen';
 import EconomicPreferencesScreen from '../screens/EconomicPreferencesScreen';
 import HomeScreen from '../screens/HomeScreen';
 import LoadingScreen2 from '../screens/LoadingScreen2';
+import FinancialGoalsScreen from '../screens/FinancialGoalsScreen';
 import ChatbotScreen from '../screens/ChatbotScreen';
 import WalletScreen from '../screens/WalletScreen';
 import LearnScreen from '../screens/LearnScreen';
@@ -25,13 +26,14 @@ import AppSettingsScreen from '../screens/AppSettingsScreen';
 import EditProfileScreen from '../screens/EditProfileScreen';
 import GoalsScreen from '../screens/GoalsScreen';
 import SupportScreen from '../screens/SupportScreen';
+import AdvisorBookingScreen from '../screens/AdvisorBookingScreen';
 
 const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   return (
     <Stack.Navigator
-      initialRouteName="Splash"
+      initialRouteName="Home"
       screenOptions={{
         headerShown: false,
         gestureEnabled: true,
@@ -50,10 +52,11 @@ export default function AppNavigator() {
       <Stack.Screen name="Assets" component={AssetsScreen} />
       <Stack.Screen name="Debt" component={DebtScreen} />
       <Stack.Screen name="EconomicPreferences" component={EconomicPreferencesScreen} />
+      <Stack.Screen name="FinancialGoals" component={FinancialGoalsScreen} />
       <Stack.Screen name="Loading2" component={LoadingScreen2} />
 
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Chatbot" component={ChatbotScreen} />
+      <Stack.Screen name="Chatbot" component={ChatbotScreen} options = {{gestureEnabled: false}} />
       <Stack.Screen name="Wallet" component={WalletScreen} />
       <Stack.Screen name="Learn" component={LearnScreen} />
 
@@ -61,7 +64,7 @@ export default function AppNavigator() {
       <Stack.Screen name="LessonDetail" component={LessonDetailScreen} />
       <Stack.Screen name="Quiz" component={QuizScreen} />
 
-      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ gestureEnabled: false }} />
       <Stack.Screen name="Support" component={SupportScreen} options={{ ...TransitionPresets.ModalSlideFromBottomIOS }} />
 
       <Stack.Screen
@@ -77,6 +80,11 @@ export default function AppNavigator() {
       <Stack.Screen
         name="Edit"
         component={EditProfileScreen}
+        options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
+      />
+      <Stack.Screen
+        name="AdvisorBooking"
+        component={AdvisorBookingScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
     </Stack.Navigator>
