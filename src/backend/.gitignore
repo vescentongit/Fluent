@@ -1,6 +1,0 @@
-# Mengabaikan file rahasia
-.env
-
-# Mengabaikan folder virtual environment (karena ukurannya sangat besar)
-env/
-__pycache__/
