@@ -30,9 +30,9 @@ const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator 
-      initialRouteName="Home" 
-      screenOptions={{ 
+    <Stack.Navigator
+      initialRouteName="Splash"
+      screenOptions={{
         headerShown: false,
         gestureEnabled: true,
       }}
@@ -44,7 +44,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Loading" component={LoadingScreen} />
       <Stack.Screen name="Verification" component={VerificationScreen} />
       <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
-      
+
       <Stack.Screen name="IncomeSource" component={IncomeSourceScreen} />
       <Stack.Screen name="Expense" component={ExpenseScreen} />
       <Stack.Screen name="Assets" component={AssetsScreen} />
@@ -63,20 +63,20 @@ export default function AppNavigator() {
 
       <Stack.Screen name="Profile" component={ProfileScreen} />
       <Stack.Screen name="Support" component={SupportScreen} options={{ ...TransitionPresets.ModalSlideFromBottomIOS }} />
-      
-      <Stack.Screen 
-        name="Settings" 
-        component={AppSettingsScreen} 
+
+      <Stack.Screen
+        name="Settings"
+        component={AppSettingsScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
-      <Stack.Screen 
-        name="Goals" 
-        component={GoalsScreen} 
+      <Stack.Screen
+        name="Goals"
+        component={GoalsScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
-      <Stack.Screen 
-        name="Edit" 
-        component={EditProfileScreen} 
+      <Stack.Screen
+        name="Edit"
+        component={EditProfileScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
     </Stack.Navigator>

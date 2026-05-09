@@ -22,7 +22,7 @@ const HomeScreen = () => {
   const navigation = useNavigation(); 
   
   const { transactions } = useContext(TransactionContext);
-  const { userName, userImage } = useContext(UserContext);
+  const { userName, userImage, currencySymbol } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -119,7 +119,7 @@ const HomeScreen = () => {
                 </View>
                 <View style={styles.notifTextCont}>
                   <Text style={styles.notifHeading}>Expense Recorded</Text>
-                  <Text style={styles.notifDesc}>Rp 65.000 at Starbucks</Text>
+                  <Text style={styles.notifDesc}>{currencySymbol} 65.000 at Starbucks</Text>
                   <Text style={styles.notifTime}>2 mins ago</Text>
                 </View>
               </View>
@@ -152,7 +152,7 @@ const HomeScreen = () => {
           style={styles.balanceCard}
         >
           <Text style={styles.balanceLabel}>Total Balance</Text>
-          <Text style={styles.balanceAmount}>Rp {formatBalance(currentBalance)}</Text>
+          <Text style={styles.balanceAmount}>{currencySymbol} {formatBalance(currentBalance)}</Text>
           
           <View style={styles.balanceStatsRow}>
             <View style={styles.statItem}>
@@ -161,7 +161,7 @@ const HomeScreen = () => {
               </View>
               <View>
                 <Text style={styles.statLabel}>Income</Text>
-                <Text style={styles.statValue}>Rp {formatSummary(totalIncomeNum)}</Text>
+                <Text style={styles.statValue}>{currencySymbol} {formatSummary(totalIncomeNum)}</Text>
               </View>
             </View>
             <View style={styles.statDivider} />
@@ -171,7 +171,7 @@ const HomeScreen = () => {
               </View>
               <View>
                 <Text style={styles.statLabel}>Expenses</Text>
-                <Text style={styles.statValue}>Rp {formatSummary(totalExpenseNum)}</Text>
+                <Text style={styles.statValue}>{currencySymbol} {formatSummary(totalExpenseNum)}</Text>
               </View>
             </View>
           </View>

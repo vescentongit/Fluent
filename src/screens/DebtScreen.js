@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView,
   Dimensions, SafeAreaView, KeyboardAvoidingView, Platform 
@@ -6,10 +6,12 @@ import {
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ChevronLeft, Plus, Trash2, Edit2, CreditCard, Calendar as CalendarIcon } from 'lucide-react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { UserContext } from '../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
 const DebtScreen = ({ navigation }) => {
+  const { currencySymbol } = useContext(UserContext);
   const [debts, setDebts] = useState([
     { id: Date.now().toString(), name: '', nominal: '', dueDate: new Date(), dueDateText: 'Select Date', interest: '' }
   ]);
@@ -34,8 +36,13 @@ const DebtScreen = ({ navigation }) => {
   };
 
   const updateDebt = (id, field, value) => {
+    let finalValue = value;
+    if (field === 'nominal') {
+      const numericValue = value.replace(/[^0-9]/g, '');
+      finalValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    }
     setDebts(debts.map(debt => 
-      debt.id === id ? { ...debt, [field]: value } : debt
+      debt.id === id ? { ...debt, [field]: finalValue } : debt
     ));
   };
 
@@ -84,8 +91,11 @@ const DebtScreen = ({ navigation }) => {
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }}>
-        <SafeAreaView style={styles.safeArea}>
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
             <View style={styles.content}>
               <Text style={styles.questionText}>List your current outstanding <Text style={styles.emphasis}>debts</Text>.</Text>
@@ -106,10 +116,10 @@ const DebtScreen = ({ navigation }) => {
 
                   <View style={styles.debtDetailsRow}>
                     <View style={styles.detailColumn}>
-                      <Text style={styles.detailLabel}>Nominal (Rp)</Text>
+                      <Text style={styles.detailLabel}>Nominal ({currencySymbol})</Text>
                       <TextInput
                         style={styles.detailInput}
-                        placeholder="Rp 0"
+                        placeholder={`${currencySymbol} 0`}
                         keyboardType="numeric"
                         value={debt.nominal}
                         onChangeText={(text) => updateDebt(debt.id, 'nominal', text)}
@@ -174,8 +184,8 @@ const DebtScreen = ({ navigation }) => {
               <Text style={styles.continueText}>Continue</Text>
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -219,7 +229,7 @@ const styles = StyleSheet.create({
   actionRow: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
   addDebtButton: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', borderWidth: 1.5, borderColor: '#023E8A', borderRadius: 24, paddingVertical: 12, backgroundColor: '#F8FAFC', marginBottom: 20 },
   addDebtText: { fontSize: 16, fontWeight: 'bold', color: '#023E8A' },
-  bottomContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: 30, paddingTop: 30 },
+  bottomContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: Platform.OS === 'ios' ? 30 : 20, paddingTop: 10, backgroundColor: '#FFFFFF' },
   progressSection: { flexDirection: 'column' },
   progressWrapper: { height: 6, width: 100, backgroundColor: '#b4dff7', borderRadius: 3, marginBottom: 8 },
   progressBar: { height: '100%', backgroundColor: '#023E8A', borderRadius: 3 },

@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Pla
 import { ArrowLeft, ChevronRight, Bell, Moon, Globe, DollarSign, CircleHelp, Check, Home, Wallet, BookOpen } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import { ThemeContext } from '../context/ThemeContext';
+import { UserContext } from '../context/UserContext';
 
 const SettingToggleRow = ({ icon: Icon, name, value, onValueChange, styles, colors }) => (
   <View style={styles.settingRow}>
@@ -32,6 +33,7 @@ const AppSettingsScreen = ({ navigation }) => {
   const [langModalVisible, setLangModalVisible] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const { isDarkMode, toggleDarkMode, colors } = useContext(ThemeContext);
+  const { currency, currencySymbol } = useContext(UserContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
   const ASEAN_LANGUAGES = ['en', 'id', 'ms', 'tl', 'vi', 'th', 'my', 'km', 'lo'];
@@ -84,7 +86,7 @@ const AppSettingsScreen = ({ navigation }) => {
           <SettingNavRow 
             icon={DollarSign} 
             name={t('settings.currency', 'Currency')} 
-            value="IDR" 
+            value={currencySymbol} 
             onPress={() => {}} 
             styles={styles} colors={colors}
           />

@@ -1,19 +1,22 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
-  View, Text, TextInput, TouchableOpacity, StyleSheet, Image,
+  View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView,
   Dimensions, SafeAreaView, KeyboardAvoidingView, Platform 
 } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ChevronLeft } from 'lucide-react-native';
+import { UserContext } from '../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
 const ExpenseScreen = ({ navigation }) => {
   const [expense, setExpense] = useState('');
+  const { currencySymbol } = useContext(UserContext);
 
   const handleExpenseChange = (text) => {
     const numericValue = text.replace(/[^0-9]/g, '');
-    setExpense(numericValue);
+    const formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    setExpense(formattedValue);
   };
 
   return (
@@ -63,29 +66,35 @@ const ExpenseScreen = ({ navigation }) => {
         </View>
       </View>
 
-      <KeyboardAvoidingView 
-        style={{ flex: 1 }}
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      >
-        <SafeAreaView style={styles.safeArea}>
-          <View style={styles.content}>
-            <Text style={styles.questionText}>
-              How much is your monthly <Text style={styles.emphasis}>expenses</Text>?
-            </Text>
-            
-            <View style={styles.inputContainer}>
-              <Text style={styles.currencyPrefix}>Rp.</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="2.500.000"
-                placeholderTextColor="#A0AEC0"
-                keyboardType="numeric"
-                value={expense}
-                onChangeText={handleExpenseChange}
-                autoFocus={true} 
-              />
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
+          <ScrollView 
+            contentContainerStyle={styles.scrollContent}
+            showsVerticalScrollIndicator={false}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.content}>
+              <Text style={styles.questionText}>
+                How much is your monthly <Text style={styles.emphasis}>expenses</Text>?
+              </Text>
+              
+              <View style={styles.inputContainer}>
+                <Text style={styles.currencyPrefix}>{currencySymbol} </Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="2.500.000"
+                  placeholderTextColor="#A0AEC0"
+                  keyboardType="numeric"
+                  value={expense}
+                  onChangeText={handleExpenseChange}
+                  autoFocus={true} 
+                />
+              </View>
             </View>
-          </View>
+          </ScrollView>
 
           <View style={styles.bottomContainer}>
             <View style={styles.progressSection}>
@@ -101,8 +110,8 @@ const ExpenseScreen = ({ navigation }) => {
               <Text style={styles.continueText}>Continue</Text>
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -140,9 +149,13 @@ const styles = StyleSheet.create({
   backButton: { position: 'absolute', top: 60, left: 20, zIndex: 20 },
   safeArea: {
     flex: 1,
+    justifyContent: 'space-between',
+  },
+  scrollContent: {
+    flexGrow: 1,
+    paddingBottom: 20,
   },
   content: { 
-    flex: 1, 
     paddingHorizontal: 24, 
     marginTop: 20 
   },
@@ -186,7 +199,9 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     justifyContent: 'space-between', 
     paddingHorizontal: 24, 
-    paddingBottom: 30 
+    paddingBottom: Platform.OS === 'ios' ? 30 : 20,
+    paddingTop: 10,
+    backgroundColor: '#FFFFFF',
   },
   progressWrapper: { 
     height: 8, 

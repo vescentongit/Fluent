@@ -1,34 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   View, Text, TextInput, TouchableOpacity, StyleSheet, Image, ScrollView,
-  Dimensions, SafeAreaView, KeyboardAvoidingView, Platform 
+  Dimensions, SafeAreaView, KeyboardAvoidingView, Platform, Modal
 } from 'react-native';
 import Svg, { Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import { ChevronLeft } from 'lucide-react-native';
+import { UserContext } from '../context/UserContext';
 
 const { width } = Dimensions.get('window');
 
 const AssetsScreen = ({ navigation }) => {
   const [nominal, setNominal] = useState('');
+  const { currencySymbol } = useContext(UserContext);
   
   const [selectedAssets, setSelectedAssets] = useState([]);
 
-  const options = [
+  const [customAssets, setCustomAssets] = useState([]);
+  const [showOtherModal, setShowOtherModal] = useState(false);
+  const [otherAssetInput, setOtherAssetInput] = useState('');
+
+  const defaultOptions = [
     "Property", "Vehicle", "Crypto", 
-    "Gold", "Stocks/ETF", "Other"
+    "Gold", "Stocks/ETF"
   ];
+
+  const options = [...defaultOptions, ...customAssets];
+  if (customAssets.length < 3) {
+    options.push("Other");
+  }
 
   const handleNominalChange = (text) => {
     const numericValue = text.replace(/[^0-9]/g, '');
-    setNominal(numericValue);
+    const formattedValue = numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    setNominal(formattedValue);
   };
 
   const toggleAsset = (option) => {
+    if (option === "Other") {
+      setShowOtherModal(true);
+      return;
+    }
     if (selectedAssets.includes(option)) {
       setSelectedAssets(selectedAssets.filter(item => item !== option));
     } else {
       setSelectedAssets([...selectedAssets, option]);
     }
+  };
+
+  const handleAddOtherAsset = () => {
+    const trimmed = otherAssetInput.trim();
+    if (trimmed && customAssets.length < 3 && !customAssets.includes(trimmed) && !defaultOptions.includes(trimmed)) {
+      setCustomAssets([...customAssets, trimmed]);
+      setSelectedAssets([...selectedAssets, trimmed]);
+    }
+    setShowOtherModal(false);
+    setOtherAssetInput('');
   };
 
   return (
@@ -54,8 +80,40 @@ const AssetsScreen = ({ navigation }) => {
         </View>
       </View>
 
-      <KeyboardAvoidingView style={{ flex: 1 }}>
-        <SafeAreaView style={styles.safeArea}>
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={showOtherModal}
+        onRequestClose={() => setShowOtherModal(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Add Custom Asset</Text>
+            <TextInput
+              style={styles.modalInput}
+              placeholder="E.g., Business, Art"
+              placeholderTextColor="#A0AEC0"
+              value={otherAssetInput}
+              onChangeText={setOtherAssetInput}
+              autoFocus={true}
+            />
+            <View style={styles.modalButtons}>
+              <TouchableOpacity style={styles.modalCancel} onPress={() => { setShowOtherModal(false); setOtherAssetInput(''); }}>
+                <Text style={styles.modalCancelText}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.modalAdd} onPress={handleAddOtherAsset}>
+                <Text style={styles.modalAddText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView 
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        >
           <ScrollView 
             contentContainerStyle={styles.scrollContent}
             showsVerticalScrollIndicator={false}
@@ -68,7 +126,7 @@ const AssetsScreen = ({ navigation }) => {
 
               <Text style={styles.questionText1}>Total Asset Value</Text>
               <View style={styles.inputContainer}>
-                <Text style={styles.currencyPrefix}>Rp.</Text>
+                <Text style={styles.currencyPrefix}>{currencySymbol} </Text>
                 <TextInput
                   style={styles.input}
                   placeholder="0"
@@ -113,8 +171,8 @@ const AssetsScreen = ({ navigation }) => {
               <Text style={styles.continueText}>Continue</Text>
             </TouchableOpacity>
           </View>
-        </SafeAreaView>
-      </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
     </View>
   );
 };
@@ -165,13 +223,22 @@ const styles = StyleSheet.create({
   selectedBox: { borderColor: '#0047AB', backgroundColor: '#E0F2FE' },
   boxText: { fontSize: 14, color: '#0047AB', fontWeight: 'bold' },
   selectedBoxText: { color: '#0047AB', fontWeight: 'bold' },
-  bottomContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: 30 },
+  bottomContainer: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: 24, paddingBottom: Platform.OS === 'ios' ? 30 : 20, paddingTop: 10, backgroundColor: '#FFFFFF' },
   progressWrapper: { height: 8, width: 100, backgroundColor: '#b4dff7', borderRadius: 4 },
   progressBar: { height: '100%', backgroundColor: '#023E8A', borderRadius: 4 },
   continueButton: { backgroundColor: '#023E8A', paddingVertical: 12, paddingHorizontal: 30, borderRadius: 12 },
   disabledButton: { backgroundColor: '#CBD5E0' },
   continueText: { color: '#FFFFFF', fontSize: 15, fontWeight: 'bold' },
   backButton: { position: 'absolute', top: 60, left: 20, zIndex: 20 },
+  modalOverlay: { flex: 1, backgroundColor: 'rgba(0, 0, 0, 0.4)', justifyContent: 'center', alignItems: 'center' },
+  modalContent: { width: '80%', backgroundColor: '#FFFFFF', borderRadius: 20, padding: 24, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.25, shadowRadius: 3.84 },
+  modalTitle: { fontSize: 20, fontWeight: 'bold', color: '#023E8A', marginBottom: 16 },
+  modalInput: { borderWidth: 1.5, borderColor: '#023E8A', borderRadius: 12, paddingHorizontal: 16, paddingVertical: 12, fontSize: 16, color: '#023E8A', marginBottom: 20 },
+  modalButtons: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12 },
+  modalCancel: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10, backgroundColor: '#F8FAFC' },
+  modalCancelText: { color: '#4A5568', fontWeight: 'bold', fontSize: 16 },
+  modalAdd: { paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10, backgroundColor: '#023E8A' },
+  modalAddText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 16 },
 });
 
 export default AssetsScreen;

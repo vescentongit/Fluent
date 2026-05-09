@@ -27,7 +27,7 @@ const WalletScreen = ({ navigation }) => {
   ];
 
   const { transactions, setTransactions } = useContext(TransactionContext);
-  const { userImage } = useContext(UserContext);
+  const { userImage, currencySymbol } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -69,14 +69,14 @@ const WalletScreen = ({ navigation }) => {
       .reduce((acc, curr) => acc + (parseInt(curr.amount.replace(/[^0-9]/g, ''), 10) || 0), 0);
   }, [transactions]);
 
-  const totalIncome = `+Rp ${formatSummary(totalIncomeNum)}`;
-  const totalExpense = `-Rp ${formatSummary(totalExpenseNum)}`;
+  const totalIncome = `+${currencySymbol} ${formatSummary(totalIncomeNum)}`;
+  const totalExpense = `-${currencySymbol} ${formatSummary(totalExpenseNum)}`;
 
   const handleSaveTransaction = () => {
     const numAmount = parseInt(amount.replace(/[^0-9]/g, ''), 10) || 0;
     if (!title.trim() || numAmount === 0 || !selectedIcon) return;
 
-    const formattedAmount = `${transactionType === 'income' ? '+' : '-'}Rp ${numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
+    const formattedAmount = `${transactionType === 'income' ? '+' : '-'}${currencySymbol} ${numAmount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")}`;
 
     const newTx = {
       id: Date.now().toString(),
@@ -209,7 +209,7 @@ const WalletScreen = ({ navigation }) => {
                 styles.transactionAmount, 
                 { color: item.type === 'income' ? '#2ECC71' : '#FF1E1E' }
               ]}>
-                {item.amount}
+                {item.amount.replace('Rp', currencySymbol)}
               </Text>
             </View>
           ))}
@@ -262,9 +262,12 @@ const WalletScreen = ({ navigation }) => {
               <TextInput
                 style={styles.textInputStyle}
                 value={amount}
-                onChangeText={setAmount}
+                onChangeText={(text) => {
+                  const numericValue = text.replace(/[^0-9]/g, '');
+                  setAmount(numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, "."));
+                }}
                 keyboardType="numeric"
-                placeholder="Rp 0"
+                placeholder={`${currencySymbol} 0`}
                 placeholderTextColor="#A0AEC0"
               />
             </View>
