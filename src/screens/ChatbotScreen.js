@@ -1,15 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useContext, useMemo } from 'react';
 import { 
   View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, 
   KeyboardAvoidingView, Platform, SafeAreaView, Image, Keyboard
 } from 'react-native';
 import { Mic, Send, Home, Wallet, BookOpen } from 'lucide-react-native';
 import { LinearGradient } from 'expo-linear-gradient';
+import { UserContext } from '../context/UserContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const ChatbotScreen = ({ navigation }) => {
   const [inputText, setInputText] = useState('');
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const scrollViewRef = useRef();
+  const { userImage } = useContext(UserContext);
+  const { isDarkMode, colors } = useContext(ThemeContext);
+  const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
 
   const [messages, setMessages] = useState([
     {
@@ -102,7 +107,8 @@ const ChatbotScreen = ({ navigation }) => {
 
       <KeyboardAvoidingView 
         style={styles.keyboardAvoiding} 
-        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ScrollView 
           ref={scrollViewRef}
@@ -136,14 +142,14 @@ const ChatbotScreen = ({ navigation }) => {
                   <Text style={styles.messageTextUser}>{msg.text}</Text>
                 </LinearGradient>
               ) : (
-                <View style={styles.bubbleBot}>
-                  <Text style={styles.messageTextBot}>{msg.text}</Text>
+                <View style={[styles.bubbleBot, { backgroundColor: isDarkMode ? colors.card : '#FFFFFF' }]}>
+                  <Text style={[styles.messageTextBot, { color: isDarkMode ? colors.text : '#1A202C' }]}>{msg.text}</Text>
                 </View>
               )}
 
               {msg.sender === 'user' && (
                 <Image 
-                  source={require('../assets/user_profile.png')} 
+                  source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
                   style={styles.chatAvatar} 
                 />
               )}
@@ -160,32 +166,32 @@ const ChatbotScreen = ({ navigation }) => {
             {quickPrompts.map((prompt, index) => (
               <TouchableOpacity 
                 key={index} 
-                style={styles.promptChip}
+                style={[styles.promptChip, { backgroundColor: isDarkMode ? colors.cardAlt : '#E2E8F0' }]}
                 onPress={() => sendMessage(prompt)}
               >
-                <Text style={styles.promptText}>{prompt}</Text>
+                <Text style={[styles.promptText, { color: isDarkMode ? colors.primary : '#2B58CE' }]}>{prompt}</Text>
               </TouchableOpacity>
             ))}
           </ScrollView>
 
           <View style={styles.inputContainer}>
-            <View style={styles.inputWrapper}>
+            <View style={[styles.inputWrapper, { backgroundColor: isDarkMode ? colors.card : '#FFFFFF' }]}>
               <TextInput
-                style={styles.input}
+                style={[styles.input, { color: isDarkMode ? colors.text : '#1A202C' }]}
                 placeholder="Ask your AI assistant anything..."
-                placeholderTextColor="#A0AEC0"
+                placeholderTextColor={isDarkMode ? colors.textMuted : "#A0AEC0"}
                 value={inputText}
                 onChangeText={setInputText}
                 multiline
               />
               <TouchableOpacity style={styles.micBtn}>
-                <Mic color="#718096" size={20} />
+                <Mic color={isDarkMode ? colors.textMuted : "#718096"} size={20} />
               </TouchableOpacity>
               <TouchableOpacity 
                 style={styles.sendBtn}
                 onPress={() => sendMessage(inputText)}
               >
-                <Send color="#718096" size={20} />
+                <Send color={isDarkMode ? colors.primary : "#718096"} size={20} />
               </TouchableOpacity>
             </View>
           </View>
@@ -231,9 +237,9 @@ const ChatbotScreen = ({ navigation }) => {
             <Text style={styles.navText}>Learn</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.navItem}>
+          <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
             <Image 
-              source={require('../assets/user_profile.png')} 
+              source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
               style={styles.navProfileImg} 
             />
             <Text style={styles.navText}>Profile</Text>
@@ -244,13 +250,13 @@ const ChatbotScreen = ({ navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F0F4F8' },
+const createStyles = (colors, isDarkMode) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.backgroundAlt },
   headerGradient: { paddingBottom: 25, borderBottomLeftRadius: 35, borderBottomRightRadius: 35, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, zIndex: 10 },
   headerContent: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 50 : 20 },
-  headerIconContainer: { width: 50, height: 50, borderRadius: 25, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', marginRight: 15 },
+  headerIconContainer: { width: 50, height: 50, borderRadius: 25, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', marginRight: 15 },
   robotProfileIcon: { width: 34, height: 34 },
-  headerTitle: { fontSize: 18, fontWeight: 'bold', color: '#FFFFFF' },
+  headerTitle: { fontSize: 18, fontWeight: 'bold', color: colors.white },
   headerSubtitle: { fontSize: 13, color: '#65D591', fontWeight: 'bold', marginTop: 2 },
   keyboardAvoiding: { flex: 1 },
   chatScrollContent: { paddingHorizontal: 16, paddingTop: 20, paddingBottom: 20 },
@@ -258,26 +264,26 @@ const styles = StyleSheet.create({
   messageRowBot: { justifyContent: 'flex-start' },
   messageRowUser: { justifyContent: 'flex-end' },
   chatAvatar: { width: 32, height: 32, borderRadius: 16, marginHorizontal: 8 },
-  bubbleBot: { maxWidth: '75%', backgroundColor: '#FFFFFF', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16, borderTopLeftRadius: 4, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
+  bubbleBot: { maxWidth: '75%', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16, borderTopLeftRadius: 4, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.05, shadowRadius: 2 },
   bubbleUser: { maxWidth: '75%', paddingHorizontal: 16, paddingVertical: 12, borderRadius: 16, borderTopRightRadius: 4 },
-  messageTextBot: { fontSize: 14, lineHeight: 22, color: '#1A202C' },
-  messageTextUser: { fontSize: 14, lineHeight: 22, color: '#FFFFFF' },
-  bottomArea: { backgroundColor: '#F0F4F8', paddingBottom: 10 },
+  messageTextBot: { fontSize: 14, lineHeight: 22 },
+  messageTextUser: { fontSize: 14, lineHeight: 22, color: colors.white },
+  bottomArea: { backgroundColor: colors.backgroundAlt, paddingBottom: 10 },
   quickPromptsCont: { paddingHorizontal: 16, paddingVertical: 12, gap: 10 },
-  promptChip: { backgroundColor: '#E2E8F0', paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
-  promptText: { fontSize: 13, color: '#2B58CE', textAlign: 'center' },
+  promptChip: { paddingHorizontal: 16, paddingVertical: 10, borderRadius: 20, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 2 },
+  promptText: { fontSize: 13, textAlign: 'center' },
   inputContainer: { paddingHorizontal: 16, paddingBottom: 15 },
-  inputWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderRadius: 30, paddingLeft: 20, paddingRight: 10, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 3 },
-  input: { flex: 1, height: 50, fontSize: 14, color: '#1A202C' },
+  inputWrapper: { flexDirection: 'row', alignItems: 'center', borderRadius: 30, paddingLeft: 20, paddingRight: 10, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.1, shadowRadius: 3 },
+  input: { flex: 1, height: 50, fontSize: 14 },
   micBtn: { padding: 8 },
   sendBtn: { padding: 8, marginLeft: 4 },
-  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: '#023E8A', borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: {width: 0, height: -4}, shadowOpacity: 0.1, shadowRadius: 10 },
+  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: {width: 0, height: -4}, shadowOpacity: 0.1, shadowRadius: 10 },
   navItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
-  navText: { color: '#8CA8D1', fontSize: 11, marginTop: 4, fontWeight: '500' },
+  navText: { color: colors.navIcon, fontSize: 11, marginTop: 4, fontWeight: '500' },
   navProfileImg: { width: 26, height: 26, borderRadius: 13 },
   fabWrapper: { flex: 1, alignItems: 'center', marginBottom: 20 },
   fabGradient: { width: 85, height: 85, borderRadius: 44, position: 'absolute', top: -44, padding: 2, justifyContent: 'center', alignItems: 'center' },
-  fabInner: { width: '100%', height: '100%', borderRadius: 44, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center' },
+  fabInner: { width: '100%', height: '100%', borderRadius: 44, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center' },
   fabIcon: { width: 50, height: 50 }
 });
 

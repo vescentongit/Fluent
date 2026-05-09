@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useMemo } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Linking 
 } from 'react-native';
@@ -6,10 +6,15 @@ import {
   ChevronLeft, Clock, CheckCircle2, Play, CheckSquare, Wallet, Home, BookOpen 
 } from 'lucide-react-native';
 import { LessonContext } from '../context/LessonContext';
+import { UserContext } from '../context/UserContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const LessonDetailScreen = ({ route, navigation }) => {
   const { lessonId = 1 } = route.params || {};
   const { lessons, markLessonDone } = useContext(LessonContext);
+  const { userImage } = useContext(UserContext);
+  const { isDarkMode, colors } = useContext(ThemeContext);
+  const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
   
   const currentLessonData = lessons.find(l => l.id === lessonId) || lessons[0];
   const isCompleted = currentLessonData.status === 'done';
@@ -23,7 +28,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
   const CheckItem = ({ text }) => (
     <View style={styles.bulletRow}>
-      <CheckSquare color="#38A169" size={18} fill="#E6FFFA" style={{ marginRight: 8, marginTop: 2 }} />
+      <CheckSquare color={colors.success} size={18} fill={isDarkMode ? 'rgba(56,161,105,0.2)' : '#E6FFFA'} style={{ marginRight: 8, marginTop: 2 }} />
       <Text style={styles.bulletText}>{text}</Text>
     </View>
   );
@@ -45,7 +50,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
   const VideoPlayer = () => (
     <View style={styles.videoPlaceholder}>
       <View style={styles.playButtonWrapper}>
-        <Play color="#000000" size={32} fill="#000000" style={{ marginLeft: 4 }} />
+        <Play color={colors.text} size={32} fill={colors.text} style={{ marginLeft: 4 }} />
       </View>
     </View>
   );
@@ -116,7 +121,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.paragraph}>Example: Save/invest Rp 2,000,000 each month.</Text>
 
-      <Text style={[styles.sectionTitle, { color: '#2B58CE' }]}>Customizing the Rule</Text>
+      <Text style={[styles.sectionTitle, { color: colors.primary }]}>Customizing the Rule</Text>
       <Text style={styles.paragraph}>This is a starting point! Adjust based on your situation:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="1. Living with parents? Save more than 20%" />
@@ -187,7 +192,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         </TouchableOpacity>
         <Text style={[styles.interactiveBoxText, { marginTop: 12 }]}>or simply go to:</Text>
         <TouchableOpacity style={styles.interactiveWalletBtn} onPress={() => navigation.navigate('Wallet')}>
-          <Wallet color="#38A169" size={24} />
+          <Wallet color={colors.success} size={24} />
           <Text style={styles.interactiveWalletText}>Wallet</Text>
         </TouchableOpacity>
       </View>
@@ -260,7 +265,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       
       <MistakeItem num="8" title="Comparing to Others" problem="Feeling bad because someone else saves more or spends less." solution="Your budget is personal. Compare to your past self, not others." />
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>The Fix: Build Buffer Categories</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>The Fix: Build Buffer Categories</Text>
       <Text style={styles.paragraph}>Create "buffer" categories for:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Miscellaneous (unexpected small costs)" />
@@ -277,7 +282,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       <Text style={styles.paragraph}>Freelancers, entrepreneurs, and commission-based workers face unique budgeting challenges. Here's how to budget when income varies!</Text>
       <VideoPlayer />
       
-      <Text style={[styles.sectionTitle, { color: '#E53E3E' }]}>The Challenge</Text>
+      <Text style={[styles.sectionTitle, { color: colors.error }]}>The Challenge</Text>
       <Text style={styles.paragraph}>Regular budgeting assumes consistent income. But what if you earn:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Rp 8,000,000 one month" />
@@ -317,7 +322,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <BulletItem text="Cons: Requires discipline and planning" />
       </View>
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>Essential: Build an Income Buffer</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>Essential: Build an Income Buffer</Text>
       <Text style={styles.paragraph}>Save 3-6 months of expenses ASAP. This:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Smooths income fluctuations" />
@@ -325,7 +330,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <BulletItem text="Allows strategic decisions" />
       </View>
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>Priority-Based Spending</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>Priority-Based Spending</Text>
       <Text style={styles.paragraph}>Rank expenses by urgency:</Text>
       <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>Tier 1 (Must Pay):</Text>
       <View style={styles.listContainer}>
@@ -344,10 +349,10 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <BulletItem text="Non-essential shopping" />
       </View>
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>Tax Considerations</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>Tax Considerations</Text>
       <Text style={styles.paragraph}>Set aside 20-30% of each payment for taxes immediately!</Text>
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>Automation is Key</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>Automation is Key</Text>
       <Text style={styles.paragraph}>When income arrives:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="1. Transfer tax amount to separate account" />
@@ -393,7 +398,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <BulletItem text="Want to start a business? Budget for education/setup" />
       </View>
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>How to Adjust</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>How to Adjust</Text>
       <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>1. Review Last Month</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Which categories went over? Which had surplus?" />
@@ -455,7 +460,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <BulletItem text="Cons: Time-consuming, no automatic calculations" />
       </View>
 
-      <Text style={[styles.sectionTitle, { color: '#38A169' }]}>Choosing the Right Tool</Text>
+      <Text style={[styles.sectionTitle, { color: colors.success }]}>Choosing the Right Tool</Text>
       <Text style={styles.paragraph}>Ask yourself:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Do you prefer digital or physical?" />
@@ -490,7 +495,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       <SafeAreaView style={styles.headerSafeArea}>
         <View style={styles.headerTop}>
           <TouchableOpacity style={styles.backButtonWrapper} onPress={() => navigation.goBack()}>
-            <ChevronLeft color="#2B58CE" size={20} />
+            <ChevronLeft color={colors.primary} size={20} />
             <Text style={styles.backButtonText}>Back to Lessons</Text>
           </TouchableOpacity>
         </View>
@@ -507,11 +512,11 @@ const LessonDetailScreen = ({ route, navigation }) => {
           <Text style={styles.title}>{currentLessonData.title.split(': ')[1] || currentLessonData.title}</Text>
           
           <View style={styles.metaRow}>
-            <Clock color="#A0AEC0" size={14} />
+            <Clock color={colors.textMuted} size={14} />
             <Text style={styles.metaTime}>{currentLessonData.duration}</Text>
             {isCompleted && (
               <>
-                <CheckCircle2 color="#38A169" size={14} fill="#E6FFFA" style={{ marginLeft: 8 }} />
+                <CheckCircle2 color={colors.success} size={14} fill={isDarkMode ? 'rgba(56,161,105,0.2)' : '#E6FFFA'} style={{ marginLeft: 8 }} />
                 <Text style={styles.metaComplete}>Completed</Text>
               </>
             )}
@@ -520,12 +525,12 @@ const LessonDetailScreen = ({ route, navigation }) => {
           {renderContent()}
 
           <TouchableOpacity 
-            style={[styles.completeButton, isCompleted && { backgroundColor: '#E2E8F0' }]}
+            style={[styles.completeButton, isCompleted && { backgroundColor: isDarkMode ? colors.cardAlt : '#E2E8F0' }]}
             onPress={() => markLessonDone(lessonId)}
             disabled={isCompleted}
           >
-            <CheckCircle2 color={isCompleted ? "#A0AEC0" : "#FFFFFF"} size={20} />
-            <Text style={[styles.completeButtonText, isCompleted && { color: '#A0AEC0' }]}>
+            <CheckCircle2 color={isCompleted ? colors.textMuted : colors.white} size={20} />
+            <Text style={[styles.completeButtonText, isCompleted && { color: colors.textMuted }]}>
               {isCompleted ? "Completed" : "Mark as complete"}
             </Text>
           </TouchableOpacity>
@@ -551,8 +556,8 @@ const LessonDetailScreen = ({ route, navigation }) => {
           <BookOpen color="#FFFFFF" size={24} />
           <Text style={styles.navTextActive}>Learn</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.navItem}>
-          <Image source={require('../assets/user_profile.png')} style={styles.navProfileImg} />
+        <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
+          <Image source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} style={styles.navProfileImg} />
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
       </View>
@@ -560,57 +565,57 @@ const LessonDetailScreen = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F7FE' },
+const createStyles = (colors, isDarkMode) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.backgroundAlt },
   headerSafeArea: { paddingTop: Platform.OS === 'android' ? 40 : 10, paddingHorizontal: 20 },
   headerTop: { flexDirection: 'row', alignItems: 'center', marginBottom: 15 },
-  backButtonWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#EBF4FF', paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
-  backButtonText: { color: '#2B58CE', fontWeight: 'bold', fontSize: 13, marginLeft: 4 },
+  backButtonWrapper: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.cardAlt, paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20 },
+  backButtonText: { color: colors.primary, fontWeight: 'bold', fontSize: 13, marginLeft: 4 },
   
   scrollContent: { paddingHorizontal: 16, paddingBottom: 120 },
-  cardWhite: { backgroundColor: '#FFFFFF', borderRadius: 24, padding: 24, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8 },
+  cardWhite: { backgroundColor: colors.card, borderRadius: 24, padding: 24, elevation: 2, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, borderWidth: 1, borderColor: colors.border },
   
   badgeRow: { flexDirection: 'row', gap: 10, marginBottom: 16 },
-  lessonBadge: { backgroundColor: '#EBF4FF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  lessonBadgeText: { color: '#2B58CE', fontWeight: 'bold', fontSize: 12 },
-  typeBadge: { backgroundColor: '#F1F5F9', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
-  typeBadgeText: { color: '#718096', fontWeight: 'bold', fontSize: 12 },
+  lessonBadge: { backgroundColor: isDarkMode ? 'rgba(49,130,206,0.2)' : '#EBF4FF', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  lessonBadgeText: { color: colors.primary, fontWeight: 'bold', fontSize: 12 },
+  typeBadge: { backgroundColor: colors.cardAlt, paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12 },
+  typeBadgeText: { color: colors.textMuted, fontWeight: 'bold', fontSize: 12 },
   
-  title: { fontSize: 24, fontWeight: 'bold', color: '#1A202C', lineHeight: 32 },
+  title: { fontSize: 24, fontWeight: 'bold', color: colors.text, lineHeight: 32 },
   metaRow: { flexDirection: 'row', alignItems: 'center', marginTop: 10, marginBottom: 24 },
-  metaTime: { fontSize: 13, color: '#A0AEC0', marginLeft: 6 },
-  metaComplete: { fontSize: 13, color: '#38A169', marginLeft: 4, fontWeight: '500' },
+  metaTime: { fontSize: 13, color: colors.textMuted, marginLeft: 6 },
+  metaComplete: { fontSize: 13, color: colors.success, marginLeft: 4, fontWeight: '500' },
   
-  paragraph: { fontSize: 15, color: '#1A202C', lineHeight: 18, marginBottom: 8 },
-  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#1A202C', marginTop: 16, marginBottom: 12 },
+  paragraph: { fontSize: 15, color: colors.text, lineHeight: 22, marginBottom: 8 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: colors.text, marginTop: 16, marginBottom: 12 },
   
-  videoPlaceholder: { width: '100%', height: 200, backgroundColor: '#000000', borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginVertical: 20 },
-  playButtonWrapper: { width: 64, height: 64, backgroundColor: '#FFFFFF', borderRadius: 32, justifyContent: 'center', alignItems: 'center' },
+  videoPlaceholder: { width: '100%', height: 200, backgroundColor: colors.cardAlt, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginVertical: 20, borderWidth: 1, borderColor: colors.border },
+  playButtonWrapper: { width: 64, height: 64, backgroundColor: colors.card, borderRadius: 32, justifyContent: 'center', alignItems: 'center', elevation: 2, shadowColor: '#000', shadowOffset: {width: 0, height: 2}, shadowOpacity: 0.1, shadowRadius: 4 },
   
   listContainer: { marginBottom: 16 },
   bulletRow: { flexDirection: 'row', alignItems: 'flex-start', marginBottom: 8, paddingRight: 10 },
-  bulletDot: { fontSize: 18, color: '#1A202C', marginRight: 10, lineHeight: 22, fontWeight: 'bold' },
-  bulletText: { fontSize: 15, color: '#1A202C', lineHeight: 24, flex: 1 },
+  bulletDot: { fontSize: 18, color: colors.text, marginRight: 10, lineHeight: 22, fontWeight: 'bold' },
+  bulletText: { fontSize: 15, color: colors.text, lineHeight: 24, flex: 1 },
   
-  quoteBox: { backgroundColor: '#EBF4FF', borderLeftWidth: 4, borderLeftColor: '#2B58CE', padding: 16, borderRadius: 8, marginVertical: 20 },
-  quoteText: { fontSize: 15, color: '#4A5568', fontStyle: 'italic', lineHeight: 24 },
+  quoteBox: { backgroundColor: isDarkMode ? 'rgba(49,130,206,0.1)' : '#EBF4FF', borderLeftWidth: 4, borderLeftColor: colors.primary, padding: 16, borderRadius: 8, marginVertical: 20 },
+  quoteText: { fontSize: 15, color: colors.textMuted, fontStyle: 'italic', lineHeight: 24 },
   
-  interactiveBox: { backgroundColor: '#E6FFFA', borderLeftWidth: 4, borderLeftColor: '#38A169', padding: 20, borderRadius: 12, marginVertical: 20, alignItems: 'center' },
-  interactiveBoxText: { fontSize: 14, color: '#2F855A', textAlign: 'center', lineHeight: 22 },
-  interactiveLink: { fontSize: 14, color: '#38A169', textDecorationLine: 'underline', fontWeight: 'bold', marginTop: 8 },
+  interactiveBox: { backgroundColor: isDarkMode ? 'rgba(56,161,105,0.1)' : '#E6FFFA', borderLeftWidth: 4, borderLeftColor: colors.success, padding: 20, borderRadius: 12, marginVertical: 20, alignItems: 'center' },
+  interactiveBoxText: { fontSize: 14, color: colors.success, textAlign: 'center', lineHeight: 22 },
+  interactiveLink: { fontSize: 14, color: colors.success, textDecorationLine: 'underline', fontWeight: 'bold', marginTop: 8 },
   interactiveWalletBtn: { alignItems: 'center', marginTop: 12 },
-  interactiveWalletText: { color: '#38A169', fontWeight: 'bold', marginTop: 4 },
+  interactiveWalletText: { color: colors.success, fontWeight: 'bold', marginTop: 4 },
 
-  completeButton: { backgroundColor: '#38A169', borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, marginTop: 30, gap: 10 },
-  completeButtonText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+  completeButton: { backgroundColor: colors.success, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, marginTop: 30, gap: 10 },
+  completeButtonText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 
-  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: '#023E8A', borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20 },
+  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20 },
   navItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
-  navText: { color: '#8CA8D1', fontSize: 11, marginTop: 4, fontWeight: '600' },
-  navTextActive: { color: '#FFFFFF', fontSize: 11, fontWeight: 'bold', marginTop: 4 },
+  navText: { color: colors.navIcon, fontSize: 11, marginTop: 4, fontWeight: '600' },
+  navTextActive: { color: colors.navIconActive, fontSize: 11, fontWeight: 'bold', marginTop: 4 },
   navProfileImg: { width: 24, height: 24, borderRadius: 12 },
   fabWrapper: { flex: 1, alignItems: 'center', marginBottom: 20 },
-  fab: { width: 88, height: 88, borderRadius: 44, backgroundColor: '#FFFFFF', justifyContent: 'center', alignItems: 'center', position: 'absolute', top: -44, borderWidth: 6, borderColor: '#023E8A' },
+  fab: { width: 88, height: 88, borderRadius: 44, backgroundColor: colors.white, justifyContent: 'center', alignItems: 'center', position: 'absolute', top: -44, borderWidth: 6, borderColor: colors.navBg },
   fabIcon: { width: 44, height: 44 }
 });
 

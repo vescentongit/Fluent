@@ -1,11 +1,14 @@
-import React, { useState, useContext } from 'react';
+import React, { useState, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { CheckCircle2, ArrowLeft, Trophy } from 'lucide-react-native';
 import { LessonContext } from '../context/LessonContext';
+import { ThemeContext } from '../context/ThemeContext';
 
 const QuizScreen = ({ route, navigation }) => {
   const { quizId = 1 } = route.params || {};
   const { markQuizDone } = useContext(LessonContext);
+  const { isDarkMode, colors } = useContext(ThemeContext);
+  const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
   
   const [answers, setAnswers] = useState({});
   const [showError, setShowError] = useState(false);
@@ -57,7 +60,7 @@ const QuizScreen = ({ route, navigation }) => {
     <View style={styles.container}>
       <View style={styles.headerArea}>
         <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <ArrowLeft color="#2B58CE" size={24} />
+          <ArrowLeft color={colors.primary} size={24} />
         </TouchableOpacity>
         <Text style={styles.headerTitle}>Budgeting Basics Quiz</Text>
         <Text style={styles.headerDesc}>Test your understanding of fundamental budgeting concepts!</Text>
@@ -93,7 +96,7 @@ const QuizScreen = ({ route, navigation }) => {
         )}
 
         <TouchableOpacity style={styles.submitBtn} onPress={handleSubmit}>
-          <CheckCircle2 color="#FFFFFF" size={20} />
+          <CheckCircle2 color={colors.white} size={20} />
           <Text style={styles.submitBtnText}>Submit Quiz</Text>
         </TouchableOpacity>
       </ScrollView>
@@ -122,39 +125,39 @@ const QuizScreen = ({ route, navigation }) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#F4F7FE' },
-  headerArea: { backgroundColor: '#EBF4FF', padding: 20, paddingTop: 50, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, marginBottom: 20 },
+const createStyles = (colors, isDarkMode) => StyleSheet.create({
+  container: { flex: 1, backgroundColor: colors.backgroundAlt },
+  headerArea: { backgroundColor: isDarkMode ? 'rgba(49,130,206,0.2)' : '#EBF4FF', padding: 20, paddingTop: 50, borderBottomLeftRadius: 24, borderBottomRightRadius: 24, marginBottom: 20 },
   backBtn: { marginBottom: 15 },
-  headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#1A202C', marginBottom: 6 },
-  headerDesc: { fontSize: 13, color: '#4A5568', marginBottom: 12, lineHeight: 18 },
+  headerTitle: { fontSize: 20, fontWeight: 'bold', color: colors.text, marginBottom: 6 },
+  headerDesc: { fontSize: 13, color: colors.textMuted, marginBottom: 12, lineHeight: 18 },
   metaRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  metaText: { fontSize: 13, color: '#718096' },
-  xpBadge: { backgroundColor: '#FEFCBF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
-  xpText: { fontSize: 11, fontWeight: 'bold', color: '#DD6B20' },
+  metaText: { fontSize: 13, color: colors.textMuted },
+  xpBadge: { backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEFCBF', paddingHorizontal: 8, paddingVertical: 4, borderRadius: 8 },
+  xpText: { fontSize: 11, fontWeight: 'bold', color: colors.warning },
   
   scrollContent: { paddingHorizontal: 20, paddingBottom: 40 },
   questionContainer: { marginBottom: 30 },
-  questionText: { fontSize: 15, fontWeight: 'bold', color: '#1A202C', marginBottom: 16, lineHeight: 22 },
+  questionText: { fontSize: 15, fontWeight: 'bold', color: colors.text, marginBottom: 16, lineHeight: 22 },
   
-  optionCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#FFFFFF', borderWidth: 1, borderColor: '#EDF2F7', borderRadius: 12, padding: 16, marginBottom: 10 },
-  optionCardSelected: { borderColor: '#2B58CE', borderWidth: 2, backgroundColor: '#F8FAFC' },
-  radioCircle: { width: 22, height: 22, borderRadius: 11, backgroundColor: '#E2E8F0', marginRight: 12 },
-  radioCircleSelected: { backgroundColor: '#2B58CE' },
-  optionText: { fontSize: 14, color: '#4A5568', flex: 1 },
-  optionTextSelected: { color: '#1A202C', fontWeight: 'bold' },
+  optionCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, borderRadius: 12, padding: 16, marginBottom: 10 },
+  optionCardSelected: { borderColor: colors.primary, borderWidth: 2, backgroundColor: isDarkMode ? 'rgba(49,130,206,0.1)' : '#F8FAFC' },
+  radioCircle: { width: 22, height: 22, borderRadius: 11, backgroundColor: colors.border, marginRight: 12 },
+  radioCircleSelected: { backgroundColor: colors.primary },
+  optionText: { fontSize: 14, color: colors.textMuted, flex: 1 },
+  optionTextSelected: { color: colors.text, fontWeight: 'bold' },
 
-  errorText: { color: '#E53E3E', fontSize: 14, textAlign: 'center', marginBottom: 10, fontWeight: '600' },
-  submitBtn: { backgroundColor: '#2B58CE', borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, marginTop: 10, gap: 10 },
-  submitBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' },
+  errorText: { color: colors.error, fontSize: 14, textAlign: 'center', marginBottom: 10, fontWeight: '600' },
+  submitBtn: { backgroundColor: colors.primary, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, marginTop: 10, gap: 10 },
+  submitBtnText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 
   modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center' },
-  modalCard: { backgroundColor: '#FFFFFF', padding: 24, borderRadius: 24, width: '80%', alignItems: 'center', elevation: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },
-  iconCircle: { width: 80, height: 80, backgroundColor: '#FEFCBF', borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
-  modalTitle: { fontSize: 22, fontWeight: 'bold', color: '#1A202C', marginBottom: 8, textAlign: 'center' },
-  modalDesc: { fontSize: 15, color: '#4A5568', textAlign: 'center', marginBottom: 24, lineHeight: 22 },
-  modalBtn: { backgroundColor: '#2B58CE', paddingVertical: 14, paddingHorizontal: 32, borderRadius: 16, width: '100%', alignItems: 'center' },
-  modalBtnText: { color: '#FFFFFF', fontSize: 16, fontWeight: 'bold' }
+  modalCard: { backgroundColor: colors.card, padding: 24, borderRadius: 24, width: '80%', alignItems: 'center', elevation: 10, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 10 },
+  iconCircle: { width: 80, height: 80, backgroundColor: isDarkMode ? 'rgba(221,107,32,0.2)' : '#FEFCBF', borderRadius: 40, justifyContent: 'center', alignItems: 'center', marginBottom: 16 },
+  modalTitle: { fontSize: 22, fontWeight: 'bold', color: colors.text, marginBottom: 8, textAlign: 'center' },
+  modalDesc: { fontSize: 15, color: colors.textMuted, textAlign: 'center', marginBottom: 24, lineHeight: 22 },
+  modalBtn: { backgroundColor: colors.primary, paddingVertical: 14, paddingHorizontal: 32, borderRadius: 16, width: '100%', alignItems: 'center' },
+  modalBtnText: { color: colors.white, fontSize: 16, fontWeight: 'bold' }
 });
 
 export default QuizScreen;
