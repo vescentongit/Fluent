@@ -1,30 +1,33 @@
+# routes/digital_twin_routes.py
+
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from database import get_db
-from models import Transaction, User # Pastikan User di-import
-from schemas import DigitalTwinResponse
-from auth import get_user_saat_ini
-from digital_twin import forecast_spending
+from ai.database import get_db
+from ai.auth import get_user_saat_ini
+import ai.models as models
+from ai.digitalTwin import build_digital_twin
 
-router = APIRouter()
+# Hapus prefix="/api" — sudah dihandle di main.py
+router = APIRouter(tags=["AI Forecasting"])
 
-@router.get("", response_model=DigitalTwinResponse)
+@router.get("")  # "/" karena prefix sudah di main.py
 def get_forecast(
-    current_user: User = Depends(get_user_saat_ini), # PERBAIKAN DI SINI
+    current_user: models.User = Depends(get_user_saat_ini),
     db: Session = Depends(get_db)
 ):
-    txs = db.query(Transaction).filter(Transaction.user_id == current_user.id).all()
-    
-    tx_data = [{"date": t.timestamp, "amount": float(t.amount)} for t in txs] # Ubah t.date jadi t.timestamp sesuai model kalian
-    
-    result = forecast_spending(tx_data, days_ahead=90)
-    
-    if "error" in result:
-        return {
-            "forecast": [],
-            "total_projected_90_days": 0,
-            "warning_months": [],
-            "trend": "stable"
-        }
-        
-    return result
+    transactions_db = db.query(models.Transaction).filter(
+        models.Transaction.user_id == current_user.id,
+        models.Transaction.type == "expense"
+    ).order_by(models.Transaction.timestamp.desc()).limit(30).all()
+
+    transactions = [
+        {"date": t.timestamp.isoformat(), "amount": t.amount}
+        for t in transactions_db
+    ]
+
+    user_data = {
+        "monthly_income": current_user.monthly_income,
+        "total_savings": current_user.total_savings,
+    }
+
+    return build_digital_twin(transactions, user_data)

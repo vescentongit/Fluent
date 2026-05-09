@@ -1,16 +1,21 @@
+from dotenv import load_dotenv
+load_dotenv()
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-import models, schemas, auth  # PERBAIKAN: Menambahkan 'import auth' di sini
-from auth import get_user_saat_ini
+import ai.models as models
+import schemas
+from ai.auth import get_user_saat_ini
+import ai.database
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
-from database import engine, get_db
+from ai.database import engine, get_db
+
 
 # Import router baru untuk fitur AI
 from routes import resilience_routes, digital_twin_routes, chat_routes, nudge_routes
 
 # Membuat tabel baru (pastikan sudah DROP TABLE di Neon sebelumnya)
-models.Base.metadata.create_all(bind=engine)
+ai.database.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Fluent API - AI Integrated")
 
@@ -41,7 +46,7 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
     new_user = models.User(
         name=user.name,
         email=user.email,
-        hashed_password=auth.get_password_hash(user.password),
+        hashed_password=ai.auth.get_password_hash(user.password),
         monthly_income=user.monthly_income,
         total_savings=user.total_savings,
         has_insurance=user.has_insurance
@@ -54,10 +59,10 @@ def signup(user: schemas.UserCreate, db: Session = Depends(get_db)):
 @app.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     db_user = db.query(models.User).filter(models.User.email == form_data.username).first()
-    if not db_user or not auth.verify_password(form_data.password, db_user.hashed_password):
+    if not db_user or not ai.auth.verify_password(form_data.password, db_user.hashed_password):
         raise HTTPException(status_code=401, detail="Email atau password salah!")
     
-    access_token = auth.create_access_token(data={"sub": db_user.email})
+    access_token = ai.auth.create_access_token(data={"sub": db_user.email})
     # Kembalikan user_id dan name agar frontend gampang menyapa user
     return {
         "access_token": access_token, 
