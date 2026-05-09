@@ -1,22 +1,18 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Modal, TextInput 
 } from 'react-native';
 import { ArrowLeft, Edit, Trash2, Check, X, CalendarDays } from 'lucide-react-native';
 import { useTranslation } from 'react-i18next';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { UserContext } from '../context/UserContext';
 
 const formatCurrencyM = (value) => `Rp ${value} M`;
 
 const GoalsScreen = ({ navigation }) => {
   const { t } = useTranslation();
 
-  const [goals, setGoals] = useState([
-    { id: '1', title: 'New Car', daysLeft: 215, current: 156, target: 300, percentage: 52 },
-    { id: '2', title: 'Vacation to Sarawak', daysLeft: 57, current: 20, target: 25, percentage: 80 },
-    { id: '3', title: 'New PC Setup', daysLeft: 85, current: 31, target: 45, percentage: 69 },
-    { id: '4', title: 'Emergency Fund', daysLeft: 0, current: 50, target: 50, percentage: 100 },
-  ]);
+  const { goals, setGoals } = useContext(UserContext);
 
   const [isEditModalVisible, setEditModalVisible] = useState(false);
   const [isAddModalVisible, setAddModalVisible] = useState(false);

@@ -30,9 +30,9 @@ const Stack = createStackNavigator();
 
 export default function AppNavigator() {
   return (
-    <Stack.Navigator 
-      initialRouteName="Home" 
-      screenOptions={{ 
+    <Stack.Navigator
+      initialRouteName="Home"
+      screenOptions={{
         headerShown: false,
         gestureEnabled: true,
       }}
@@ -44,7 +44,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Loading" component={LoadingScreen} />
       <Stack.Screen name="Verification" component={VerificationScreen} />
       <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
-      
+
       <Stack.Screen name="IncomeSource" component={IncomeSourceScreen} />
       <Stack.Screen name="Expense" component={ExpenseScreen} />
       <Stack.Screen name="Assets" component={AssetsScreen} />
@@ -52,31 +52,31 @@ export default function AppNavigator() {
       <Stack.Screen name="EconomicPreferences" component={EconomicPreferencesScreen} />
       <Stack.Screen name="Loading2" component={LoadingScreen2} />
 
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Chatbot" component={ChatbotScreen} />
-      <Stack.Screen name="Wallet" component={WalletScreen} />
-      <Stack.Screen name="Learn" component={LearnScreen} />
+      <Stack.Screen name="Home" component={HomeScreen} options={{ gestureEnabled: false }} />
+      <Stack.Screen name="Chatbot" component={ChatbotScreen} options={{ gestureEnabled: false }} />
+      <Stack.Screen name="Wallet" component={WalletScreen} options={{ gestureEnabled: false }} />
+      <Stack.Screen name="Learn" component={LearnScreen} options={{ gestureEnabled: false }} />
 
       <Stack.Screen name="CourseOverview" component={CourseOverviewScreen} />
       <Stack.Screen name="LessonDetail" component={LessonDetailScreen} />
       <Stack.Screen name="Quiz" component={QuizScreen} />
 
-      <Stack.Screen name="Profile" component={ProfileScreen} />
+      <Stack.Screen name="Profile" component={ProfileScreen} options={{ gestureEnabled: false }} />
       <Stack.Screen name="Support" component={SupportScreen} options={{ ...TransitionPresets.ModalSlideFromBottomIOS }} />
-      
-      <Stack.Screen 
-        name="Settings" 
-        component={AppSettingsScreen} 
+
+      <Stack.Screen
+        name="Settings"
+        component={AppSettingsScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
-      <Stack.Screen 
-        name="Goals" 
-        component={GoalsScreen} 
+      <Stack.Screen
+        name="Goals"
+        component={GoalsScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
-      <Stack.Screen 
-        name="Edit" 
-        component={EditProfileScreen} 
+      <Stack.Screen
+        name="Edit"
+        component={EditProfileScreen}
         options={{ ...TransitionPresets.ModalSlideFromBottomIOS }}
       />
     </Stack.Navigator>

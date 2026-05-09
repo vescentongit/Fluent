@@ -9,27 +9,24 @@ import { LessonContext } from '../context/LessonContext';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 
-const CourseOverviewScreen = ({ navigation }) => {
+const CourseOverviewScreen = ({ route, navigation }) => {
   const [activeTab, setActiveTab] = useState('Overview');
-  const { lessons, quizzes, progressPercentage } = useContext(LessonContext);
+  const courseId = route.params?.courseId || 'investingBasics';
+  
+  const { courses, getCourseProgress } = useContext(LessonContext);
+  const course = courses[courseId];
+  
   const { userImage } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
-  const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
+  const courseColor = course.themeColor || colors.primary;
+  const styles = useMemo(() => createStyles(colors, isDarkMode, courseColor), [colors, isDarkMode, courseColor]);
 
-  const bullets = [
-    "The 50/30/20 budgeting rule explained",
-    "How to track and categorize your expenses",
-    "Setting realistic financial goals",
-    "Creating a budget that works for you",
-    "Adjusting your budget overtime"
-  ];
-
-  const benefits = [
-    "Take control of your money",
-    "Reduce financial stress",
-    "Save more effectively",
-    "Build better spending habits"
-  ];
+  const progressPercentage = getCourseProgress(courseId);
+  const lessons = course.lessons || [];
+  const quizzes = course.quizzes || [];
+  const bullets = course.bullets || [];
+  const requirements = course.requirements || [];
+  const benefits = course.benefits || [];
 
   return (
     <View style={styles.container}>
@@ -41,15 +38,15 @@ const CourseOverviewScreen = ({ navigation }) => {
           
           <View style={styles.courseHeaderInfo}>
             <View style={styles.courseIconBg}>
-              <Image source={require('../assets/piggy_bank.png')} style={styles.courseIcon} resizeMode="contain" />
+              <Image source={course.icon} style={styles.courseIcon} resizeMode="contain" />
             </View>
             <View>
-              <Text style={styles.courseTitle}>Budgeting 101</Text>
+              <Text style={styles.courseTitle}>{course.title}</Text>
               <View style={styles.courseMetaRow}>
                 <Clock color={colors.textMuted} size={14} />
-                <Text style={styles.courseTime}>2.5 hours</Text>
+                <Text style={styles.courseTime}>{course.duration}</Text>
                 <View style={styles.xpBadge}>
-                  <Text style={styles.xpText}>+ 200 XP</Text>
+                  <Text style={styles.xpText}>+ {course.xpReward} XP</Text>
                 </View>
               </View>
             </View>
@@ -69,15 +66,15 @@ const CourseOverviewScreen = ({ navigation }) => {
 
         <View style={styles.tabsContainer}>
           <TouchableOpacity style={[styles.tabItem, activeTab === 'Overview' && styles.tabItemActive]} onPress={() => setActiveTab('Overview')}>
-            <Target color={activeTab === 'Overview' ? colors.primary : colors.textMuted} size={20} />
+            <Target color={activeTab === 'Overview' ? courseColor : colors.textMuted} size={20} />
             <Text style={[styles.tabText, activeTab === 'Overview' && styles.tabTextActive]}>Overview</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.tabItem, activeTab === 'Lessons' && styles.tabItemActive]} onPress={() => setActiveTab('Lessons')}>
-            <BookOpen color={activeTab === 'Lessons' ? colors.primary : colors.textMuted} size={20} />
+            <BookOpen color={activeTab === 'Lessons' ? courseColor : colors.textMuted} size={20} />
             <Text style={[styles.tabText, activeTab === 'Lessons' && styles.tabTextActive]}>Lessons</Text>
           </TouchableOpacity>
           <TouchableOpacity style={[styles.tabItem, activeTab === 'Quizzes' && styles.tabItemActive]} onPress={() => setActiveTab('Quizzes')}>
-            <Trophy color={activeTab === 'Quizzes' ? colors.primary : colors.textMuted} size={20} />
+            <Trophy color={activeTab === 'Quizzes' ? courseColor : colors.textMuted} size={20} />
             <Text style={[styles.tabText, activeTab === 'Quizzes' && styles.tabTextActive]}>Quizzes</Text>
           </TouchableOpacity>
         </View>
@@ -88,7 +85,7 @@ const CourseOverviewScreen = ({ navigation }) => {
         {activeTab === 'Overview' && (
           <>
             <View style={styles.cardWhite}>
-              <View style={styles.cardHeader}><Target color={colors.primary} size={22} /><Text style={styles.cardTitle}>What You'll Learn</Text></View>
+              <View style={styles.cardHeader}><Target color={courseColor} size={22} /><Text style={styles.cardTitle}>What You'll Learn</Text></View>
               <View style={styles.bulletList}>
                 {bullets.map((text, index) => (
                   <View key={index} style={styles.bulletRow}><Text style={styles.bulletDot}>•</Text><Text style={styles.bulletText}>{text}</Text></View>
@@ -97,19 +94,19 @@ const CourseOverviewScreen = ({ navigation }) => {
             </View>
 
             <View style={styles.cardWhite}>
-              <View style={styles.cardHeader}><FileText color={colors.primary} size={22} /><Text style={styles.cardTitle}>Requirements</Text></View>
+              <View style={styles.cardHeader}><FileText color={courseColor} size={22} /><Text style={styles.cardTitle}>Requirements</Text></View>
               <View style={styles.bulletList}>
-                {bullets.map((text, index) => (
+                {requirements.map((text, index) => (
                   <View key={index} style={styles.bulletRow}><Text style={styles.bulletDot}>•</Text><Text style={styles.bulletText}>{text}</Text></View>
                 ))}
               </View>
             </View>
 
             <View style={styles.cardGrey}>
-              <View style={styles.cardHeader}><Award color={colors.primary} size={22} /><Text style={styles.cardTitle}>Benefits</Text></View>
+              <View style={styles.cardHeader}><Award color={courseColor} size={22} /><Text style={styles.cardTitle}>Benefits</Text></View>
               <View style={styles.benefitsGrid}>
                 {benefits.map((text, index) => (
-                  <View key={index} style={styles.benefitItem}><Star color={colors.primary} size={16} fill={colors.primary} style={styles.benefitIcon} /><Text style={styles.benefitText}>{text}</Text></View>
+                  <View key={index} style={styles.benefitItem}><Star color={courseColor} size={16} fill={courseColor} style={styles.benefitIcon} /><Text style={styles.benefitText}>{text}</Text></View>
                 ))}
               </View>
             </View>
@@ -127,7 +124,7 @@ const CourseOverviewScreen = ({ navigation }) => {
               <TouchableOpacity 
                 key={lesson.id} 
                 style={lesson.status === 'done' ? styles.lessonCardDone : styles.lessonCardTodo}
-                onPress={() => navigation.navigate('LessonDetail', { lessonId: lesson.id })}
+                onPress={() => navigation.navigate('LessonDetail', { courseId, lessonId: lesson.id })}
               >
                 <View style={styles.lessonIconWrapper}>
                   {lesson.status === 'done' ? <CheckCircle2 color={colors.white} fill={colors.success} size={24} /> : <Hourglass color={colors.warning} size={24} />}
@@ -158,7 +155,7 @@ const CourseOverviewScreen = ({ navigation }) => {
                     <View style={styles.quizInfo}>
                       <Text style={styles.quizTitleLocked}>{quiz.title}</Text>
                       <Text style={styles.quizDescLocked}>{quiz.desc}</Text>
-                      <Text style={styles.lockedText}>Finish all lessons to unlock this quiz!</Text>
+                      <Text style={styles.lockedText}>{quiz.unlockCondition || 'Finish all lessons to unlock this quiz!'}</Text>
                     </View>
                     <Lock color={colors.text} size={20} />
                   </View>
@@ -170,7 +167,7 @@ const CourseOverviewScreen = ({ navigation }) => {
                 <TouchableOpacity 
                   key={quiz.id}
                   style={isDone ? styles.quizCardDone : styles.quizCardAvailable} 
-                  onPress={() => navigation.navigate('Quiz', { quizId: quiz.id })}
+                  onPress={() => navigation.navigate('Quiz', { courseId, quizId: quiz.id })}
                 >
                   <View style={isDone ? styles.quizIconBgDone : styles.quizIconBg}>
                     {isDone ? <CheckCircle2 color={colors.success} size={24} /> : <FileQuestion color={colors.primary} size={24} />}
@@ -210,13 +207,13 @@ const CourseOverviewScreen = ({ navigation }) => {
   );
 };
 
-const createStyles = (colors, isDarkMode) => StyleSheet.create({
+const createStyles = (colors, isDarkMode, courseColor) => StyleSheet.create({
   container: { flex: 1, backgroundColor: colors.backgroundAlt },
   headerSafeArea: { backgroundColor: colors.background, paddingTop: Platform.OS === 'android' ? 50 : 10 },
   headerTop: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, marginBottom: 20 },
   backButton: { width: 44, height: 44, backgroundColor: colors.cardAlt, borderRadius: 14, justifyContent: 'center', alignItems: 'center', marginRight: 16 },
   courseHeaderInfo: { flexDirection: 'row', alignItems: 'center', flex: 1 },
-  courseIconBg: { width: 44, height: 44, backgroundColor: colors.primary, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
+  courseIconBg: { width: 44, height: 44, backgroundColor: courseColor, borderRadius: 12, justifyContent: 'center', alignItems: 'center', marginRight: 12 },
   courseIcon: { width: 24, height: 24, tintColor: colors.white },
   courseTitle: { fontSize: 18, fontWeight: 'bold', color: colors.text, marginBottom: 4 },
   courseMetaRow: { flexDirection: 'row', alignItems: 'center' },
@@ -226,14 +223,14 @@ const createStyles = (colors, isDarkMode) => StyleSheet.create({
   progressContainer: { paddingHorizontal: 20, marginBottom: 20 },
   progressTextRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   progressLabel: { fontSize: 13, color: colors.textMuted },
-  progressValue: { fontSize: 13, fontWeight: 'bold', color: colors.primary },
+  progressValue: { fontSize: 13, fontWeight: 'bold', color: courseColor },
   progressBarBg: { height: 8, backgroundColor: colors.border, borderRadius: 4 },
-  progressBarFill: { height: '100%', backgroundColor: colors.primary, borderRadius: 4 },
+  progressBarFill: { height: '100%', backgroundColor: courseColor, borderRadius: 4 },
   tabsContainer: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: colors.border, paddingHorizontal: 10 },
   tabItem: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 14, borderBottomWidth: 2, borderBottomColor: 'transparent', gap: 6 },
-  tabItemActive: { borderBottomColor: colors.primary },
+  tabItemActive: { borderBottomColor: courseColor },
   tabText: { fontSize: 13, fontWeight: '700', color: colors.textMuted },
-  tabTextActive: { color: colors.primary },
+  tabTextActive: { color: courseColor },
   scrollContent: { padding: 20, paddingBottom: 120 },
   
   cardWhite: { backgroundColor: colors.card, borderRadius: 20, padding: 20, marginBottom: 16, elevation: 1, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.05, shadowRadius: 8, borderWidth: 1, borderColor: colors.border },
@@ -248,7 +245,7 @@ const createStyles = (colors, isDarkMode) => StyleSheet.create({
   benefitItem: { width: '48%', backgroundColor: colors.card, borderRadius: 14, padding: 14, flexDirection: 'row', alignItems: 'center', elevation: 1, shadowColor: '#000', shadowOpacity: 0.03, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } },
   benefitIcon: { marginRight: 8 },
   benefitText: { fontSize: 12, color: colors.text, flex: 1, lineHeight: 16 },
-  startButton: { backgroundColor: colors.primary, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, marginTop: 10, marginBottom: 20, gap: 10, elevation: 2, shadowColor: colors.primary, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
+  startButton: { backgroundColor: courseColor, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 16, marginTop: 10, marginBottom: 20, gap: 10, elevation: 2, shadowColor: courseColor, shadowOpacity: 0.3, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } },
   startButtonText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 
   lessonsContainer: { gap: 12 },

@@ -1,14 +1,14 @@
 import React, { useState, useContext, useMemo, useEffect } from 'react';
-import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView, Platform, Dimensions 
+import {
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, SafeAreaView, Platform, Dimensions
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
-import { 
-  Bell, TrendingUp, TrendingDown, ShieldCheck, Zap, 
+import {
+  Bell, TrendingUp, TrendingDown, ShieldCheck, Zap,
   ArrowUp, ArrowDown, Target, Lightbulb, Home, Wallet as WalletIcon, BookOpen, Star, Info
 } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native'; 
+import { useNavigation } from '@react-navigation/native';
 import { TransactionContext } from '../context/TransactionContext';
 import { getResilienceScore } from '../services/api';
 import { UserContext } from '../context/UserContext';
@@ -19,10 +19,10 @@ const { width } = Dimensions.get('window');
 const HomeScreen = () => {
   const [score, setScore] = useState(0);
   const [showNotif, setShowNotif] = useState(false);
-  const navigation = useNavigation(); 
-  
+  const navigation = useNavigation();
+
   const { transactions } = useContext(TransactionContext);
-  const { userName, userImage } = useContext(UserContext);
+  const { userName, userImage, xp, level, getXpForNextLevel, getXpProgress } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -55,30 +55,30 @@ const HomeScreen = () => {
   const currentBalance = baseBalance + totalIncomeNum - totalExpenseNum;
 
   useEffect(() => {
-  const loadData = async () => {
-    const data = await getResilienceScore('user-123');
-    setScore(data.score); 
-  };
-  loadData();
-}, []);
+    const loadData = async () => {
+      const data = await getResilienceScore('user-123');
+      setScore(data.score);
+    };
+    loadData();
+  }, []);
 
   return (
     <View style={styles.container}>
       <View style={styles.fixedHeaderContainer} pointerEvents="box-none">
         <Svg height="260" width={width} style={styles.headerWave} pointerEvents="none">
-          <Path 
+          <Path
             fill={colors.headerWave1}
-            d={`M0 0 L${width} 0 L${width} 160 C${width * 0.7} 190 ${width * 0.3} 140 0 160 Z`} 
+            d={`M0 0 L${width} 0 L${width} 160 C${width * 0.7} 190 ${width * 0.3} 140 0 160 Z`}
             transform="translate(0, 6)"
           />
-          <Path 
+          <Path
             fill={colors.headerWave2}
-            d={`M0 0 L${width} 0 L${width} 160 C${width * 0.7} 190 ${width * 0.3} 140 0 160 Z`} 
+            d={`M0 0 L${width} 0 L${width} 160 C${width * 0.7} 190 ${width * 0.3} 140 0 160 Z`}
             transform="translate(0, 3)"
           />
-          <Path 
+          <Path
             fill={colors.headerWave3}
-            d={`M0 0 L${width} 0 L${width} 160 C${width * 0.7} 190 ${width * 0.3} 140 0 160 Z`} 
+            d={`M0 0 L${width} 0 L${width} 160 C${width * 0.7} 190 ${width * 0.3} 140 0 160 Z`}
           />
         </Svg>
 
@@ -91,11 +91,11 @@ const HomeScreen = () => {
             <View style={styles.headerActions}>
               <View style={styles.levelBadge}>
                 <Star color="#F6AD55" size={14} fill="#F6AD55" />
-                <Text style={styles.levelText}>Lvl 3</Text>
+                <Text style={styles.levelText}>Lvl {level}</Text>
               </View>
-              
-              <TouchableOpacity 
-                style={styles.notificationBtn} 
+
+              <TouchableOpacity
+                style={styles.notificationBtn}
                 onPress={() => setShowNotif(!showNotif)}
               >
                 <Bell color="#050B24" size={20} />
@@ -141,8 +141,8 @@ const HomeScreen = () => {
         </SafeAreaView>
       </View>
 
-      <ScrollView 
-        showsVerticalScrollIndicator={false} 
+      <ScrollView
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <LinearGradient
@@ -153,7 +153,7 @@ const HomeScreen = () => {
         >
           <Text style={styles.balanceLabel}>Total Balance</Text>
           <Text style={styles.balanceAmount}>Rp {formatBalance(currentBalance)}</Text>
-          
+
           <View style={styles.balanceStatsRow}>
             <View style={styles.statItem}>
               <View style={styles.statIconWrapper}>
@@ -185,7 +185,7 @@ const HomeScreen = () => {
             </View>
             <Text style={styles.smallCardValue}>{score}<Text style={styles.smallCardSub}>/100</Text></Text>
             <View style={styles.progressBarBg}>
-              <LinearGradient colors={[colors.success, colors.primary]} start={{x:0, y:0}} end={{x:1, y:0}} style={[styles.progressBarFill, {width: '67%'}]} />
+              <LinearGradient colors={[colors.success, colors.primary]} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }} style={[styles.progressBarFill, { width: '67%' }]} />
             </View>
             <Text style={styles.smallCardStatusGreen}>Good standing ✓</Text>
           </View>
@@ -195,11 +195,13 @@ const HomeScreen = () => {
               <Text style={styles.smallCardTitle}>XP Progress</Text>
               <Zap color={colors.warning} size={16} fill={colors.warning} />
             </View>
-            <Text style={styles.smallCardValue}>6,767<Text style={styles.smallCardSub}>xp</Text></Text>
+            <Text style={styles.smallCardValue}>{xp.toLocaleString()}<Text style={styles.smallCardSub}>xp</Text></Text>
             <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, {width: '60%', backgroundColor: colors.warning}]} />
+              <View style={[styles.progressBarFill, { width: `${getXpProgress()}%`, backgroundColor: colors.warning }]} />
             </View>
-            <Text style={styles.smallCardStatusOrange}>3,233 xp to level 4</Text>
+            <Text style={styles.smallCardStatusOrange}>
+              {level < 4 ? `${(getXpForNextLevel() - xp).toLocaleString()} xp to level ${level + 1}` : 'Max level reached!'}
+            </Text>
           </View>
         </View>
 
@@ -243,7 +245,7 @@ const HomeScreen = () => {
               <Text style={styles.thisWeekText}>This week</Text>
             </View>
           </View>
-          
+
           <View style={styles.chartArea}>
             {[40, 60, 30, 15, 80, 45, 55].map((val, index) => (
               <View key={index} style={styles.barColumn}>
@@ -263,8 +265,8 @@ const HomeScreen = () => {
           <Home color="#FFFFFF" size={24} />
           <Text style={styles.navTextActive}>Home</Text>
         </TouchableOpacity>
-        
-        <TouchableOpacity 
+
+        <TouchableOpacity
           style={styles.navItem}
           onPress={() => navigation.navigate('Wallet')}>
           <WalletIcon color="#8CA8D1" size={24} />
@@ -272,16 +274,16 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
         <View style={styles.fabWrapper}>
-            <TouchableOpacity 
+          <TouchableOpacity
             style={styles.fab}
             onPress={() => navigation.navigate('Chatbot')}
-            >
-            <Image 
-                source={require('../assets/robot_navbar.png')} 
-                style={styles.fabIcon}
-                resizeMode="contain"
+          >
+            <Image
+              source={require('../assets/robot_navbar.png')}
+              style={styles.fabIcon}
+              resizeMode="contain"
             />
-            </TouchableOpacity>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Learn')}>
@@ -290,9 +292,9 @@ const HomeScreen = () => {
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.navItem} onPress={() => navigation.navigate('Profile')}>
-          <Image 
-            source={userImage ? { uri: userImage } : require('../assets/user_profile.png')} 
-            style={styles.navProfileImg} 
+          <Image
+            source={userImage ? { uri: userImage } : require('../assets/user_profile.png')}
+            style={styles.navProfileImg}
           />
           <Text style={styles.navText}>Profile</Text>
         </TouchableOpacity>
@@ -302,7 +304,7 @@ const HomeScreen = () => {
 };
 
 const createStyles = (colors) => StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.background }, 
+  container: { flex: 1, backgroundColor: colors.background },
   fixedHeaderContainer: { position: 'absolute', top: 0, left: 0, right: 0, zIndex: 10, height: 260 },
   headerWave: { position: 'absolute', top: 0 },
   headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 20, paddingTop: Platform.OS === 'android' ? 40 : 10 },
@@ -324,7 +326,7 @@ const createStyles = (colors) => StyleSheet.create({
   notifDesc: { fontSize: 12, color: colors.textMuted, marginTop: 2 },
   notifTime: { fontSize: 10, color: colors.textMuted, marginTop: 4 },
   notifDivider: { height: 1, backgroundColor: colors.border, marginVertical: 4 },
-  scrollContent: { paddingHorizontal: 20, paddingTop: 140, paddingBottom: 120 }, 
+  scrollContent: { paddingHorizontal: 20, paddingTop: 140, paddingBottom: 120 },
   balanceCard: { borderRadius: 24, padding: 24, marginTop: 50, marginBottom: 20, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8 },
   balanceLabel: { fontSize: 14, color: 'rgba(255,255,255,0.8)', marginBottom: 5 },
   balanceAmount: { fontSize: 32, fontWeight: 'bold', color: '#FFFFFF', marginBottom: 25 },
@@ -358,18 +360,18 @@ const createStyles = (colors) => StyleSheet.create({
   barColumn: { alignItems: 'center', width: 30, height: '100%', justifyContent: 'flex-end' },
   barFill: { width: 20, borderRadius: 6, marginBottom: 8 },
   barLabel: { fontSize: 11, color: colors.textMuted },
-  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: {width: 0, height: -4}, shadowOpacity: 0.1, shadowRadius: 10 },
+  bottomNavbar: { position: 'absolute', bottom: 0, width: '100%', height: 75, backgroundColor: colors.navBg, borderTopLeftRadius: 30, borderTopRightRadius: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', paddingHorizontal: 10, zIndex: 20, elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: -4 }, shadowOpacity: 0.1, shadowRadius: 10 },
   navItem: { alignItems: 'center', justifyContent: 'center', flex: 1 },
   navTextActive: { color: colors.navIconActive, fontSize: 11, fontWeight: 'bold', marginTop: 4 },
   navText: { color: colors.navIcon, fontSize: 11, marginTop: 4, fontWeight: '600' },
   navProfileImg: { width: 24, height: 24, borderRadius: 12 },
-  fabWrapper: { flex: 1, alignItems: 'center', marginBottom: 20},
-  fab: { 
-    width: 88, height: 88, borderRadius: 64, 
-    backgroundColor: colors.white, 
+  fabWrapper: { flex: 1, alignItems: 'center', marginBottom: 20 },
+  fab: {
+    width: 88, height: 88, borderRadius: 64,
+    backgroundColor: colors.white,
     justifyContent: 'center', alignItems: 'center',
-    position: 'absolute', top: -44, 
-    borderWidth: 6, borderColor: colors.navBg, 
+    position: 'absolute', top: -44,
+    borderWidth: 6, borderColor: colors.navBg,
   },
   fabIcon: { width: 44, height: 44 }
 });

@@ -1,6 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { 
-  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions, Modal 
+  View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Dimensions, Modal, FlatList
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import Svg, { Path } from 'react-native-svg';
@@ -222,13 +222,21 @@ const ProfileScreen = ({ navigation }) => {
 
           <LinearGradient colors={['#82622d', '#cbad28', '#eec53f']} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={styles.badgesBox}>
             <Text style={styles.badgesBoxTitle}>Badges</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.badgesScroll}>
-              {BADGES_DATA.map((badge) => (
-                <TouchableOpacity key={badge.id} style={styles.badgeItem} onPress={() => setSelectedBadge(badge)}>
+            <FlatList
+              data={BADGES_DATA}
+              keyExtractor={(item) => item.id.toString()}
+              horizontal
+              nestedScrollEnabled
+              directionalLockEnabled
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.badgesScroll}
+              onStartShouldSetResponderCapture={() => true}
+              renderItem={({ item: badge }) => (
+                <TouchableOpacity style={styles.badgeItem} onPress={() => setSelectedBadge(badge)} activeOpacity={0.85}>
                   <Image source={badge.listImage} style={styles.badgeImage} />
                 </TouchableOpacity>
-              ))}
-            </ScrollView>
+              )}
+            />
           </LinearGradient>
 
           <TouchableOpacity onPress={() => navigation.navigate('Goals')}>
