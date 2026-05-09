@@ -1,7 +1,8 @@
+# models.py
 from sqlalchemy import Column, Integer, String, Float, Boolean, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from datetime import datetime, timezone
-from database import Base
+from Fluent_Project.src.backend.ai.database import Base
 
 # 1. Tabel Users (Pengguna)
 class User(Base):

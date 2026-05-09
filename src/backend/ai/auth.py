@@ -1,14 +1,15 @@
+# auth.py
 from sqlalchemy.orm import Session
-from database import get_db
-import models
+from Fluent_Project.src.backend.ai.database import get_db
+import Fluent_Project.src.backend.ai.models as models
 
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
 from fastapi import Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer
-from database import get_db
-import models
+from Fluent_Project.src.backend.ai.database import get_db
+import Fluent_Project.src.backend.ai.models as models
 
 # Konfigurasi Rahasia (Jangan disebar!)
 SECRET_KEY = "KUNCI_RAHASIA_DARI_INFORMATIKA_ITB_2025" 
