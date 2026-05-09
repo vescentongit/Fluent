@@ -1,10 +1,11 @@
+// AppNavigator.js
 import React from 'react';
 import { createStackNavigator, TransitionPresets } from '@react-navigation/stack';
 import SplashScreen from '../screens/SplashScreen';
 import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import ForgotPasswordScreen from '../screens/ForgotPasswordScreen';
-import VerificationScreen from '../screens/VerificationScreen';
+import VerificationScreen from '../screens/VerificationScreen'; 
 import NewPasswordScreen from '../screens/NewPasswordScreen';
 import IncomeSourceScreen from '../screens/IncomeSourceScreen';
 import ExpenseScreen from '../screens/ExpenseScreen';
@@ -33,7 +34,7 @@ const Stack = createStackNavigator();
 export default function AppNavigator() {
   return (
     <Stack.Navigator
-      initialRouteName="Home"
+      initialRouteName="Splash"
       screenOptions={{
         headerShown: false,
         gestureEnabled: true,
@@ -56,7 +57,7 @@ export default function AppNavigator() {
       <Stack.Screen name="Loading2" component={LoadingScreen2} />
 
       <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Chatbot" component={ChatbotScreen} options = {{gestureEnabled: false}} />
+      <Stack.Screen name="Chatbot" component={ChatbotScreen} options={{ gestureEnabled: false }} />
       <Stack.Screen name="Wallet" component={WalletScreen} />
       <Stack.Screen name="Learn" component={LearnScreen} />
 

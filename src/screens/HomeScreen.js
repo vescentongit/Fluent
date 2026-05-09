@@ -16,12 +16,25 @@ import { ThemeContext } from '../context/ThemeContext';
 const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
-  const [score, setScore] = useState(0);
+  const [scoreData, setScoreData] = useState({ 
+    score: 0, 
+    risk_level: 'N/A', 
+    warning_message: '' 
+  });
   const [showNotif, setShowNotif] = useState(false);
   const navigation = useNavigation();
 
   const { transactions } = useContext(TransactionContext);
-  const { userName, userImage, currencySymbol, financialGoal } = useContext(UserContext);
+  const { 
+  userName, 
+  userImage, 
+  currencySymbol, 
+  financialGoal, 
+  xp = 0, 
+  level = 1, 
+  getXpForNextLevel = () => 1000, 
+  getXpProgress = () => 0    // ← fallback kalau tidak ada di context
+} = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors), [colors]);
 
@@ -71,8 +84,12 @@ const HomeScreen = () => {
 
   useEffect(() => {
     const loadData = async () => {
-      const data = await getResilienceScore('user-123');
-      setScore(data.score);
+      try {
+        const data = await getResilienceScore(); // ← hapus 'user-123'
+        if (data && data.score !== undefined) setScoreData(data);
+      } catch (e) {
+        console.error('Failed to load score:', e);
+      }
     };
     loadData();
   }, []);
@@ -106,7 +123,7 @@ const HomeScreen = () => {
             <View style={styles.headerActions}>
               <View style={styles.levelBadge}>
                 <Star color="#F6AD55" size={14} fill="#F6AD55" />
-                <Text style={styles.levelText}>Lvl 3</Text>
+                <Text style={styles.levelText}>Lvl {level}</Text>
               </View>
 
               <TouchableOpacity
@@ -230,11 +247,18 @@ const HomeScreen = () => {
               <Text style={styles.smallCardTitle}>Resilience Score</Text>
               <ShieldCheck color={colors.success} size={16} />
             </View>
-            <Text style={styles.smallCardValue}>{score}<Text style={styles.smallCardSub}>/100</Text></Text>
+            <Text style={styles.smallCardValue}>{scoreData.score}<Text style={styles.smallCardSub}>/100</Text></Text>
             <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: '67%', backgroundColor: colors.text }]} />
+              <View style={[styles.progressBarFill, 
+                { width: '${scoreData.score}%', 
+                backgroundColor: scoreData.score >= 50 ? colors.success : colors.danger }]} />
             </View>
-            <Text style={styles.smallCardStatusGreen}>Good standing ✓</Text>
+            <Text style={[
+              styles.smallCardStatusGreen,
+              {color: scoreData.score >= 50 ? colors.success : colors.danger
+
+              }]}>{scoreData.risk_level} {scoreData.score >= 50 ? '✓' : '⚠️'}
+              </Text>
           </View>
 
           <View style={styles.smallCard}>
@@ -242,11 +266,13 @@ const HomeScreen = () => {
               <Text style={styles.smallCardTitle}>XP Progress</Text>
               <Zap color={colors.warning} size={16} fill={colors.warning} />
             </View>
-            <Text style={styles.smallCardValue}>6,767<Text style={styles.smallCardSub}>xp</Text></Text>
+            <Text style={styles.smallCardValue}>{(xp ?? 0).toLocaleString()}<Text style={styles.smallCardSub}>xp</Text></Text>
             <View style={styles.progressBarBg}>
-              <View style={[styles.progressBarFill, { width: '60%', backgroundColor: colors.warning }]} />
+              <View style={[styles.progressBarFill, { width: `${getXpProgress()}%`, backgroundColor: colors.warning }]} />
             </View>
-            <Text style={styles.smallCardStatusOrange}>3,233 xp to level 4</Text>
+            <Text style={styles.smallCardStatusOrange}>
+              {level < 4 ? `${((getXpForNextLevel() ?? 0) - (xp ?? 0)).toLocaleString()} xp to level ${level + 1}` : 'Max level reached!'}
+            </Text>
           </View>
         </View>
 

@@ -6,12 +6,12 @@ import { ArrowLeft, Edit, Trash2, Check, X, CalendarDays, MessageCircle } from '
 import { useTranslation } from 'react-i18next';
 import { ThemeContext } from '../context/ThemeContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { UserContext } from '../context/UserContext';
 
 const formatCurrencyM = (value) => `Rp ${value} M`;
 
 const GoalsScreen = ({ navigation }) => {
   const { t } = useTranslation();
-  const { colors } = useContext(ThemeContext);
 
   const [goals, setGoals] = useState([
     { id: '1', title: 'New Car', daysLeft: 215, current: 156, target: 300, percentage: 52 },

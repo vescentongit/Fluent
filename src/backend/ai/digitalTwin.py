@@ -14,7 +14,9 @@ def build_digital_twin(transactions: list, user: dict) -> dict:
     warnings = _detect_warnings(savings_projection)
 
     avg = sum(daily_spending) / len(daily_spending) if daily_spending else 0
-    trend = "NAIK" if slope > 500 else "TURUN" if slope < -500 else "STABIL"
+
+    # ← English trend labels
+    trend = "RISING" if slope > 500 else "FALLING" if slope < -500 else "STABLE"
 
     return {
         "current_daily_avg": round(avg),
@@ -53,7 +55,7 @@ def _project_savings(forecast, monthly_income, current_savings):
     projection = []
     now = datetime.now()
     for month in range(3):
-        month_days    = forecast[month*30:(month+1)*30]
+        month_days     = forecast[month*30:(month+1)*30]
         total_spending = sum(month_days)
         total_income   = daily_income * 30
         savings       += total_income - total_spending
@@ -73,16 +75,18 @@ def _detect_warnings(projection):
         if m["net_cash_flow"] < 0:
             warnings.append({
                 "month": m["month"],
-                "type": "CASH_FLOW_NEGATIF",
-                "message": f"Bulan {m['label']}: pengeluaran melebihi income sebesar Rp {abs(m['net_cash_flow']):,}"
+                "type": "NEGATIVE_CASH_FLOW",
+                # ← English warning message
+                "message": f"{m['label']}: expenses exceed income by Rp {abs(m['net_cash_flow']):,}"
             })
     return warnings
 
 def _summary(warnings, projection):
     if not warnings:
         last = projection[-1]
-        return f"Proyeksi 3 bulan aman. Tabungan diperkirakan Rp {last['projected_savings']:,} di bulan ke-3."
-    return f"Perhatian: {len(warnings)} bulan dengan cash flow negatif. {warnings[0]['message']}."
+        # ← English summary
+        return f"3-month projection looks safe. Estimated savings of Rp {last['projected_savings']:,} by month 3."
+    return f"Warning: {len(warnings)} month(s) with negative cash flow. {warnings[0]['message']}."
 
 def generate_demo_transactions():
     transactions = []

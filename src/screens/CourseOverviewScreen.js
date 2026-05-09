@@ -9,7 +9,8 @@ import { LessonContext } from '../context/LessonContext';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
 
-const CourseOverviewScreen = ({ navigation }) => {
+const CourseOverviewScreen = ({ route, navigation }) => {
+  const courseId = route.params?.courseId || 'investingBasics';
   const [activeTab, setActiveTab] = useState('Overview');
   const { lessons, quizzes, progressPercentage } = useContext(LessonContext);
   const { userImage } = useContext(UserContext);

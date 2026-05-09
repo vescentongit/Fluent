@@ -6,9 +6,11 @@ import {
 import { Mic, Send, Home, Wallet, BookOpen } from 'lucide-react-native';
 import { UserContext } from '../context/UserContext';
 import { ThemeContext } from '../context/ThemeContext';
+import { streamChat } from '../services/api';
 
 const ChatbotScreen = ({ navigation, route }) => {
   const [inputText, setInputText] = useState('');
+  const [isStreaming, setIsStreaming] = useState(false);  // ← tambahkan ini
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
   const scrollViewRef = useRef();
   const { userImage } = useContext(UserContext);
@@ -57,36 +59,45 @@ const ChatbotScreen = ({ navigation, route }) => {
     };
   }, []);
 
-  const sendMessage = (text) => {
-    const cleanText = text.replace(/\n/g, ' ');
-    if (!cleanText.trim()) return;
+  const sendMessage = async (text) => {
+    const cleanText = (text || '').replace(/\n/g, ' ').trim();
+    if (!cleanText || isStreaming) return;
 
-    const newUserMsg = { id: Date.now().toString(), sender: 'user', text: cleanText };
-    setMessages(prev => [...prev, newUserMsg]);
+    // Tambah pesan user
+    const userMsgId = Date.now().toString();
+    setMessages(prev => [...prev, {
+      id: userMsgId,
+      sender: 'user',
+      text: cleanText
+    }]);
     setInputText('');
+    setIsStreaming(true);
 
-    setTimeout(() => {
-      let botReply = "I'm here to help you achieve your financial resilience!";
-      
-      if (cleanText.includes("Evaluate my spending")) {
-        botReply = "Let's break it down together! This month, your biggest expense is in the Food & Beverage category (45%).\nWow, that's quite high! 🍔 If we cut back a little on your coffee and dining out budget, you could save around Rp400,000 this month. Would you like me to help you set up an automatic daily allowance so it's more controlled?";
-      } else if (cleanText.includes("50/30/20")) {
-        botReply = "You got it! The 50/30/20 rule is a super easy way to manage your salary:\n50% Needs: Daily groceries, bills, transportation.\n30% Wants: Hangouts, skincare shopping, and Netflix subscriptions.\n20% Savings/Investments: Emergency fund, investments, and charity.\nWhat's your net income this month? Let me help you calculate the exact amounts for these three categories! 🧮";
-      } else if (cleanText.includes("investing as a beginner")) {
-        botReply = "Let's start with something low-risk! 📈\nI highly recommend Money Market Mutual Funds. It's like entrusting your money to a professional manager to put into bank deposits. The risk is very low, it's easy to withdraw at any time, and you can start with just Rp10,000! How about it, want me to show you a simulation if you save Rp50,000 a week?";
-      } else if (cleanText.includes("saving and investing")) {
-        botReply = "Great question! 💡\nSaving is about keeping your money safe (usually for the short term or emergencies). Unfortunately, the value of your money can be eroded by inflation (rising prices of goods).\nInvesting is putting your money to work so it grows faster to beat inflation (for long-term goals like retirement or buying a house).\nThe bottom line: Saving keeps your money safe, investing makes your money grow! 🌱";
-      } else if (cleanText.includes("Paylater")) {
-        botReply = "Don't panic, let's sort this out together! 💆‍♀️ There are two main tricks:\nStop using Paylater or any new credit cards for now.\nUse the Snowball Method: Focus on paying off the debt with the smallest balance first so you get a quick win and feel motivated, while continuing to pay the minimum installments for the others.\nWant me to help detail a payment schedule based on your current balances?";
+    // Tambah placeholder bot
+    const botMsgId = (Date.now() + 1).toString();
+    setMessages(prev => [...prev, {
+      id: botMsgId,
+      sender: 'bot',
+      text: '...'
+    }]);
+
+    // Scroll ke bawah
+    setTimeout(() => scrollViewRef.current?.scrollToEnd({ animated: true }), 100);
+
+    await streamChat(
+      cleanText,
+      'en',
+      (partialText) => {
+        // Update bot message real-time saat stream masuk
+        setMessages(prev => prev.map(m =>
+          m.id === botMsgId ? { ...m, text: partialText } : m
+        ));
+        scrollViewRef.current?.scrollToEnd({ animated: true });
+      },
+      () => {
+        setIsStreaming(false);
       }
-
-      const botResponse = {
-        id: (Date.now() + 1).toString(),
-        sender: 'bot',
-        text: botReply
-      };
-      setMessages(prev => [...prev, botResponse]);
-    }, 800);
+    );
   };
 
   return (
@@ -186,9 +197,10 @@ const ChatbotScreen = ({ navigation, route }) => {
               <TouchableOpacity style={styles.micBtn}>
                 <Mic color={isDarkMode ? colors.textMuted : "#718096"} size={20} />
               </TouchableOpacity>
-              <TouchableOpacity 
-                style={styles.sendBtn}
+              <TouchableOpacity
+                style={[styles.sendBtn, isStreaming && { opacity: 0.4 }]}
                 onPress={() => sendMessage(inputText)}
+                disabled={isStreaming}
               >
                 <Send color={isDarkMode ? colors.primary : "#718096"} size={20} />
               </TouchableOpacity>

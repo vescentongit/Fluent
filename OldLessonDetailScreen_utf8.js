@@ -1,4 +1,4 @@
-import React, { useContext, useMemo } from 'react';
+﻿import React, { useContext, useMemo } from 'react';
 import { 
   View, Text, StyleSheet, ScrollView, TouchableOpacity, SafeAreaView, Platform, Image, Linking 
 } from 'react-native';
@@ -11,7 +11,7 @@ import { ThemeContext } from '../context/ThemeContext';
 
 const LessonDetailScreen = ({ route, navigation }) => {
   const { lessonId = 1 } = route.params || {};
-  const { lessons, markLessonDone, courses } = useContext(LessonContext);
+  const { lessons, markLessonDone } = useContext(LessonContext);
   const { userImage } = useContext(UserContext);
   const { isDarkMode, colors } = useContext(ThemeContext);
   const styles = useMemo(() => createStyles(colors, isDarkMode), [colors, isDarkMode]);
@@ -21,7 +21,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
   const BulletItem = ({ text }) => (
     <View style={styles.bulletRow}>
-      <Text style={styles.bulletDot}>•</Text>
+      <Text style={styles.bulletDot}>ΓÇó</Text>
       <Text style={styles.bulletText}>{text}</Text>
     </View>
   );
@@ -35,13 +35,13 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
   const MistakeItem = ({ num, title, problem, solution }) => (
     <View style={{ marginBottom: 20 }}>
-      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 6}]}>Mistake #{num}: {title} ❌</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 6}]}>Mistake #{num}: {title} Γ¥î</Text>
       <View style={styles.bulletRow}>
-        <Text style={styles.bulletDot}>•</Text>
+        <Text style={styles.bulletDot}>ΓÇó</Text>
         <Text style={styles.bulletText}><Text style={{fontWeight: '700'}}>Problem:</Text> {problem}</Text>
       </View>
       <View style={styles.bulletRow}>
-        <Text style={styles.bulletDot}>•</Text>
+        <Text style={styles.bulletDot}>ΓÇó</Text>
         <Text style={styles.bulletText}><Text style={{fontWeight: '700'}}>Solution:</Text> {solution}</Text>
       </View>
     </View>
@@ -88,7 +88,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
     <>
       <Text style={styles.paragraph}>This simple budgeting framework divides your after-tax income into three categories:</Text>
       
-      <Text style={styles.sectionTitle}>50% - Needs 🏠</Text>
+      <Text style={styles.sectionTitle}>50% - Needs ≡ƒÅá</Text>
       <Text style={styles.paragraph}>Essential expenses you can't avoid:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Rent/mortgage" />
@@ -100,7 +100,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.paragraph}>Example: If you earn Rp 10,000,000/month after tax, allocate Rp 5,000,000 to needs.</Text>
 
-      <Text style={styles.sectionTitle}>30% - Wants 🎉</Text>
+      <Text style={styles.sectionTitle}>30% - Wants ≡ƒÄë</Text>
       <Text style={styles.paragraph}>Things that make life enjoyable but aren't essential:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Dining out" />
@@ -110,7 +110,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       </View>
       <Text style={styles.paragraph}>Example: Allocate Rp 3,000,000 to wants.</Text>
 
-      <Text style={styles.sectionTitle}>20% - Savings & Debt 💰</Text>
+      <Text style={styles.sectionTitle}>20% - Savings & Debt ≡ƒÆ░</Text>
       <Text style={styles.paragraph}>Building your financial future:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Emergency fund" />
@@ -160,17 +160,17 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
       <Text style={styles.sectionTitle}>Categories to Track</Text>
       <Text style={styles.paragraph}>Organize expenses into clear categories:</Text>
-      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>→ Fixed Expenses:</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>ΓåÆ Fixed Expenses:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Rent/mortgage" />
         <BulletItem text="Insurance, Subscriptions, Loan payments" />
       </View>
-      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>→ Variable Expenses:</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>ΓåÆ Variable Expenses:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Groceries, Utilities" />
         <BulletItem text="Transportation, Entertainment" />
       </View>
-      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>→ Periodic Expenses:</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>ΓåÆ Periodic Expenses:</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Annual insurance payments" />
         <BulletItem text="Vehicle maintenance, Gifts, Medical expenses" />
@@ -406,9 +406,9 @@ const LessonDetailScreen = ({ route, navigation }) => {
       </View>
       <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>2. Analyze Patterns</Text>
       <View style={styles.listContainer}>
-        <BulletItem text='"I always go over on groceries" → Increase budget' />
-        <BulletItem text='"I never spend full entertainment budget" → Decrease it' />
-        <BulletItem text='"Medical costs vary wildly" → Create buffer' />
+        <BulletItem text='"I always go over on groceries" ΓåÆ Increase budget' />
+        <BulletItem text='"I never spend full entertainment budget" ΓåÆ Decrease it' />
+        <BulletItem text='"Medical costs vary wildly" ΓåÆ Create buffer' />
       </View>
       <Text style={[styles.paragraph, {fontWeight: 'bold', marginBottom: 4}]}>3. Make Changes</Text>
       <Text style={styles.paragraph}>Adjust by moving money between categories before: Groceries Rp 2,000,000 (always over). Entertainment Rp 1,000,000 (usually under).</Text>
@@ -430,7 +430,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
       <Text style={styles.paragraph}>The right tools make budgeting easier. Let's explore your options!</Text>
       
       <Text style={styles.sectionTitle}>Digital Tools</Text>
-      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>✦ Fluent (You're Here!) 🎉</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>Γ£ª Fluent (You're Here!) ≡ƒÄë</Text>
       <Text style={styles.paragraph}>Best for: Comprehensive financial management with AI coaching.</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Features: Automatic expense tracking" />
@@ -438,7 +438,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
         <BulletItem text="Goal setting and tracking" />
       </View>
 
-      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>✦ Spreadsheets (Excel, Google Sheets)</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>Γ£ª Spreadsheets (Excel, Google Sheets)</Text>
       <Text style={styles.paragraph}>Best for: People who like customization and control.</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Pros: Completely free, highly customizable" />
@@ -446,14 +446,14 @@ const LessonDetailScreen = ({ route, navigation }) => {
       </View>
 
       <Text style={styles.sectionTitle}>Traditional Tools</Text>
-      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>✦ Envelope Method</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>Γ£ª Envelope Method</Text>
       <Text style={styles.paragraph}>Best for: Cash spenders and visual learners.</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Pros: Tangible, prevents overspending" />
         <BulletItem text="Cons: Only works for cash, carrying envelopes is inconvenient" />
       </View>
 
-      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>✦ Notebook/Journal</Text>
+      <Text style={[styles.paragraph, {fontWeight: 'bold'}]}>Γ£ª Notebook/Journal</Text>
       <Text style={styles.paragraph}>Best for: People who love writing.</Text>
       <View style={styles.listContainer}>
         <BulletItem text="Pros: Mindful spending, no privacy concerns" />
@@ -526,7 +526,7 @@ const LessonDetailScreen = ({ route, navigation }) => {
 
           <TouchableOpacity 
             style={[styles.completeButton, isCompleted && { backgroundColor: isDarkMode ? colors.cardAlt : '#E2E8F0' }]}
-            onPress={() => markLessonDone('budgeting101', lessonId)}
+            onPress={() => markLessonDone(lessonId)}
             disabled={isCompleted}
           >
             <CheckCircle2 color={isCompleted ? colors.textMuted : colors.white} size={20} />

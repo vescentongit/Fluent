@@ -2,18 +2,16 @@
 import math
 
 def calculate_resilience_score(user: dict) -> dict:
-    total_savings             = user["total_savings"]
-    monthly_expenses          = user["monthly_expenses"]
-    monthly_income            = user["monthly_income"]
-    total_monthly_debt_payment= user["total_monthly_debt_payment"]
-    has_insurance             = user["has_insurance"]
-    income_history            = user.get("income_history", [monthly_income])
+    total_savings              = user["total_savings"]
+    monthly_expenses           = user["monthly_expenses"]
+    monthly_income             = user["monthly_income"]
+    total_monthly_debt_payment = user["total_monthly_debt_payment"]
+    has_insurance              = user["has_insurance"]
+    income_history             = user.get("income_history", [monthly_income])
 
-    # Pilar 1: Savings Runway (35%)
     savings_runway = total_savings / monthly_expenses
     savings_score  = min((savings_runway / 6) * 100, 100)
 
-    # Pilar 2: Income Stability (25%)
     if len(income_history) > 1:
         mean    = sum(income_history) / len(income_history)
         std_dev = math.sqrt(sum((x - mean)**2 for x in income_history) / len(income_history))
@@ -22,11 +20,9 @@ def calculate_resilience_score(user: dict) -> dict:
     else:
         stability_score = 100
 
-    # Pilar 3: Debt Burden (25%)
     dti        = total_monthly_debt_payment / monthly_income
     debt_score = max(0, 100 - (dti / 0.5) * 100)
 
-    # Pilar 4: Insurance (15%)
     insurance_score = 100 if has_insurance else 0
 
     final_score = (
@@ -37,19 +33,21 @@ def calculate_resilience_score(user: dict) -> dict:
     )
     score = round(final_score)
 
+    # ← English risk levels
     risk_level = (
-        "AMAN" if score >= 75 else
-        "WASPADA" if score >= 50 else
-        "BERISIKO" if score >= 25 else
-        "KRITIS"
+        "SAFE"     if score >= 75 else
+        "CAUTION"  if score >= 50 else
+        "AT RISK"  if score >= 25 else
+        "CRITICAL"
     )
 
+    # ← English warning messages
     if savings_runway < 1:
-        warning = f"Tabunganmu hanya cukup untuk {savings_runway * 30:.0f} hari. Ini darurat."
+        warning = f"Your savings only last {savings_runway * 30:.0f} days. This is an emergency."
     elif dti > 0.4:
-        warning = f"{dti*100:.0f}% income-mu habis untuk bayar hutang."
+        warning = f"{dti*100:.0f}% of your income goes to debt payments. Above safe limit."
     else:
-        warning = f"Kamu bisa bertahan {savings_runway:.1f} bulan tanpa income."
+        warning = f"You can survive {savings_runway:.1f} months without income."
 
     return {
         "score": score,

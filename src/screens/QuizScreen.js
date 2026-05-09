@@ -1,6 +1,6 @@
 import React, { useState, useContext, useMemo } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Modal } from 'react-native';
-import { CheckCircle2, ArrowLeft, Trophy } from 'lucide-react-native';
+import { CheckCircle2, ArrowLeft, Trophy, X } from 'lucide-react-native';
 import { LessonContext } from '../context/LessonContext';
 import { ThemeContext } from '../context/ThemeContext';
 
@@ -13,6 +13,8 @@ const QuizScreen = ({ route, navigation }) => {
   const [answers, setAnswers] = useState({});
   const [showError, setShowError] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showResultsModal, setShowResultsModal] = useState(false);
+  const [quizResults, setQuizResults] = useState(null);
 
   const questions = [
     {
@@ -47,12 +49,34 @@ const QuizScreen = ({ route, navigation }) => {
     setShowError(false); 
   };
 
+  const calculateScore = () => {
+    const correctAnswers = [2, 2, 1, 2, 0];
+    let correct = 0;
+    questions.forEach((q, idx) => {
+      if (answers[q.id] === correctAnswers[idx]) {
+        correct++;
+      }
+    });
+    return {
+      correct,
+      total: questions.length,
+      percentage: Math.round((correct / questions.length) * 100)
+    };
+  };
+
   const handleSubmit = () => {
     if (Object.keys(answers).length < questions.length) {
       setShowError(true);
       return;
     }
-    markQuizDone(quizId);
+    const results = calculateScore();
+    setQuizResults(results);
+    setShowResultsModal(true);
+  };
+
+  const handleConfirmResults = () => {
+    markQuizDone('budgeting101', quizId);
+    setShowResultsModal(false);
     setShowSuccessModal(true);
   };
 
@@ -101,6 +125,50 @@ const QuizScreen = ({ route, navigation }) => {
         </TouchableOpacity>
       </ScrollView>
 
+      <Modal visible={showResultsModal} transparent animationType="fade">
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.iconCircle}>
+              <Trophy color={quizResults?.percentage >= 80 ? colors.success : colors.warning} size={40} />
+            </View>
+            <Text style={styles.modalTitle}>Quiz Results!</Text>
+            <Text style={styles.modalDesc}>
+              You scored {quizResults?.correct} out of {quizResults?.total} ({quizResults?.percentage}%)
+            </Text>
+            {quizResults?.percentage >= 80 ? (
+              <Text style={styles.successText}>Great job! You passed the quiz! 🎉</Text>
+            ) : (
+              <Text style={styles.failText}>You need 80% or higher to pass. Keep learning and try again!</Text>
+            )}
+            <TouchableOpacity
+              style={[styles.modalBtn, { backgroundColor: quizResults?.percentage >= 80 ? colors.primary : colors.border }]}
+              onPress={() => {
+                if (quizResults?.percentage >= 80) {
+                  handleConfirmResults();
+                } else {
+                  setShowResultsModal(false);
+                }
+              }}
+            >
+              <Text style={[styles.modalBtnText, { color: quizResults?.percentage >= 80 ? colors.white : colors.textMuted }]}>
+                {quizResults?.percentage >= 80 ? 'Claim XP & Continue' : 'Try Again'}
+              </Text>
+            </TouchableOpacity>
+            {quizResults?.percentage < 80 && (
+              <TouchableOpacity
+                style={[styles.retryBtn, { borderColor: colors.primary }]}
+                onPress={() => {
+                  setShowResultsModal(false);
+                  setAnswers({});
+                }}
+              >
+                <Text style={[styles.retryBtnText, { color: colors.primary }]}>Review & Retake</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+      </Modal>
+
       <Modal visible={showSuccessModal} transparent animationType="fade">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
@@ -148,6 +216,12 @@ const createStyles = (colors, isDarkMode) => StyleSheet.create({
   optionTextSelected: { color: colors.text, fontWeight: 'bold' },
 
   errorText: { color: colors.error, fontSize: 14, textAlign: 'center', marginBottom: 10, fontWeight: '600' },
+  submitBtn: { backgroundColor: colors.primary, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, marginTop: 10, gap: 10 },
+
+  successText: { fontSize: 14, color: colors.success, fontWeight: '600', marginBottom: 16, textAlign: 'center' },
+  failText: { fontSize: 14, color: colors.warning, fontWeight: '600', marginBottom: 16, textAlign: 'center' },
+  retryBtn: { borderWidth: 2, paddingVertical: 12, paddingHorizontal: 32, borderRadius: 16, width: '100%', alignItems: 'center' },
+  retryBtnText: { fontSize: 14, fontWeight: '600' },
   submitBtn: { backgroundColor: colors.primary, borderRadius: 16, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingVertical: 18, marginTop: 10, gap: 10 },
   submitBtnText: { color: colors.white, fontSize: 16, fontWeight: 'bold' },
 

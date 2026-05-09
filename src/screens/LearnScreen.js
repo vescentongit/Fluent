@@ -43,7 +43,7 @@ const LearnScreen = ({ navigation }) => {
             </View>
             <View style={styles.xpBadge}>
               <Star color="#F6AD55" size={16} fill="#F6AD55" />
-              <Text style={styles.xpText}>{xp.toLocaleString()} XP</Text>
+              <Text style={styles.xpText}>{(xp ?? 0).toLocaleString()} XP</Text>
             </View>
           </View>
         </SafeAreaView>
