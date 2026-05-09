@@ -3,6 +3,9 @@ from sqlalchemy.orm import Session
 from Fluent_Project.src.backend.ai.database import get_db
 import Fluent_Project.src.backend.ai.models as models
 
+import os
+from dotenv import load_dotenv
+
 from datetime import datetime, timedelta, timezone
 from jose import JWTError, jwt
 from passlib.context import CryptContext
@@ -11,8 +14,9 @@ from fastapi.security import OAuth2PasswordBearer
 from Fluent_Project.src.backend.ai.database import get_db
 import Fluent_Project.src.backend.ai.models as models
 
-# Konfigurasi Rahasia (Jangan disebar!)
-SECRET_KEY = "KUNCI_RAHASIA_DARI_INFORMATIKA_ITB_2025" 
+
+load_dotenv()
+SECRET_KEY = os.getenv("SECRET_KEY", "fallback-secret-key-aman") 
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
